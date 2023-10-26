@@ -4,9 +4,10 @@ import bbox
 import sys
 
 if len(sys.argv) < 2:
-    print("\nUsage: " + sys.argv[0] + " north,west,south,east")
-    print("north,west,south,east are GPS coordinates of the bounding box used to create a map")
-    print("Eg: mapgen.py 48.87814394530428,2.2821558610475257,48.86862582223842,2.3059560444047054")
+    print("\nUsage: " + sys.argv[0] + " <north,west,south,east>")
+    print("<north,west,south,east> are latitudes and longitudes of the bounding box used to create a map")
+    print("Eg: " + sys.argv[0] + " 48.87814394530428,2.2821558610475257,48.86862582223842,2.3059560444047054")
+    print("The created map is called \"mapgen\"")
     sys.exit(0)
 
 coord = sys.argv[1].split(',')
