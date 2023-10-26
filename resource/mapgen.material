@@ -1,0 +1,89 @@
+material mapgen_red
+{
+   technique
+   {
+      pass
+      {
+         lighting on
+
+         ambient 0.3 0.1 0.1 1
+         diffuse 0.8 0.05 0.05 1
+         emissive 0 0 0 1
+      }
+   }
+}
+
+material mapgen_green
+{
+   technique
+   {
+      pass
+      {
+         lighting on
+
+         ambient 0.3 0.3 0.3 1
+         diffuse 0.1 0.7 0.2 1
+         emissive 0 0 0 1
+      }
+   }
+}
+
+material mapgen_blue
+{
+   technique
+   {
+      pass
+      {
+         lighting on
+
+         ambient 0.3 0.3 0.3 1
+         diffuse 0.1 0.2 0.7 1
+         emissive 0 0 0 1
+      }
+   }
+}
+
+material mapgen_beige
+{
+   technique
+   {
+      pass
+      {
+         lighting on
+
+         ambient 0.3 0.3 0.3 1
+         diffuse 0.78 , 0.67 , 0.49 1
+         emissive 0 0 0 1
+      }
+   }
+}
+
+material mapgen_grass
+ {
+    technique
+    {
+       pass
+        {
+          texture_unit
+          {
+            texture grass.png
+            scale 1.0 1.0
+            }
+       }
+    }
+ }
+
+ material mapgen_grass_dandelion
+ {
+    technique
+    {
+       pass
+        {
+          texture_unit
+          {
+            texture grass_dandelion.png
+            scale 1.0 1.0
+            }
+       }
+    }
+ }
