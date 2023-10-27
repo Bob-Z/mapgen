@@ -25,9 +25,9 @@ def lon_to_y(lon):
 # Get an array of 3 vertices
 # A vertex is an array of 3 values (x,y,z)
 # Return an array of 3 values
-def calc_norm(vertex):
-    ux, uy, uz = [vertex[1][0] - vertex[0][0], vertex[1][1] - vertex[0][1], vertex[1][2] - vertex[0][2]]  # first vector
-    vx, vy, vz = [vertex[2][0] - vertex[0][0], vertex[2][1] - vertex[0][1], vertex[2][2] - vertex[0][2]]  # sec vector
+def calc_norm(triangle_vertices):
+    ux, uy, uz = [triangle_vertices[1][0] - triangle_vertices[0][0], triangle_vertices[1][1] - triangle_vertices[0][1], triangle_vertices[1][2] - triangle_vertices[0][2]]  # first vector
+    vx, vy, vz = [triangle_vertices[2][0] - triangle_vertices[0][0], triangle_vertices[2][1] - triangle_vertices[0][1], triangle_vertices[2][2] - triangle_vertices[0][2]]  # sec vector
 
     cross = [uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx]  # cross product
 

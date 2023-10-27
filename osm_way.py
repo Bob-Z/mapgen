@@ -49,6 +49,9 @@ def process(result):
             create_object(way)
         if "leisure" in way.tags:
             create_object(way)
+        if "barrier" in way.tags:
+            create_object(way)
+
 
         calculate_stats(way, original_tags)
 

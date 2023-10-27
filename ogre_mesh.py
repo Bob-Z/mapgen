@@ -1,3 +1,5 @@
+import math
+
 import helper
 import gvar
 import overpy
@@ -9,15 +11,21 @@ from gvar import WORK_PATH
 # Arbitrary constants
 BUILDING_LEVEL_HEIGHT = 2.5
 GRASS_HEIGHT = 0.05
+DEFAULT_TEXTURE = "mapgen_window"
+DEFAULT_BARRIER_WIDTH = 0.3
+DEFAULT_BARRIER_HEIGHT = 1.5
+
 VERTEX_PER_WALL = 4
 
 building_name = ""
 building_index = 0
 
 # Modified by tags
+build_barrier = False
 collision = True
-height = BUILDING_LEVEL_HEIGHT
-texture_name = "mapgen_beige"
+wall_height = BUILDING_LEVEL_HEIGHT
+texture_name = DEFAULT_TEXTURE
+barrier_width = DEFAULT_BARRIER_WIDTH
 
 
 def create_mesh(way):
@@ -28,13 +36,14 @@ def create_mesh(way):
 
     building_name = "building" + str(building_index)
 
-    process_tags(way)
+    if process_tags(way) is False:
+        return None
 
     new_object, vertex, vertex2d = get_vertex(way)
     if new_object is None:
         return None
 
-    vertex_index, face_qty, wall_vertex_str, wall_face_str = generate_wall(way, vertex)
+    vertex_index, face_qty, wall_vertex_str, wall_face_str = generate_wall(vertex)
     if wall_vertex_str is None:
         return None
     vertex_index, face_qty, root_vertex_str, roof_face_str = generate_roof(vertex2d, vertex_index, face_qty)
@@ -57,68 +66,94 @@ def create_mesh(way):
 
 
 def process_tags(way):
+    global build_barrier
     global collision
-    global height
+    global wall_height
     global texture_name
+    global barrier_width
+    global barrier_height
 
+    build_barrier = False
     collision = True
-    height = BUILDING_LEVEL_HEIGHT
-    texture_name = "mapgen_beige"
+    wall_height = BUILDING_LEVEL_HEIGHT
+    texture_name = DEFAULT_TEXTURE
+    barrier_width = DEFAULT_BARRIER_WIDTH
+    barrier_height = DEFAULT_BARRIER_HEIGHT
+
+    process_ok = True
 
     levels = 1
     if "building:levels" in way.tags:
         levels = way.tags["building:levels"]
         way.tags.pop("building:levels")
 
-    height = float(levels) * BUILDING_LEVEL_HEIGHT
+    wall_height = float(levels) * BUILDING_LEVEL_HEIGHT
 
     if "amenity" in way.tags:
         if way.tags["amenity"] == "shelter":
             texture_name = "mapgen_red"
             way.tags.pop("amenity")
+        else:
+            process_ok = False
 
     if "landuse" in way.tags:
         if way.tags["landuse"] == "grass":
             texture_name = "mapgen_grass"
-            height = GRASS_HEIGHT
+            wall_height = GRASS_HEIGHT
             collision = False
             way.tags.pop("landuse")
+        else:
+            process_ok = False
 
     if "leisure" in way.tags:
         if way.tags["leisure"] == "park":
             texture_name = "mapgen_grass_dandelion"
-            height = GRASS_HEIGHT
+            wall_height = GRASS_HEIGHT
             collision = False
             way.tags.pop("leisure")
+        else:
+            process_ok = False
+
+    if "barrier" in way.tags:
+        if way.tags["barrier"] == "wall":
+            build_barrier = True
+            wall_height = DEFAULT_BARRIER_HEIGHT
+            texture_name = "mapgen_green"
+            way.tags.pop("barrier")
+        else:
+            process_ok = False
+
+    return process_ok
 
 
-def generate_wall(way, vertex):
-    global height
+def generate_wall(vertex):
+    global wall_height
 
     vertex_str = ""
     face_str = ""
     vertex_index = 0
     face_qty = 0
+    vertex_qty = len(vertex)
 
     try:
-        for i in range(len(way.nodes)):
+        for i in range(vertex_qty):
             # Create 4 vertex for a single wall
             # 1-3
             # | |
             # 0-2
 
             # Do not create face when nodes are the same
-            if ((vertex[i][0] == vertex[(i + 1) % len(way.nodes)][0]) and
-                    (vertex[i][1] == vertex[(i + 1) % len(way.nodes)][1]) and
-                    (vertex[i][2] == vertex[(i + 1) % len(way.nodes)][2])):
+            if ((vertex[i][0] == vertex[(i + 1) % vertex_qty][0]) and
+                    (vertex[i][1] == vertex[(i + 1) % vertex_qty][1]) and
+                    (vertex[i][2] == vertex[(i + 1) % vertex_qty][2])):
                 continue
 
             v0 = [vertex[i][0], vertex[i][1], vertex[i][2]]
-            v1 = [vertex[i][0], vertex[i][1], vertex[i][2] + height]
-            v2 = [vertex[(i + 1) % len(way.nodes)][0], vertex[(i + 1) % len(way.nodes)][1],
-                  vertex[(i + 1) % len(way.nodes)][2]]
-            v3 = [vertex[(i + 1) % len(way.nodes)][0], vertex[(i + 1) % len(way.nodes)][1],
-                  vertex[(i + 1) % len(way.nodes)][2] + height]
+            v1 = [vertex[i][0], vertex[i][1], vertex[i][2] + wall_height]
+            v2 = [vertex[(i + 1) % vertex_qty][0], vertex[(i + 1) % vertex_qty][1],
+                  vertex[(i + 1) % vertex_qty][2]]
+            v3 = [vertex[(i + 1) % vertex_qty][0], vertex[(i + 1) % vertex_qty][1],
+                  vertex[(i + 1) % vertex_qty][2] + wall_height]
 
             vertex_str += create_vertex_str(v0, v2, v1, 0.0, 0.0)
             vertex_str += create_vertex_str(v1, v0, v3, 0.0, 1.0)
@@ -153,15 +188,15 @@ def generate_roof(vertex2d, vertex_index, face_qty):
             break
 
         # Add Z axis
-        ear[0].append(height)
-        ear[1].append(height)
-        ear[2].append(height)
+        ear[0].append(wall_height)
+        ear[1].append(wall_height)
+        ear[2].append(wall_height)
         # TODO U,V are wrong here
         vertex_str += create_vertex_with_normal_str(ear[0], [0.0, 0.0, 1.0], 0.0, 0.0)
         vertex_str += create_vertex_with_normal_str(ear[1], [0.0, 0.0, 1.0], 0.0, 1.0)
         vertex_str += create_vertex_with_normal_str(ear[2], [0.0, 0.0, 1.0], 1.0, 0.0)
 
-        face_str += create_face(vertex_index + 1, vertex_index +2 , vertex_index + 0)
+        face_str += create_face(vertex_index + 1, vertex_index + 2, vertex_index + 0)
 
         vertex_index += 3
         face_qty += 1
@@ -170,6 +205,8 @@ def generate_roof(vertex2d, vertex_index, face_qty):
 
 
 def get_vertex(way):
+    global build_barrier
+
     all_vertex = []
     min_x = 9999999.0
     min_y = 9999999.0
@@ -199,15 +236,56 @@ def get_vertex(way):
 
         # Make sure vertices are centered on 0,0
         centered_vertex = []
-        centered_vertex2D = []
+        centered_vertex2d = []
+
         for v in all_vertex:
             # Y axis is inverted on RoR map
             centered_vertex.append([v[0] - center_x, -(v[1] - center_y), v[2]])
-            centered_vertex2D.append([v[0] - center_x, -(v[1] - center_y)])
+            centered_vertex2d.append([v[0] - center_x, -(v[1] - center_y)])
+
+        if build_barrier is True:
+            # Create vertices "around" each segment
+            first_side_vertex = []
+            first_side_vertex2d = []
+            opposite_side_vertex = []
+            opposite_side_vertex2d = []
+
+            normal_x = 0.0
+            normal_y = 0.0
+
+            for i in range(len(centered_vertex) - 1):
+                normal_x = -(centered_vertex2d[i + 1][1] - centered_vertex2d[i][1])
+                normal_y = centered_vertex2d[i + 1][0] - centered_vertex2d[i][0]
+                normal_norm = math.sqrt((normal_x * normal_x) + (normal_y * normal_y))
+                normal_x = (normal_x / normal_norm) * (barrier_width / 2.0)
+                normal_y = (normal_y / normal_norm) * (barrier_width / 2.0)
+
+                first_side_vertex.append(
+                    [centered_vertex[i][0] + normal_x, centered_vertex[i][1] + normal_y, centered_vertex[i][2]])
+                opposite_side_vertex.append(
+                    [centered_vertex[i][0] - normal_x, centered_vertex[i][1] - normal_y, centered_vertex[i][2]])
+
+                first_side_vertex2d.append([centered_vertex2d[i][0] + normal_x, centered_vertex2d[i][1] + normal_y])
+                opposite_side_vertex2d.append([centered_vertex2d[i][0] - normal_x, centered_vertex2d[i][1] - normal_y])
+
+            # Use latest normal for last input vertex
+            i = len(centered_vertex) - 1
+            first_side_vertex.append(
+                [centered_vertex[i][0] + normal_x, centered_vertex[i][1] + normal_y, centered_vertex[i][2]])
+            opposite_side_vertex.append(
+                [centered_vertex[i][0] - normal_x, centered_vertex[i][1] - normal_y, centered_vertex[i][2]])
+
+            first_side_vertex2d.append([centered_vertex2d[i][0] + normal_x, centered_vertex2d[i][1] + normal_y])
+            opposite_side_vertex2d.append([centered_vertex2d[i][0] - normal_x, centered_vertex2d[i][1] - normal_y])
+
+            first_side_vertex.reverse()
+            first_side_vertex2d.reverse()
+            centered_vertex = opposite_side_vertex + first_side_vertex
+            centered_vertex2d = opposite_side_vertex2d + first_side_vertex2d
 
         new_object = {"x": center_x, "y": center_y}
 
-        return new_object, centered_vertex, centered_vertex2D
+        return new_object, centered_vertex, centered_vertex2d
 
     except overpy.exception.DataIncomplete:
         # Node unavailable
