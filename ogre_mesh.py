@@ -11,7 +11,7 @@ from gvar import WORK_PATH
 # Arbitrary constants
 BUILDING_LEVEL_HEIGHT = 2.5
 GRASS_HEIGHT = 0.05
-DEFAULT_TEXTURE = "mapgen_window"
+DEFAULT_TEXTURE = "mapgen_beige"
 DEFAULT_BARRIER_WIDTH = 0.3
 DEFAULT_BARRIER_HEIGHT = 1.5
 
