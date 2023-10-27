@@ -74,16 +74,14 @@ terrain = mapgen\n\
 
 
 def create_base():
+    all_files = os.listdir(RESOURCE_PATH)
     with ZipFile(EXPORT_PATH + MAP_NAME + ".zip", 'w') as zip_object:
         zip_object.write(otc_file_name, arcname=MAP_NAME + ".otc")
         zip_object.write(page_otc_file_name, arcname=MAP_NAME + "-page-0-0.otc")
         zip_object.write(terrn2_file_name, arcname=MAP_NAME + ".terrn2")
-        zip_object.write(RESOURCE_PATH + "asphalt_diffusespecular.dds",
-                         arcname="asphalt_diffusespecular.dds")
-        zip_object.write(RESOURCE_PATH + "asphalt_normalheight.dds", arcname="asphalt_normalheight.dds")
-        zip_object.write(RESOURCE_PATH + "mapgen.material", arcname="mapgen.material")
-        zip_object.write(RESOURCE_PATH + "grass.png", arcname="grass.png")
-        zip_object.write(RESOURCE_PATH + "grass_dandelion.png", arcname="grass_dandelion.png")
+        for file in all_files:
+            zip_object.write(RESOURCE_PATH + file,
+                             arcname=file)
 
 
 def add_file(file_name_to_add):
