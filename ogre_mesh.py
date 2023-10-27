@@ -10,11 +10,13 @@ from gvar import WORK_PATH
 
 # Arbitrary constants
 BUILDING_LEVEL_HEIGHT = 2.5
-GRASS_HEIGHT = 0.05
-SWIMMING_POOL_HEIGHT = 0.05
+GRASS_HEIGHT = 0.006
+SWIMMING_POOL_HEIGHT = 0.07
+AMENITY_HEIGHT = 0.006
 DEFAULT_TEXTURE = "mapgen_beige"
 DEFAULT_BARRIER_WIDTH = 0.3
 DEFAULT_BARRIER_HEIGHT = 1.5
+DEFAULT_WATER_HEIGHT = 0.005
 
 VERTEX_PER_WALL = 4
 
@@ -72,14 +74,12 @@ def process_tags(way):
     global wall_height
     global texture_name
     global barrier_width
-    global barrier_height
 
     build_barrier = False
     collision = True
     wall_height = BUILDING_LEVEL_HEIGHT
     texture_name = DEFAULT_TEXTURE
     barrier_width = DEFAULT_BARRIER_WIDTH
-    barrier_height = DEFAULT_BARRIER_HEIGHT
 
     process_ok = True
 
@@ -94,6 +94,14 @@ def process_tags(way):
         if way.tags["amenity"] == "shelter":
             texture_name = "mapgen_red"
             way.tags.pop("amenity")
+        elif way.tags["amenity"] == "hospital":
+            texture_name = "mapgen_grey"
+            wall_height = AMENITY_HEIGHT
+            way.tags.pop("amenity")
+        elif way.tags["amenity"] == "fountain":
+            texture_name = "mapgen_blue"
+            wall_height = DEFAULT_WATER_HEIGHT
+            way.tags.pop("amenity")
         else:
             process_ok = False
 
@@ -102,6 +110,10 @@ def process_tags(way):
             texture_name = "mapgen_grass"
             wall_height = GRASS_HEIGHT
             collision = False
+            way.tags.pop("landuse")
+        elif way.tags["landuse"] == "retail":
+            texture_name = "mapgen_grey"
+            wall_height = AMENITY_HEIGHT
             way.tags.pop("landuse")
         else:
             process_ok = False
@@ -126,6 +138,19 @@ def process_tags(way):
             wall_height = DEFAULT_BARRIER_HEIGHT
             texture_name = "mapgen_green"
             way.tags.pop("barrier")
+        else:
+            process_ok = False
+
+    if "waterway" in way.tags:
+        wall_height = DEFAULT_WATER_HEIGHT
+        texture_name = "mapgen_blue"
+        way.tags.pop("waterway")
+
+    if "natural" in way.tags:
+        if way.tags["natural"] == "water":
+            wall_height = DEFAULT_WATER_HEIGHT
+            texture_name = "mapgen_blue"
+            way.tags.pop("natural")
         else:
             process_ok = False
 

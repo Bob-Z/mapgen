@@ -3,6 +3,7 @@ import ror_odef_file
 import ogre_mesh
 
 ignored_tags = ["source", "access", "description", "description:en", "description:de", "description:fr"]
+ignored_tags_value = [["landuse", "residential"]]
 ignored_ways = ["admin_level"]
 
 way_total = 0
@@ -28,6 +29,11 @@ def process(result):
             if tag in way.tags:
                 way.tags.clear()
 
+        for tag_value in ignored_tags_value:
+            if tag_value[0] in way.tags:
+                if way.tags[tag_value[0]] == tag_value[1]:
+                    way.tags.clear()
+
         for tag in ignored_tags:
             if tag in way.tags:
                 way.tags.pop(tag)
@@ -50,6 +56,12 @@ def process(result):
         if "leisure" in way.tags:
             create_object(way)
         if "barrier" in way.tags:
+            create_object(way)
+        if "amenity" in way.tags:
+            create_object(way)
+        if "waterway" in way.tags:
+            create_object(way)
+        if "natural" in way.tags:
             create_object(way)
 
         calculate_stats(way, original_tags)
