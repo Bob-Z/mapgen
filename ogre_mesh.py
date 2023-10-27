@@ -11,6 +11,7 @@ from gvar import WORK_PATH
 # Arbitrary constants
 BUILDING_LEVEL_HEIGHT = 2.5
 GRASS_HEIGHT = 0.05
+SWIMMING_POOL_HEIGHT = 0.05
 DEFAULT_TEXTURE = "mapgen_beige"
 DEFAULT_BARRIER_WIDTH = 0.3
 DEFAULT_BARRIER_HEIGHT = 1.5
@@ -109,6 +110,11 @@ def process_tags(way):
         if way.tags["leisure"] == "park":
             texture_name = "mapgen_grass_dandelion"
             wall_height = GRASS_HEIGHT
+            collision = False
+            way.tags.pop("leisure")
+        elif way.tags["leisure"] == "swimming_pool":
+            texture_name = "mapgen_swimming_pool"
+            wall_height = SWIMMING_POOL_HEIGHT
             collision = False
             way.tags.pop("leisure")
         else:

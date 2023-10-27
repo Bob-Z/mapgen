@@ -73,7 +73,7 @@ material mapgen_grass
     }
  }
 
- material mapgen_grass_dandelion
+material mapgen_grass_dandelion
  {
     technique
     {
@@ -82,6 +82,36 @@ material mapgen_grass
           texture_unit
           {
             texture grass_dandelion.png
+            scale 1.0 1.0
+            }
+       }
+    }
+ }
+
+material mapgen_window
+ {
+    technique
+    {
+       pass
+        {
+          texture_unit
+          {
+            texture window.jpg
+            scale 1.0 1.0
+            }
+       }
+    }
+ }
+
+material mapgen_swimming_pool
+ {
+    technique
+    {
+       pass
+        {
+          texture_unit
+          {
+            texture swimming_pool.jpg
             scale 1.0 1.0
             }
        }

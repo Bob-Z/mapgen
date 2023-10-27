@@ -52,7 +52,6 @@ def process(result):
         if "barrier" in way.tags:
             create_object(way)
 
-
         calculate_stats(way, original_tags)
 
     print_stats()
