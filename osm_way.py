@@ -88,16 +88,16 @@ def calculate_stats(way, original_tags):
 
     if len(way.tags) == 0:
         way_ignored = way_ignored + " -- {0}{1}\n".format(way, original_tags)
-        way_ignored_qty = way_ignored_qty + 1
+        way_ignored_qty += 1
     elif len(way.tags) == len(original_tags):
         way_not_processed = way_not_processed + " -- {0}{1}\n".format(way, way.tags)
-        way_not_processed_qty = way_not_processed_qty + 1
+        way_not_processed_qty += 1
     elif len(way.tags) > 0:
         way_incomplete = way_incomplete + " -- {0}{1}{2}\n".format(way, way.tags, original_tags)
-        way_incomplete_qty = way_incomplete_qty + 1
+        way_incomplete_qty += 1
     else:
         way_complete = way_complete + " -- {0}{1}\n".format(way, original_tags)
-        way_complete_qty = way_complete_qty + 1
+        way_complete_qty += 1
 
 
 def print_stats():
@@ -113,3 +113,4 @@ def print_stats():
     print("Complete ways  = ", way_complete_qty)
     print("Incomplete ways = ", way_incomplete_qty)
     print("Not processed ways = ", way_not_processed_qty)
+    print("\n")

@@ -1,4 +1,5 @@
 import overpy
+import osm_node
 import osm_way
 from gvar import WORK_PATH
 import sys
@@ -17,7 +18,7 @@ def add_data_to_output_file():
     print("Request to OpenStreetMap done")
     dump_result_to_file(result)
 
-    process_node(result)
+    osm_node.process(result)
     osm_way.process(result)
     process_relation(result)
 

@@ -1,0 +1,8 @@
+tree1.mesh
+1, 1, 1
+
+beginmesh
+mesh tree1_coll.mesh
+endmesh
+
+end
