@@ -3,7 +3,7 @@ import ror_odef_file
 import ogre_mesh
 
 ignored_tags = ["source", "access", "description", "description:en", "description:de", "description:fr"]
-ignored_tags_value = [["landuse", "residential"]]
+ignored_tags_value = [["landuse", "residential"], ["landuse", "retail"]]
 ignored_ways = ["admin_level"]
 
 way_total = 0

@@ -52,6 +52,8 @@ def create_road(way):
         way.tags.pop("lanes")
 
     try:
+        # all_nodes = way.get_nodes(resolve_missing=True)
+        # for node in all_nodes:
         for node in way.nodes:
             x = helper.lat_to_x(node.lat)
             y = helper.lon_to_y(node.lon)
@@ -73,6 +75,7 @@ def create_road(way):
                 angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
                 add_road(x_history[1], y_history[1], road_height, 0.0, 0.0, angle, road_width, border_width,
                          border_height)
+                add_traffic_signals(node, x_history[1], y_history[1], road_height, angle, road_width)
 
                 x_history[0] = x_history[1]
                 y_history[0] = y_history[1]
@@ -113,6 +116,23 @@ def add_road(x, y, z, rx, ry, rz, road_width, border_width, border_height):
     # In tobj file rz is just after rx
     road_data.append(str(x) + ", " + str(z) + ", " + str(y) + ", " + str(rx) + ", " + str(rz) + ", " + str(
         ry) + ", " + str(road_width) + ", " + str(border_width) + ", " + str(border_height) + ", both\n")
+
+
+def add_traffic_signals(node, road_x, road_y, road_height, angle, road_width):
+    if "highway" in node.tags:
+        if node.tags["highway"] == "traffic_signals":
+
+            angle -= 90  # Don't know why this is needed, byt it seems to work
+            if "traffic_signals:direction" in node.tags:
+                if node.tags["traffic_signals:direction"] == "backward":
+                    angle += 90
+
+            signal_x = road_x + (math.cos(math.radians(angle)) * road_width / 2.0)
+            signal_y = road_y - (math.sin(math.radians(angle)) * road_width / 2.0)
+
+            new_signal = {"x": signal_x, "y": signal_y, "z": road_height, "rx": 0.0, "ry": 0.0, "rz": angle,
+                          "name": "trafficlightsequence1"}
+            add_object(new_signal)
 
 
 def end_road():

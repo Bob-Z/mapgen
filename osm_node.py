@@ -1,9 +1,10 @@
 import helper
 import ror_tobj_file
-import ror_odef_file
-import ogre_mesh
+import random
 
-ignored_tags = ["source", "addr:housenumber", "addr:street", "genus:de", "genus:en", "genus:fr"]
+ignored_tags = ["source", "addr:housenumber", "addr:street", "genus:de", "genus:en", "genus:fr", "ref"]
+# Traffic signals are managed when processing road
+ignored_tags_value = [["highway", "traffic_signals"]]
 
 node_total = 0
 node_incomplete = ""
@@ -34,18 +35,24 @@ def process(result):
             if tag in node.tags:
                 node.tags.pop(tag)
 
+        for tag_value in ignored_tags_value:
+            if tag_value[0] in node.tags:
+                if node.tags[tag_value[0]] == tag_value[1]:
+                    node.tags.clear()
+
         if "natural" in node.tags:
             if node.tags["natural"] == "tree":
-                add_object(node, "tree1", rx=90.0)
+                add_object(node, "tree1", rx=90.0, ry=float(random.randint(0, 359)))
                 node.tags.pop("natural")
 
         calculate_stats(node, original_tags)
+        node.tags = original_tags
 
     print_stats()
 
 
-def add_object(node, name, rx=0.0):
-    obj = {"x": helper.lat_to_x(node.lat), "y": helper.lon_to_y(node.lon), "z": 0.0, "rx": rx, "ry": 0.0, "rz": 0.0,
+def add_object(node, name, rx=0.0, ry=0.0, rz=0.0):
+    obj = {"x": helper.lat_to_x(node.lat), "y": helper.lon_to_y(node.lon), "z": 0.0, "rx": rx, "ry": ry, "rz": rz,
            "name": name}
     ror_tobj_file.add_object(obj)
 

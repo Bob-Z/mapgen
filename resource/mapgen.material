@@ -1,3 +1,5 @@
+import * from "managed_mats.material"
+
 material mapgen_red
 {
    technique
@@ -73,35 +75,37 @@ material mapgen_beige
    }
 }
 
-material mapgen_grass
- {
-    technique
-    {
-       pass
-        {
-          texture_unit
-          {
-            texture grass.png
-            scale 1.0 1.0
-            }
-       }
-    }
- }
+material mapgen_grass : RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture grass.png
+			}
+		}
+	}
+}
 
-material mapgen_grass_dandelion
- {
-    technique
-    {
-       pass
-        {
-          texture_unit
-          {
-            texture grass_dandelion.png
-            scale 1.0 1.0
-            }
-       }
-    }
- }
+material mapgen_grass_dandelion : RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture grass_dandelion.png
+			}
+		}
+	}
+}
 
 material mapgen_window
  {

@@ -20,8 +20,8 @@ material tree1_leaf : RoR/Managed_Mats/Vegetation
 	{
 		pass BaseRender
 		{
-			alpha_rejection greater_equal 128 
-			scene_blend alpha_blend 
+			alpha_rejection greater_equal 128
+			scene_blend alpha_blend
 			cull_hardware none
 			cull_software none
 			texture_unit Diffuse_Map

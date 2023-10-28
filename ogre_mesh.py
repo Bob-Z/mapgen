@@ -12,7 +12,6 @@ from gvar import WORK_PATH
 BUILDING_LEVEL_HEIGHT = 2.5
 GRASS_HEIGHT = 0.006
 SWIMMING_POOL_HEIGHT = 0.07
-AMENITY_HEIGHT = 0.006
 DEFAULT_TEXTURE = "mapgen_beige"
 DEFAULT_BARRIER_WIDTH = 0.3
 DEFAULT_BARRIER_HEIGHT = 1.5
@@ -94,10 +93,6 @@ def process_tags(way):
         if way.tags["amenity"] == "shelter":
             texture_name = "mapgen_red"
             way.tags.pop("amenity")
-        elif way.tags["amenity"] == "hospital":
-            texture_name = "mapgen_grey"
-            wall_height = AMENITY_HEIGHT
-            way.tags.pop("amenity")
         elif way.tags["amenity"] == "fountain":
             texture_name = "mapgen_blue"
             wall_height = DEFAULT_WATER_HEIGHT
@@ -110,10 +105,6 @@ def process_tags(way):
             texture_name = "mapgen_grass"
             wall_height = GRASS_HEIGHT
             collision = False
-            way.tags.pop("landuse")
-        elif way.tags["landuse"] == "retail":
-            texture_name = "mapgen_grey"
-            wall_height = AMENITY_HEIGHT
             way.tags.pop("landuse")
         else:
             process_ok = False
@@ -245,6 +236,8 @@ def get_vertex(way):
     max_y = -9999999.0
 
     try:
+        #all_nodes = way.get_nodes(resolve_missing=True)
+        #for node in all_nodes:
         for node in way.nodes:
             x = helper.lat_to_x(node.lat)
             y = helper.lon_to_y(node.lon)
