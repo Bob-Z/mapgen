@@ -3,8 +3,9 @@ import ror_odef_file
 import ogre_mesh
 import gvar
 
+# https://wiki.openstreetmap.org/wiki/Main_Page
 ignored_tags = ["source", "access", "description", "description:en", "description:de", "description:fr"]
-ignored_tags_value = [["landuse", "residential"], ["landuse", "retail"]]
+ignored_tags_value = [["landuse", "residential"], ["landuse", "retail"], ["railway", "razed"]]
 ignored_ways = ["admin_level"]
 
 way_total = 0

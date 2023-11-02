@@ -3,6 +3,7 @@ import ror_tobj_file
 import random
 import gvar
 
+# https://wiki.openstreetmap.org/wiki/Main_Page
 ignored_tags = ["source", "addr:housenumber", "addr:street", "genus:de", "genus:en", "genus:fr", "ref"]
 # Traffic signals are managed when processing road
 ignored_tags_value = [["highway", "traffic_signals"]]
