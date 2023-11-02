@@ -1,7 +1,7 @@
 import overpy
 import osm_node
 import osm_way
-from gvar import WORK_PATH
+from gvar import LOG_PATH
 import sys
 import bbox
 import ror_zip_file
@@ -16,6 +16,8 @@ def add_data_to_output_file():
         "node(" + bounding_box + ");out;way(" + bounding_box + ");out;rel(" + bounding_box + ");out;")
 
     print("Request to OpenStreetMap done")
+    print("")
+
     dump_result_to_file(result)
 
     osm_node.process(result)
@@ -28,7 +30,7 @@ def add_data_to_output_file():
 def dump_result_to_file(result):
     original_stdout = sys.stdout
 
-    with open(WORK_PATH + "result.txt", "w") as result_file:
+    with open(LOG_PATH + "osm_request.txt", "w") as result_file:
         sys.stdout = result_file
 
         for node in result.nodes:

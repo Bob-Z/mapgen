@@ -1,6 +1,7 @@
 import helper
 import ror_tobj_file
 import random
+import gvar
 
 ignored_tags = ["source", "addr:housenumber", "addr:street", "genus:de", "genus:en", "genus:fr", "ref"]
 # Traffic signals are managed when processing road
@@ -9,6 +10,7 @@ ignored_tags_value = [["highway", "traffic_signals"]]
 node_total = 0
 node_incomplete = ""
 node_incomplete_qty = 0
+node_empty = ""
 node_empty_qty = 0
 node_ignored = ""
 node_ignored_qty = 0
@@ -26,8 +28,7 @@ def process(result):
 
     for node in result.nodes:
         if len(node.tags) == 0:
-            node_empty_qty += 1
-            continue
+            node.tags["empty"] = True
 
         original_tags = node.tags.copy()
 
@@ -35,10 +36,13 @@ def process(result):
             if tag in node.tags:
                 node.tags.pop(tag)
 
+        if len(node.tags) == 0:
+            node.tags["ignored"] = True
+
         for tag_value in ignored_tags_value:
             if tag_value[0] in node.tags:
                 if node.tags[tag_value[0]] == tag_value[1]:
-                    node.tags.clear()
+                    node.tags["ignored"] = True
 
         if "natural" in node.tags:
             if node.tags["natural"] == "tree":
@@ -58,6 +62,8 @@ def add_object(node, name, rx=0.0, ry=0.0, rz=0.0):
 
 
 def calculate_stats(node, original_tags):
+    global node_empty
+    global node_empty_qty
     global node_not_processed
     global node_not_processed_qty
     global node_incomplete
@@ -68,7 +74,10 @@ def calculate_stats(node, original_tags):
     global node_ignored_qty
     global node_empty_qty
 
-    if len(node.tags) == 0:
+    if "empty" in node.tags:
+        node_empty = node_empty + " -- {0}\n".format(node)
+        node_empty_qty += 1
+    elif "ignored" in node.tags:
         node_ignored = node_ignored + " -- {0}{1}\n".format(node, original_tags)
         node_ignored_qty += 1
     elif len(node.tags) == len(original_tags):
@@ -83,12 +92,16 @@ def calculate_stats(node, original_tags):
 
 
 def print_stats():
-    if len(node_incomplete) > 0:
-        print(" -*- Incomplete nodes -*-")
-        print(node_incomplete)
-    if len(node_not_processed) > 0:
-        print(" -*- Not processed nodes -*-")
-        print(node_not_processed)
+    with open(gvar.LOG_PATH + "node_empty.txt", "w") as file:
+        file.write(node_empty)
+    with open(gvar.LOG_PATH + "node_ignored.txt", "w") as file:
+        file.write(node_ignored)
+    with open(gvar.LOG_PATH + "node_incomplete.txt", "w") as file:
+        file.write(node_incomplete)
+    with open(gvar.LOG_PATH + "node_not_processed.txt", "w") as file:
+        file.write(node_not_processed)
+    with open(gvar.LOG_PATH + "node_complete.txt", "w") as file:
+        file.write(node_complete)
 
     print("Total nodes  = ", node_total)
     print("Empty nodes  = ", node_empty_qty)
@@ -96,4 +109,4 @@ def print_stats():
     print("Complete nodes  = ", node_complete_qty)
     print("Incomplete nodes = ", node_incomplete_qty)
     print("Not processed nodes = ", node_not_processed_qty)
-    print("\n")
+    print("")

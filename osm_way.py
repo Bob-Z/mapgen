@@ -1,12 +1,15 @@
 import ror_tobj_file
 import ror_odef_file
 import ogre_mesh
+import gvar
 
 ignored_tags = ["source", "access", "description", "description:en", "description:de", "description:fr"]
 ignored_tags_value = [["landuse", "residential"], ["landuse", "retail"]]
 ignored_ways = ["admin_level"]
 
 way_total = 0
+way_empty = ""
+way_empty_qty = 0
 way_incomplete = ""
 way_incomplete_qty = 0
 way_ignored = ""
@@ -23,16 +26,19 @@ def process(result):
     way_total = len(result.ways)
 
     for way in result.ways:
+        if len(way.tags) == 0:
+            way.tags["empty"] = True
+
         original_tags = way.tags.copy()
 
         for tag in ignored_ways:
             if tag in way.tags:
-                way.tags.clear()
+                way.tags["ignored"] = True
 
         for tag_value in ignored_tags_value:
             if tag_value[0] in way.tags:
                 if way.tags[tag_value[0]] == tag_value[1]:
-                    way.tags.clear()
+                    way.tags["ignored"] = True
 
         for tag in ignored_tags:
             if tag in way.tags:
@@ -77,6 +83,8 @@ def create_object(way):
 
 
 def calculate_stats(way, original_tags):
+    global way_empty
+    global way_empty_qty
     global way_not_processed
     global way_not_processed_qty
     global way_incomplete
@@ -86,7 +94,10 @@ def calculate_stats(way, original_tags):
     global way_ignored
     global way_ignored_qty
 
-    if len(way.tags) == 0:
+    if "empty" in way.tags:
+        way_empty = way_empty + " -- {0}\n".format(way)
+        way_empty_qty += 1
+    elif "ignored" in way.tags:
         way_ignored = way_ignored + " -- {0}{1}\n".format(way, original_tags)
         way_ignored_qty += 1
     elif len(way.tags) == len(original_tags):
@@ -101,16 +112,21 @@ def calculate_stats(way, original_tags):
 
 
 def print_stats():
-    if len(way_incomplete) > 0:
-        print(" -*- Incomplete ways -*-")
-        print(way_incomplete)
-    if len(way_not_processed) > 0:
-        print(" -*- Not processed ways -*-")
-        print(way_not_processed)
+    with open(gvar.LOG_PATH + "way_empty.txt", "w") as file:
+        file.write(way_empty)
+    with open(gvar.LOG_PATH + "way_ignored.txt", "w") as file:
+        file.write(way_ignored)
+    with open(gvar.LOG_PATH + "way_incomplete.txt", "w") as file:
+        file.write(way_incomplete)
+    with open(gvar.LOG_PATH + "way_not_processed.txt", "w") as file:
+        file.write(way_not_processed)
+    with open(gvar.LOG_PATH + "way_complete.txt", "w") as file:
+        file.write(way_complete)
 
     print("Total ways  = ", way_total)
+    print("Empty ways  = ", way_empty_qty)
     print("Ignored ways  = ", way_ignored_qty)
     print("Complete ways  = ", way_complete_qty)
     print("Incomplete ways = ", way_incomplete_qty)
     print("Not processed ways = ", way_not_processed_qty)
-    print("\n")
+    print("")

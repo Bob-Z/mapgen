@@ -1,6 +1,7 @@
 import bbox
 import gvar
 from gvar import WORK_PATH
+from gvar import LOG_PATH
 from gvar import RESOURCE_PATH
 from gvar import MAP_NAME
 from gvar import EXPORT_PATH
@@ -20,8 +21,10 @@ def create_default_file():
     map_width = lat_lon_to_distance(bbox.coord["north"], bbox.coord["north"], bbox.coord["west"], bbox.coord["east"])
     print("Map size: ", map_width, "x", map_height)
 
-    shutil.rmtree(WORK_PATH)
+    shutil.rmtree(WORK_PATH, ignore_errors=True)
     os.makedirs(WORK_PATH, exist_ok=True)
+    shutil.rmtree(LOG_PATH, ignore_errors=True)
+    os.makedirs(LOG_PATH, exist_ok=True)
 
     with open(otc_file_name, "w") as otc_file:
         otc_file.write("Pages_X=0 \n\
