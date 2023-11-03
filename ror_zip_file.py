@@ -14,6 +14,7 @@ otc_file_name = WORK_PATH + MAP_NAME + ".otc"
 page_otc_file_name = WORK_PATH + MAP_NAME + "-page-0-0.otc"
 terrn2_file_name = WORK_PATH + MAP_NAME + ".terrn2"
 tobj_file_name = WORK_PATH + MAP_NAME + ".tobj"
+os_file_name = WORK_PATH + MAP_NAME + ".os"
 
 
 def create_default_file():
@@ -56,6 +57,7 @@ DebugBlendMaps=0\n")
         terrn2_file.write("[General]\n\
 Name = mapgen terrain\n\
 GeometryConfig = " + MAP_NAME + ".otc" + "\n\
+CaelumConfigFile = " + MAP_NAME + ".os" + "\n\
 Water = 0\n\
 AmbientColor = 1, 1, 1\n\
 StartPosition = " + str(int(map_width / 2)) + " 0 " + str(int(map_height / 2)) + "\n\
@@ -75,6 +77,21 @@ terrain = mapgen\n\
     with open(tobj_file_name, "w") as tobj_file:
         tobj_file.write("\n")
 
+    with open(os_file_name, "w") as file:
+        file.write("caelum_sky_system " + MAP_NAME + ".os\n{\njulian_day 180.85\ntime_scale 1\nlongitude " + str(bbox.coord[
+            "west"]) + "\nlatitude " + str(bbox.coord["north"]) + "\nmanage_ambient_light true\nminimum_ambient_light 0.06 0.08 0.12\n\
+manage_scene_fog yes\nscene_fog_density_multiplier 10.2\nsun\n{\nambient_multiplier 0.55 0.65 0.70\ndiffuse_multiplier 2.20 2.15 2.00\n\
+specular_multiplier 1 1 1\nauto_disable_threshold 0.05\nauto_disable true\n}\n\
+point_starfield\n{\nmagnitude_scale 2.51189\nmag0_pixel_size 16\nmin_pixel_size 4\nmax_pixel_size 6\n}\n\
+sky_dome\n{\nhaze_enabled no\nsky_gradients_image EarthClearSky2.png\natmosphere_depth_image AtmosphereDepth.png\n}\n\
+cloud_system\n{\n\
+cloud_layer\n{\nheight 300\ncoverage 0.1\ncloud_uv_factor 20\nnear_fade_dist 5000\nfar_fade_dist 8000\n}\n\
+cloud_layer\n{\nheight 500\ncoverage 0.1\ncloud_uv_factor 17\n}\n\
+cloud_layer\n{\nheight 800\ncoverage 0.1\ncloud_uv_factor 10\n}\n\
+cloud_layer\n{\nheight 2000\ncoverage 0.1\ncloud_uv_factor 6\n}\n\
+}\n\
+}")
+
 
 def create_base():
     all_files = os.listdir(RESOURCE_PATH)
@@ -82,6 +99,7 @@ def create_base():
         zip_object.write(otc_file_name, arcname=MAP_NAME + ".otc")
         zip_object.write(page_otc_file_name, arcname=MAP_NAME + "-page-0-0.otc")
         zip_object.write(terrn2_file_name, arcname=MAP_NAME + ".terrn2")
+        zip_object.write(os_file_name, arcname=MAP_NAME + ".os")
         for file in all_files:
             zip_object.write(RESOURCE_PATH + file,
                              arcname=file)
