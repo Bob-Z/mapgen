@@ -12,7 +12,8 @@ from gvar import WORK_PATH
 BUILDING_LEVEL_HEIGHT = 2.5
 GRASS_HEIGHT = 0.006
 SWIMMING_POOL_HEIGHT = 0.07
-DEFAULT_TEXTURE = "mapgen_beige"
+DEFAULT_WALL_TEXTURE = "mapgen_beige"
+DEFAULT_ROOF_TEXTURE = "mapgen_grey"
 DEFAULT_BARRIER_WIDTH = 0.3
 DEFAULT_BARRIER_HEIGHT = 1.5
 DEFAULT_WATER_HEIGHT = 0.005
@@ -26,7 +27,8 @@ building_index = 0
 build_barrier = False
 collision = True
 wall_height = BUILDING_LEVEL_HEIGHT
-texture_name = DEFAULT_TEXTURE
+wall_texture = DEFAULT_WALL_TEXTURE
+roof_texture = DEFAULT_ROOF_TEXTURE
 barrier_width = DEFAULT_BARRIER_WIDTH
 
 
@@ -45,12 +47,24 @@ def create_mesh(way):
     if new_object is None:
         return None
 
-    vertex_index, face_qty, wall_vertex_str, wall_face_str = generate_wall(vertex)
+    wall_vertex_index, wall_face_qty, wall_vertex_str, wall_face_str = generate_wall(vertex)
     if wall_vertex_str is None:
         return None
-    vertex_index, face_qty, root_vertex_str, roof_face_str = generate_roof(vertex2d, vertex_index, face_qty)
 
-    generate_mesh_file(vertex_index, face_qty, wall_vertex_str + root_vertex_str, wall_face_str + roof_face_str)
+    if wall_texture == roof_texture:
+        roof_vertex_index, roof_face_qty, roof_vertex_str, roof_face_str = generate_roof(vertex2d, wall_vertex_index)
+        generate_mesh_file(
+            [{"vertex_index": roof_vertex_index, "face_qty": wall_face_qty + roof_face_qty,
+              "vertex_str": wall_vertex_str + roof_vertex_str,
+              "face_str": wall_face_str + roof_face_str, "texture": wall_texture}])
+
+    else:
+        roof_vertex_index, roof_face_qty, roof_vertex_str, roof_face_str = generate_roof(vertex2d, 0)
+        generate_mesh_file(
+            [{"vertex_index": wall_vertex_index, "face_qty": wall_face_qty, "vertex_str": wall_vertex_str,
+              "face_str": wall_face_str, "texture": wall_texture},
+             {"vertex_index": roof_vertex_index, "face_qty": roof_face_qty, "vertex_str": roof_vertex_str,
+              "face_str": roof_face_str, "texture": roof_texture}])
 
     if "name" in way.tags:
         # FIXME "station" is a default choice, may be improved ?
@@ -71,13 +85,15 @@ def process_tags(way):
     global build_barrier
     global collision
     global wall_height
-    global texture_name
+    global wall_texture
+    global roof_texture
     global barrier_width
 
     build_barrier = False
     collision = True
     wall_height = BUILDING_LEVEL_HEIGHT
-    texture_name = DEFAULT_TEXTURE
+    wall_texture = DEFAULT_WALL_TEXTURE
+    roof_texture = DEFAULT_ROOF_TEXTURE
     barrier_width = DEFAULT_BARRIER_WIDTH
 
     process_ok = True
@@ -91,10 +107,12 @@ def process_tags(way):
 
     if "amenity" in way.tags:
         if way.tags["amenity"] == "shelter":
-            texture_name = "mapgen_red"
+            wall_texture = "mapgen_red"
+            roof_texture = "mapgen_red"
             way.tags.pop("amenity")
         elif way.tags["amenity"] == "fountain":
-            texture_name = "mapgen_blue"
+            wall_texture = "mapgen_blue"
+            roof_texture = "mapgen_blue"
             wall_height = DEFAULT_WATER_HEIGHT
             way.tags.pop("amenity")
         else:
@@ -102,7 +120,8 @@ def process_tags(way):
 
     if "landuse" in way.tags:
         if way.tags["landuse"] == "grass":
-            texture_name = "mapgen_grass"
+            wall_texture = "mapgen_grass"
+            roof_texture = "mapgen_grass"
             wall_height = GRASS_HEIGHT
             collision = False
             way.tags.pop("landuse")
@@ -111,12 +130,14 @@ def process_tags(way):
 
     if "leisure" in way.tags:
         if way.tags["leisure"] == "park":
-            texture_name = "mapgen_grass_dandelion"
+            wall_texture = "mapgen_grass_dandelion"
+            roof_texture = "mapgen_grass_dandelion"
             wall_height = GRASS_HEIGHT
             collision = False
             way.tags.pop("leisure")
         elif way.tags["leisure"] == "swimming_pool":
-            texture_name = "mapgen_swimming_pool"
+            wall_texture = "mapgen_swimming_pool"
+            roof_texture = "mapgen_swimming_pool"
             wall_height = SWIMMING_POOL_HEIGHT
             collision = False
             way.tags.pop("leisure")
@@ -127,20 +148,23 @@ def process_tags(way):
         if way.tags["barrier"] == "wall":
             build_barrier = True
             wall_height = DEFAULT_BARRIER_HEIGHT
-            texture_name = "mapgen_green"
+            wall_texture = "mapgen_green"
+            roof_texture = "mapgen_green"
             way.tags.pop("barrier")
         else:
             process_ok = False
 
     if "waterway" in way.tags:
         wall_height = DEFAULT_WATER_HEIGHT
-        texture_name = "mapgen_blue"
+        wall_texture = "mapgen_blue"
+        roof_texture = "mapgen_blue"
         way.tags.pop("waterway")
 
     if "natural" in way.tags:
         if way.tags["natural"] == "water":
             wall_height = DEFAULT_WATER_HEIGHT
-            texture_name = "mapgen_blue"
+            wall_texture = "mapgen_blue"
+            roof_texture = "mapgen_blue"
             way.tags.pop("natural")
         else:
             process_ok = False
@@ -198,7 +222,8 @@ def generate_wall(vertex):
     return vertex_index, face_qty, vertex_str, face_str
 
 
-def generate_roof(vertex2d, vertex_index, face_qty):
+def generate_roof(vertex2d, vertex_index):
+    face_qty = 0
     vertex_str = ""
     face_str = ""
 
@@ -236,8 +261,8 @@ def get_vertex(way):
     max_y = -9999999.0
 
     try:
-        #all_nodes = way.get_nodes(resolve_missing=True)
-        #for node in all_nodes:
+        # all_nodes = way.get_nodes(resolve_missing=True)
+        # for node in all_nodes:
         for node in way.nodes:
             x = helper.lat_to_x(node.lat)
             y = helper.lon_to_y(node.lon)
@@ -343,19 +368,27 @@ def create_face(i0, i1, i2):
         i2) + "\" />\n"
 
 
-def generate_mesh_file(vertex_index, face_qty, vertex_str, face_str):
-    global texture_name
+def generate_mesh_file(submesh):
+    mesh_str = "<mesh>\n"
+    mesh_str += "<submeshes>\n"
+    for s in submesh:
+        mesh_str += "<submesh material=\"" + s[
+            "texture"] + "\" usesharedvertices=\"false\" use32bitindexes=\"false\" operationtype=\"triangle_list\">\n"
+        mesh_str += "<faces count=\"" + str(s["face_qty"]) + "\">\n"
+        mesh_str += s["face_str"]
+        mesh_str += "</faces>\n"
+        mesh_str += "<geometry vertexcount=\"" + str(s["vertex_index"]) + "\">\n"
+        mesh_str += "<vertexbuffer positions=\"true\" normals=\"true\" texture_coord_dimensions_0=\"float2\" texture_coords=\"1\">"
+        mesh_str += s["vertex_str"]
+        mesh_str += "</vertexbuffer>\n"
+        mesh_str += "</geometry>\n"
+        mesh_str += "</submesh>\n"
+    mesh_str += "</submeshes>\n"
+    mesh_str += "</mesh>\n"
 
     mesh_file_name = building_name + ".mesh"
     with open(gvar.WORK_PATH + mesh_file_name + ".xml", "w") as mesh_file:
-        mesh_file.write("<mesh>\n<submeshes>\n<submesh material=\"" + texture_name + "\" usesharedvertices=\"false\" use32bitindexes=\"false\" operationtype=\"triangle_list\">\n\
-<faces count=\"" + str(face_qty) + "\">\n")
-        mesh_file.write(face_str)
-        mesh_file.write("</faces>\n")
-        mesh_file.write("<geometry vertexcount=\"" + str(vertex_index) + "\">\n\
-<vertexbuffer positions=\"true\" normals=\"true\" texture_coord_dimensions_0=\"float2\" texture_coords=\"1\">")
-        mesh_file.write(vertex_str)
-        mesh_file.write("</vertexbuffer>\n</geometry>\n</submesh>\n</submeshes>\n</mesh>\n")
+        mesh_file.write(mesh_str)
 
     os.system(
         "OgreXMLConverter " + WORK_PATH + building_name + ".mesh.xml > /dev/null")
