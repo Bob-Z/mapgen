@@ -52,8 +52,6 @@ def create_road(way):
         way.tags.pop("lanes")
 
     try:
-        # all_nodes = way.get_nodes(resolve_missing=True)
-        # for node in all_nodes:
         for node in way.nodes:
             x = helper.lat_to_x(node.lat)
             y = helper.lon_to_y(node.lon)

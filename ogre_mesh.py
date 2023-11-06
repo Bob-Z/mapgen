@@ -51,13 +51,13 @@ def create_mesh(way):
     if wall_vertex_str is None:
         return None
 
+    # no submeshes with the same texture is allowed
     if wall_texture == roof_texture:
         roof_vertex_index, roof_face_qty, roof_vertex_str, roof_face_str = generate_roof(vertex2d, wall_vertex_index)
         generate_mesh_file(
             [{"vertex_index": roof_vertex_index, "face_qty": wall_face_qty + roof_face_qty,
               "vertex_str": wall_vertex_str + roof_vertex_str,
               "face_str": wall_face_str + roof_face_str, "texture": wall_texture}])
-
     else:
         roof_vertex_index, roof_face_qty, roof_vertex_str, roof_face_str = generate_roof(vertex2d, 0)
         generate_mesh_file(
@@ -261,8 +261,6 @@ def get_vertex(way):
     max_y = -9999999.0
 
     try:
-        # all_nodes = way.get_nodes(resolve_missing=True)
-        # for node in all_nodes:
         for node in way.nodes:
             x = helper.lat_to_x(node.lat)
             y = helper.lon_to_y(node.lon)
