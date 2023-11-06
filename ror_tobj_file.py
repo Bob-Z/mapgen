@@ -39,6 +39,9 @@ def create_road(way):
                     border_height = 0
                     way.tags.pop("surface")
 
+        if way.tags["highway"] == "service":
+            if "service" in way.tags:
+                way.tags.pop("service")
         way.tags.pop("highway")
 
     if "surface" in way.tags:
@@ -51,42 +54,37 @@ def create_road(way):
         road_width = int(way.tags["lanes"]) * LANE_WIDTH
         way.tags.pop("lanes")
 
-    try:
-        for node in way.nodes:
-            x = helper.lat_to_x(node.lat)
-            y = helper.lon_to_y(node.lon)
+    for node in way.nodes:
+        x = helper.lat_to_x(node.lat)
+        y = helper.lon_to_y(node.lon)
 
-            if len(x_history) == 0:
-                x_history.append(x)
-                y_history.append(y)
-                continue
-            elif len(x_history) == 1:
-                # Angle for first road: direction of first two points
-                angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
-                add_road(x_history[0], y_history[0], road_height, 0.0, 0.0, angle, road_width, border_width,
-                         border_height)
-                x_history.append(x)
-                y_history.append(y)
-                continue
-            else:
-                # Angle for other road: direction between previous and next point
-                angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
-                add_road(x_history[1], y_history[1], road_height, 0.0, 0.0, angle, road_width, border_width,
-                         border_height)
-                add_traffic_signals(node, x_history[1], y_history[1], road_height, angle, road_width)
+        if len(x_history) == 0:
+            x_history.append(x)
+            y_history.append(y)
+            continue
+        elif len(x_history) == 1:
+            # Angle for first road: direction of first two points
+            angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
+            add_road(x_history[0], y_history[0], road_height, 0.0, 0.0, angle, road_width, border_width,
+                     border_height)
+            x_history.append(x)
+            y_history.append(y)
+            continue
+        else:
+            # Angle for other road: direction between previous and next point
+            angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
+            add_road(x_history[1], y_history[1], road_height, 0.0, 0.0, angle, road_width, border_width,
+                     border_height)
+            add_traffic_signals(node, x_history[1], y_history[1], road_height, angle, road_width)
 
-                x_history[0] = x_history[1]
-                y_history[0] = y_history[1]
-                x_history[1] = x
-                y_history[1] = y
+            x_history[0] = x_history[1]
+            y_history[0] = y_history[1]
+            x_history[1] = x
+            y_history[1] = y
 
-        # Last road, angle between previous point and last point
-        angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
-        add_road(x_history[1], y_history[1], road_height, 0.0, 0.0, angle, road_width, border_width, border_height)
-
-    except overpy.exception.DataIncomplete:
-        # print("Missing nodes: ", way, way.tags)
-        pass
+    # Last road, angle between previous point and last point
+    angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
+    add_road(x_history[1], y_history[1], road_height, 0.0, 0.0, angle, road_width, border_width, border_height)
 
     end_road()
 

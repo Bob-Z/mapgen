@@ -13,7 +13,7 @@ def add_data_to_output_file():
 
     overpy_api = overpy.Overpass()
     result = overpy_api.query(
-        "(>;node(" + bounding_box + ");>;way(" + bounding_box + ");>;rel(" + bounding_box + "););out;")
+        "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;")
 
     print("Request to OpenStreetMap done")
     print("")

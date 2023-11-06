@@ -10,13 +10,14 @@ from gvar import WORK_PATH
 
 # Arbitrary constants
 BUILDING_LEVEL_HEIGHT = 2.5
-GRASS_HEIGHT = 0.006
+GRASS_HEIGHT = 0.004
 SWIMMING_POOL_HEIGHT = 0.07
 DEFAULT_WALL_TEXTURE = "mapgen_beige"
 DEFAULT_ROOF_TEXTURE = "mapgen_grey"
 DEFAULT_BARRIER_WIDTH = 0.3
 DEFAULT_BARRIER_HEIGHT = 1.5
 DEFAULT_WATER_HEIGHT = 0.005
+DEFAULT_PARKING_HEIGHT = 0.005
 
 VERTEX_PER_WALL = 4
 
@@ -181,43 +182,38 @@ def generate_wall(vertex):
     face_qty = 0
     vertex_qty = len(vertex)
 
-    try:
-        for i in range(vertex_qty):
-            # Create 4 vertex for a single wall
-            # 1-3
-            # | |
-            # 0-2
+    for i in range(vertex_qty):
+        # Create 4 vertex for a single wall
+        # 1-3
+        # | |
+        # 0-2
 
-            # Do not create face when nodes are the same
-            if ((vertex[i][0] == vertex[(i + 1) % vertex_qty][0]) and
-                    (vertex[i][1] == vertex[(i + 1) % vertex_qty][1]) and
-                    (vertex[i][2] == vertex[(i + 1) % vertex_qty][2])):
-                continue
+        # First and last nodes are sometimes the same. In this case skip the last node
+        if ((vertex[i][0] == vertex[(i + 1) % vertex_qty][0]) and
+                (vertex[i][1] == vertex[(i + 1) % vertex_qty][1]) and
+                (vertex[i][2] == vertex[(i + 1) % vertex_qty][2])):
+            continue
 
-            v0 = [vertex[i][0], vertex[i][1], vertex[i][2]]
-            v1 = [vertex[i][0], vertex[i][1], vertex[i][2] + wall_height]
-            v2 = [vertex[(i + 1) % vertex_qty][0], vertex[(i + 1) % vertex_qty][1],
-                  vertex[(i + 1) % vertex_qty][2]]
-            v3 = [vertex[(i + 1) % vertex_qty][0], vertex[(i + 1) % vertex_qty][1],
-                  vertex[(i + 1) % vertex_qty][2] + wall_height]
+        v0 = [vertex[i][0], vertex[i][1], vertex[i][2]]
+        v1 = [vertex[i][0], vertex[i][1], vertex[i][2] + wall_height]
+        v2 = [vertex[(i + 1) % vertex_qty][0], vertex[(i + 1) % vertex_qty][1],
+              vertex[(i + 1) % vertex_qty][2]]
+        v3 = [vertex[(i + 1) % vertex_qty][0], vertex[(i + 1) % vertex_qty][1],
+              vertex[(i + 1) % vertex_qty][2] + wall_height]
 
-            vertex_str += create_vertex_str(v0, v2, v1, 0.0, 0.0)
-            vertex_str += create_vertex_str(v1, v0, v3, 0.0, 1.0)
-            vertex_str += create_vertex_str(v2, v3, v0, 1.0, 0.0)
-            vertex_str += create_vertex_str(v3, v1, v2, 1.0, 1.0)
+        vertex_str += create_vertex_str(v0, v2, v1, 0.0, 0.0)
+        vertex_str += create_vertex_str(v1, v0, v3, 0.0, 1.0)
+        vertex_str += create_vertex_str(v2, v3, v0, 1.0, 0.0)
+        vertex_str += create_vertex_str(v3, v1, v2, 1.0, 1.0)
 
-            # Create 2 faces (triangle) per wall
-            vertex_index = i * VERTEX_PER_WALL
-            face_str += create_face(vertex_index + 1, vertex_index, vertex_index + 2)
-            face_str += create_face(vertex_index + 2, vertex_index + 3, vertex_index + 1)
+        # Create 2 faces (triangle) per wall
+        vertex_index = i * VERTEX_PER_WALL
+        face_str += create_face(vertex_index + 1, vertex_index, vertex_index + 2)
+        face_str += create_face(vertex_index + 2, vertex_index + 3, vertex_index + 1)
 
-            face_qty += 2
+        face_qty += 2
 
-        vertex_index += VERTEX_PER_WALL
-
-    except overpy.exception.DataIncomplete:
-        # Node unavailable
-        pass
+    vertex_index += VERTEX_PER_WALL
 
     return vertex_index, face_qty, vertex_str, face_str
 
@@ -260,63 +256,56 @@ def get_vertex(way):
     max_x = -9999999.0
     max_y = -9999999.0
 
-    try:
-        for node in way.nodes:
-            x = helper.lat_to_x(node.lat)
-            y = helper.lon_to_y(node.lon)
+    for node in way.nodes:
+        x = helper.lat_to_x(node.lat)
+        y = helper.lon_to_y(node.lon)
 
-            if x < min_x:
-                min_x = x
-            if x > max_x:
-                max_x = x
+        if x < min_x:
+            min_x = x
+        if x > max_x:
+            max_x = x
 
-            if y < min_y:
-                min_y = y
-            if y > max_y:
-                max_y = y
+        if y < min_y:
+            min_y = y
+        if y > max_y:
+            max_y = y
 
-            all_vertex.append([x, y, 0.0])
+        all_vertex.append([x, y, 0.0])
 
-        # Coordinate of object on map
-        center_x = (max_x + min_x) / 2
-        center_y = (max_y + min_y) / 2
+    # Coordinate of object on map
+    center_x = (max_x + min_x) / 2
+    center_y = (max_y + min_y) / 2
 
-        # Make sure vertices are centered on 0,0
-        centered_vertex = []
-        centered_vertex2d = []
+    # Make sure vertices are centered on 0,0
+    centered_vertex = []
+    centered_vertex2d = []
 
-        for v in all_vertex:
-            # Y axis is inverted on RoR map
-            centered_vertex.append([v[0] - center_x, -(v[1] - center_y), v[2]])
-            centered_vertex2d.append([v[0] - center_x, -(v[1] - center_y)])
+    for v in all_vertex:
+        # Y axis is inverted on RoR map
+        centered_vertex.append([v[0] - center_x, -(v[1] - center_y), v[2]])
+        centered_vertex2d.append([v[0] - center_x, -(v[1] - center_y)])
 
-        if build_barrier is True:
-            # Create vertices "around" each segment
-            first_side_vertex = []
-            first_side_vertex2d = []
-            opposite_side_vertex = []
-            opposite_side_vertex2d = []
+    # FIXME what to do of 2 nodes way is this case?
+    if len(centered_vertex) == 2:
+        build_barrier = True
 
-            normal_x = 0.0
-            normal_y = 0.0
+    if build_barrier is True:
+        # Create vertices "around" each segment
+        first_side_vertex = []
+        first_side_vertex2d = []
+        opposite_side_vertex = []
+        opposite_side_vertex2d = []
 
-            for i in range(len(centered_vertex) - 1):
-                normal_x = -(centered_vertex2d[i + 1][1] - centered_vertex2d[i][1])
-                normal_y = centered_vertex2d[i + 1][0] - centered_vertex2d[i][0]
-                normal_norm = math.sqrt((normal_x * normal_x) + (normal_y * normal_y))
-                normal_x = (normal_x / normal_norm) * (barrier_width / 2.0)
-                normal_y = (normal_y / normal_norm) * (barrier_width / 2.0)
+        normal_x = 0.0
+        normal_y = 0.0
 
-                first_side_vertex.append(
-                    [centered_vertex[i][0] + normal_x, centered_vertex[i][1] + normal_y, centered_vertex[i][2]])
-                opposite_side_vertex.append(
-                    [centered_vertex[i][0] - normal_x, centered_vertex[i][1] - normal_y, centered_vertex[i][2]])
+        for i in range(len(centered_vertex) - 1):
+            normal_x = -(centered_vertex2d[i + 1][1] - centered_vertex2d[i][1])
+            normal_y = centered_vertex2d[i + 1][0] - centered_vertex2d[i][0]
+            normal_norm = math.sqrt((normal_x * normal_x) + (normal_y * normal_y))
+            normal_x = (normal_x / normal_norm) * (barrier_width / 2.0)
+            normal_y = (normal_y / normal_norm) * (barrier_width / 2.0)
 
-                first_side_vertex2d.append([centered_vertex2d[i][0] + normal_x, centered_vertex2d[i][1] + normal_y])
-                opposite_side_vertex2d.append([centered_vertex2d[i][0] - normal_x, centered_vertex2d[i][1] - normal_y])
-
-            # Use latest normal for last input vertex
-            i = len(centered_vertex) - 1
             first_side_vertex.append(
                 [centered_vertex[i][0] + normal_x, centered_vertex[i][1] + normal_y, centered_vertex[i][2]])
             opposite_side_vertex.append(
@@ -325,18 +314,24 @@ def get_vertex(way):
             first_side_vertex2d.append([centered_vertex2d[i][0] + normal_x, centered_vertex2d[i][1] + normal_y])
             opposite_side_vertex2d.append([centered_vertex2d[i][0] - normal_x, centered_vertex2d[i][1] - normal_y])
 
-            first_side_vertex.reverse()
-            first_side_vertex2d.reverse()
-            centered_vertex = opposite_side_vertex + first_side_vertex
-            centered_vertex2d = opposite_side_vertex2d + first_side_vertex2d
+        # Use latest normal for last input vertex
+        i = len(centered_vertex) - 1
+        first_side_vertex.append(
+            [centered_vertex[i][0] + normal_x, centered_vertex[i][1] + normal_y, centered_vertex[i][2]])
+        opposite_side_vertex.append(
+            [centered_vertex[i][0] - normal_x, centered_vertex[i][1] - normal_y, centered_vertex[i][2]])
 
-        new_object = {"x": center_x, "y": center_y}
+        first_side_vertex2d.append([centered_vertex2d[i][0] + normal_x, centered_vertex2d[i][1] + normal_y])
+        opposite_side_vertex2d.append([centered_vertex2d[i][0] - normal_x, centered_vertex2d[i][1] - normal_y])
 
-        return new_object, centered_vertex, centered_vertex2d
+        first_side_vertex.reverse()
+        first_side_vertex2d.reverse()
+        centered_vertex = opposite_side_vertex + first_side_vertex
+        centered_vertex2d = opposite_side_vertex2d + first_side_vertex2d
 
-    except overpy.exception.DataIncomplete:
-        # Node unavailable
-        return None, None, None
+    new_object = {"x": center_x, "y": center_y}
+
+    return new_object, centered_vertex, centered_vertex2d
 
 
 def create_vertex_str(v0, v1, v2, u, v):
