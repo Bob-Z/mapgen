@@ -6,16 +6,20 @@ import sys
 import bbox
 import ror_zip_file
 import gvar
+import time
 
 
 def add_data_to_output_file():
     bounding_box = str(bbox.coord["north"]) + "," + str(bbox.coord["west"]) + "," + str(bbox.coord["south"]) + "," + str(bbox.coord["east"])
 
+    print("Requesting OpenStreetMap")
+    start_time = time.time()
     overpy_api = overpy.Overpass()
     result = overpy_api.query(
         "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;")
+    end_time = time.time()
 
-    print("Request to OpenStreetMap done")
+    print("Done in " + str(end_time-start_time) + " seconds")
     print("")
 
     dump_result_to_file(result)

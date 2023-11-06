@@ -26,8 +26,11 @@ def process(result):
     global node_empty_qty
 
     node_total = len(result.nodes)
-
+    node_qty = 0
     for node in result.nodes:
+        node_qty += 1
+        print("processing node " + str(node_qty) + "/" + str(node_total), end='\r', flush=True)
+
         if len(node.tags) == 0:
             node.tags["empty"] = True
 
@@ -53,6 +56,8 @@ def process(result):
         calculate_stats(node, original_tags)
         node.tags = original_tags
 
+    print("")
+    print("")
     print_stats()
 
 

@@ -4,7 +4,7 @@ import ogre_mesh
 import gvar
 
 # https://wiki.openstreetmap.org/wiki/Main_Page
-ignored_tags = ["source", "access", "description", "description:en", "description:de", "description:fr"]
+ignored_tags = ["source", "access", "description", "description:en", "description:de", "description:fr", "old_ref"]
 ignored_tags_value = [["landuse", "residential"], ["landuse", "retail"], ["railway", "razed"]]
 ignored_ways = ["admin_level"]
 
@@ -25,8 +25,12 @@ def process(result):
     global way_total
 
     way_total = len(result.ways)
+    way_qty = 0
 
     for way in result.ways:
+        way_qty += 1
+        print("processing way " + str(way_qty) + "/" + str(way_total), end='\r', flush=True)
+
         if len(way.tags) == 0:
             way.tags["empty"] = True
 
@@ -73,6 +77,8 @@ def process(result):
 
         calculate_stats(way, original_tags)
 
+    print("")
+    print("")
     print_stats()
 
 

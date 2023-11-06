@@ -5,7 +5,7 @@ import math
 
 road_data = []
 
-ROAD_HEIGHT = 0.01
+ROAD_HEIGHT = 0.015
 LANE_WIDTH = 3.0
 FOOTWAY_WIDTH = 1.5
 FOOTWAY_HEIGHT = 0.02
