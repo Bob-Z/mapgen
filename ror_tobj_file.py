@@ -7,6 +7,8 @@ road_data = []
 
 ROAD_HEIGHT = 0.015
 LANE_WIDTH = 3.0
+SIDEWALK_WIDTH = 1.5
+SIDEWALK_HEIGHT = 0.1
 FOOTWAY_WIDTH = 1.5
 FOOTWAY_HEIGHT = 0.02
 
@@ -24,6 +26,7 @@ def create_road(way):
     road_height = ROAD_HEIGHT
     border_width = 0
     border_height = 0
+    sidewalk = "both"
 
     if "highway" in way.tags:
         if way.tags["highway"] == "footway":
@@ -43,6 +46,25 @@ def create_road(way):
             if "service" in way.tags:
                 way.tags.pop("service")
         way.tags.pop("highway")
+
+        if "name" in way.tags:
+            way.tags.pop("name")
+
+    if "sidewalk" in way.tags:
+        if way.tags["sidewalk"] == "both":
+            sidewalk = "both"
+            border_width = SIDEWALK_WIDTH
+            border_height = SIDEWALK_HEIGHT
+        elif way.tags["sidewalk"] == "left":
+            sidewalk = "left"
+            border_width = SIDEWALK_WIDTH
+            border_height = SIDEWALK_HEIGHT
+        elif way.tags["sidewalk"] == "right":
+            sidewalk = "right"
+            border_width = SIDEWALK_WIDTH
+            border_height = SIDEWALK_HEIGHT
+
+        way.tags.pop("sidewalk")
 
     if "surface" in way.tags:
         # Asphalt is the default surface
@@ -66,7 +88,7 @@ def create_road(way):
             # Angle for first road: direction of first two points
             angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
             add_road(x_history[0], y_history[0], road_height, 0.0, 0.0, angle, road_width, border_width,
-                     border_height)
+                     border_height,sidewalk)
             x_history.append(x)
             y_history.append(y)
             continue
@@ -74,7 +96,7 @@ def create_road(way):
             # Angle for other road: direction between previous and next point
             angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
             add_road(x_history[1], y_history[1], road_height, 0.0, 0.0, angle, road_width, border_width,
-                     border_height)
+                     border_height, sidewalk)
             add_traffic_signals(node, x_history[1], y_history[1], road_height, angle, road_width)
 
             x_history[0] = x_history[1]
@@ -84,7 +106,7 @@ def create_road(way):
 
     # Last road, angle between previous point and last point
     angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
-    add_road(x_history[1], y_history[1], road_height, 0.0, 0.0, angle, road_width, border_width, border_height)
+    add_road(x_history[1], y_history[1], road_height, 0.0, 0.0, angle, road_width, border_width, border_height, sidewalk)
 
     end_road()
 
@@ -107,11 +129,11 @@ def begin_road():
     road_data = []
 
 
-def add_road(x, y, z, rx, ry, rz, road_width, border_width, border_height):
+def add_road(x, y, z, rx, ry, rz, road_width, border_width, border_height, sidewalk):
     global road_data
     # In tobj file rz is just after rx
     road_data.append(str(x) + ", " + str(z) + ", " + str(y) + ", " + str(rx) + ", " + str(rz) + ", " + str(
-        ry) + ", " + str(road_width) + ", " + str(border_width) + ", " + str(border_height) + ", both\n")
+        ry) + ", " + str(road_width) + ", " + str(border_width) + ", " + str(border_height) + ", " + sidewalk + "\n")
 
 
 def add_traffic_signals(node, road_x, road_y, road_height, angle, road_width):
