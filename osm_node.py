@@ -4,7 +4,7 @@ import random
 import gvar
 
 # https://wiki.openstreetmap.org/wiki/Main_Page
-ignored_tags = ["source", "addr:housenumber", "addr:street", "genus:de", "genus:en", "genus:fr", "ref"]
+ignored_tags = ["source", "addr:housenumber", "addr:street", "genus:de", "genus:en", "genus:fr", "ref", "check_date:shelter"]
 # Traffic signals are managed when processing road
 ignored_tags_value = [["highway", "traffic_signals"]]
 
@@ -53,6 +53,11 @@ def process(result):
                 add_object(node, "tree1", rx=90.0, ry=float(random.randint(0, 359)))
                 node.tags.pop("natural")
 
+        if "amenity" in node.tags:
+            if node.tags["amenity"] == "bench":
+                add_object(node, "bench", z=0.5, rz=float(random.randint(0, 359)))
+                node.tags.pop("amenity")
+
         calculate_stats(node, original_tags)
         node.tags = original_tags
 
@@ -61,8 +66,8 @@ def process(result):
     print_stats()
 
 
-def add_object(node, name, rx=0.0, ry=0.0, rz=0.0):
-    obj = {"x": helper.lat_to_x(node.lat), "y": helper.lon_to_y(node.lon), "z": 0.0, "rx": rx, "ry": ry, "rz": rz,
+def add_object(node, name, z=0.0, rx=0.0, ry=0.0, rz=0.0):
+    obj = {"x": helper.lat_to_x(node.lat), "y": helper.lon_to_y(node.lon), "z": z, "rx": rx, "ry": ry, "rz": rz,
            "name": name}
     ror_tobj_file.add_object(obj)
 

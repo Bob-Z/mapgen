@@ -1,0 +1,8 @@
+bench.mesh
+0.1, 0.1, 0.1
+
+beginmesh
+mesh bench_coll.mesh
+endmesh
+
+end
