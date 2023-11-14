@@ -17,7 +17,9 @@ DEFAULT_ROOF_TEXTURE = "mapgen_grey"
 DEFAULT_BARRIER_WIDTH = 0.3
 DEFAULT_BARRIER_HEIGHT = 1.5
 DEFAULT_WATER_HEIGHT = 0.01
-DEFAULT_PARKING_HEIGHT = 0.005
+DEFAULT_SAND_HEIGHT = 0.005
+DEFAULT_PARKING_HEIGHT = 0.008
+DEFAULT_DEBUG_HEIGHT = 0.003
 
 VERTEX_PER_WALL = 4
 
@@ -164,6 +166,26 @@ def process_tags(way):
     if "natural" in way.tags:
         if way.tags["natural"] == "water":
             wall_height = DEFAULT_WATER_HEIGHT
+            wall_texture = "mapgen_blue"
+            roof_texture = "mapgen_blue"
+            way.tags.pop("natural")
+        elif way.tags["natural"] == "sand":
+            wall_height = DEFAULT_WATER_HEIGHT
+            wall_texture = "mapgen_yellow_sand"
+            roof_texture = "mapgen_yellow_sand"
+            way.tags.pop("natural")
+        elif way.tags["natural"] == "beach":
+            if "surface" in way.tags:
+                if way.tags["surface"] == "sand":
+                    wall_height = DEFAULT_WATER_HEIGHT
+                    wall_texture = "mapgen_yellow_sand"
+                    roof_texture = "mapgen_yellow_sand"
+                    way.tags.pop("natural")
+                    way.tags.pop("surface")
+        # FIXME: this is just for debug for now
+        elif way.tags["natural"] == "coastline":
+            build_barrier = True
+            wall_height = DEFAULT_DEBUG_HEIGHT
             wall_texture = "mapgen_blue"
             roof_texture = "mapgen_blue"
             way.tags.pop("natural")

@@ -90,6 +90,21 @@ material mapgen_beige
    }
 }
 
+material mapgen_yellow_sand
+{
+   technique
+   {
+      pass
+      {
+         lighting on
+
+         ambient 0.57 0.50 0.36 1
+         diffuse 0.87 0.80 0.66 1
+         emissive 0 0 0 1
+      }
+   }
+}
+
 material mapgen_grass : RoR/Managed_Mats/Base
 {
 	technique BaseTechnique
