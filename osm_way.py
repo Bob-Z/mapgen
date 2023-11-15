@@ -51,8 +51,6 @@ def process(result):
 
         if "highway" in way.tags:
             ror_tobj_file.create_road(way)
-        if "surface" in way.tags:
-            ror_tobj_file.create_road(way)
         if "building" in way.tags:
             create_object(way)
             way.tags.pop("building")
