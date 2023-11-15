@@ -217,12 +217,6 @@ def generate_wall(vertex):
         # | |
         # 0-2
 
-        # First and last nodes are sometimes the same. In this case skip the last node
-        if ((vertex[i][0] == vertex[(i + 1) % vertex_qty][0]) and
-                (vertex[i][1] == vertex[(i + 1) % vertex_qty][1]) and
-                (vertex[i][2] == vertex[(i + 1) % vertex_qty][2])):
-            continue
-
         v0 = [vertex[i][0], vertex[i][1], vertex[i][2]]
         v1 = [vertex[i][0], vertex[i][1], vertex[i][2] + wall_height]
         v2 = [vertex[(i + 1) % vertex_qty][0], vertex[(i + 1) % vertex_qty][1],
@@ -285,7 +279,13 @@ def get_vertex(way):
     max_x = -9999999.0
     max_y = -9999999.0
 
-    for node in way.nodes:
+    all_nodes = way.nodes
+
+    # First and last nodes are sometimes the same. In this case skip the last node
+    if way.nodes[0] == way.nodes[-1]:
+        all_nodes.pop()
+
+    for node in all_nodes:
         x = helper.lat_to_x(node.lat)
         y = helper.lon_to_y(node.lon)
 
@@ -313,6 +313,26 @@ def get_vertex(way):
         # Y axis is inverted on RoR map
         centered_vertex.append([v[0] - center_x, -(v[1] - center_y), v[2]])
         centered_vertex2d.append([v[0] - center_x, -(v[1] - center_y)])
+
+    # FIXME
+    # This is a hack to try to guess in which direction (clockwise or anti-clockwise) nodes in this way are
+    # It's completely empirical and not bullet proof at all, but it improves the final result.
+    index = 0
+    positive_angle = 0
+    negative_angle = 0
+    for v in centered_vertex2d:
+        angle = helper.angle_between(centered_vertex2d[index], [0.0, 0.0],
+                                     centered_vertex2d[(index + 1) % len(centered_vertex2d)])
+        # Skip small angles ( < 10 deg)
+        if angle < -10.0:
+            negative_angle += 1
+        elif angle > 10.0:
+            positive_angle += 1
+        index += 1
+
+    if positive_angle < negative_angle:
+        centered_vertex2d.reverse()
+        centered_vertex.reverse()
 
     # FIXME what to do of 2 nodes way is this case?
     if len(centered_vertex) == 2:

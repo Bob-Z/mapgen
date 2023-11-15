@@ -1,6 +1,7 @@
 import math
 import bbox
 import numpy
+from math import atan2, degrees
 
 EARTH_RADIUS = 6371000
 
@@ -41,3 +42,20 @@ def calc_norm(triangle_vertices):
 
     # Normalize
     return cross / numpy.linalg.norm(cross)
+
+
+def angle_between(v1, v2, v3):
+    x1, y1 = v1
+    x2, y2 = v2
+    x3, y3 = v3
+    deg1 = degrees(atan2(y1 - y2, x1 - x2))
+    deg2 = degrees(atan2(y3 - y2, x3 - x2))
+
+    angle = deg2 - deg1
+
+    if angle > 180.0:
+        angle = -360.0 + angle
+    elif angle < -180.0:
+        angle = 360.0 + angle
+
+    return angle
