@@ -182,6 +182,13 @@ def process_tags(way):
                     roof_texture = "mapgen_yellow_sand"
                     way.tags.pop("natural")
                     way.tags.pop("surface")
+            # sand by default
+            else:
+                wall_height = DEFAULT_WATER_HEIGHT
+                wall_texture = "mapgen_yellow_sand"
+                roof_texture = "mapgen_yellow_sand"
+                way.tags.pop("natural")
+
         # FIXME: this is just for debug for now
         elif way.tags["natural"] == "coastline":
             build_barrier = True
