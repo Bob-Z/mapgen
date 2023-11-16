@@ -246,26 +246,66 @@ def generate_roof(vertex2d, vertex_index):
     vertex_str = ""
     face_str = ""
 
-    vertex = vertex2d[::-1] if triangulate.IsClockwise(
-        vertex2d) else vertex2d[:]
-    while len(vertex) >= 3:
-        ear = triangulate.GetEar(vertex)
-        if not ear:
-            break
+    if build_barrier is False:
+        vertex = vertex2d[::-1] if triangulate.IsClockwise(
+            vertex2d) else vertex2d[:]
+        while len(vertex) >= 3:
+            ear = triangulate.GetEar(vertex)
+            if not ear:
+                break
 
-        # Add Z axis
-        ear[0].append(wall_height)
-        ear[1].append(wall_height)
-        ear[2].append(wall_height)
-        # TODO U,V are wrong here
-        vertex_str += create_vertex_with_normal_str(ear[0], [0.0, 0.0, 1.0], 0.0, 0.0)
-        vertex_str += create_vertex_with_normal_str(ear[1], [0.0, 0.0, 1.0], 0.0, 1.0)
-        vertex_str += create_vertex_with_normal_str(ear[2], [0.0, 0.0, 1.0], 1.0, 0.0)
+            # Add Z axis
+            ear[0].append(wall_height)
+            ear[1].append(wall_height)
+            ear[2].append(wall_height)
+            # TODO U,V are wrong here
+            vertex_str += create_vertex_with_normal_str(ear[0], [0.0, 0.0, 1.0], 0.0, 0.0)
+            vertex_str += create_vertex_with_normal_str(ear[1], [0.0, 0.0, 1.0], 0.0, 1.0)
+            vertex_str += create_vertex_with_normal_str(ear[2], [0.0, 0.0, 1.0], 1.0, 0.0)
 
-        face_str += create_face(vertex_index + 1, vertex_index + 2, vertex_index + 0)
+            face_str += create_face(vertex_index + 1, vertex_index + 2, vertex_index + 0)
 
-        vertex_index += 3
-        face_qty += 1
+            vertex_index += 3
+            face_qty += 1
+    else:
+        # for barrier, the first half vertices are one side, the last half the other side
+        index = 0
+        vlen = len(vertex2d)
+        for v in vertex2d:
+            # 2 faces per first half vertex
+            v1 = vertex2d[index]
+            v2 = vertex2d[index+1]
+            v3 = vertex2d[vlen - 1 - index]
+            v1.append(wall_height)
+            v2.append(wall_height)
+            v3.append(wall_height)
+            vertex_str += create_vertex_with_normal_str(v1, [0.0, 0.0, 1.0], 0.0, 0.0)
+            vertex_str += create_vertex_with_normal_str(v2, [0.0, 0.0, 1.0], 0.0, 1.0)
+            vertex_str += create_vertex_with_normal_str(v3, [0.0, 0.0, 1.0], 1.0, 0.0)
+
+            face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+
+            vertex_index += 3
+            face_qty += 1
+
+            v1 = vertex2d[index+1]
+            v2 = vertex2d[vlen - 1 - index]
+            v3 = vertex2d[vlen - 2 - index]
+            v1.append(wall_height)
+            v2.append(wall_height)
+            v3.append(wall_height)
+            vertex_str += create_vertex_with_normal_str(v1, [0.0, 0.0, 1.0], 0.0, 0.0)
+            vertex_str += create_vertex_with_normal_str(v2, [0.0, 0.0, 1.0], 0.0, 1.0)
+            vertex_str += create_vertex_with_normal_str(v3, [0.0, 0.0, 1.0], 1.0, 0.0)
+
+            face_str += create_face(vertex_index + 0, vertex_index + 2, vertex_index + 1)
+
+            vertex_index += 3
+            face_qty += 1
+
+            index += 1
+            if index >= (vlen/2)-1:
+                break
 
     return vertex_index, face_qty, vertex_str, face_str
 
