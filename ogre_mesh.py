@@ -192,9 +192,9 @@ def process_tags(way):
         # FIXME: this is just for debug for now
         elif way.tags["natural"] == "coastline":
             build_barrier = True
-            wall_height = DEFAULT_DEBUG_HEIGHT
-            wall_texture = "mapgen_blue"
-            roof_texture = "mapgen_blue"
+            wall_height = 10.0
+            wall_texture = "mapgen_green"
+            roof_texture = "mapgen_green"
             way.tags.pop("natural")
         else:
             process_ok = False
@@ -314,23 +314,8 @@ def get_vertex(way):
         centered_vertex.append([v[0] - center_x, -(v[1] - center_y), v[2]])
         centered_vertex2d.append([v[0] - center_x, -(v[1] - center_y)])
 
-    # FIXME
-    # This is a hack to try to guess in which direction (clockwise or anti-clockwise) nodes in this way are
-    # It's completely empirical and not bullet proof at all, but it improves the final result.
-    index = 0
-    positive_angle = 0
-    negative_angle = 0
-    for v in centered_vertex2d:
-        angle = helper.angle_between(centered_vertex2d[index], [0.0, 0.0],
-                                     centered_vertex2d[(index + 1) % len(centered_vertex2d)])
-        # Skip small angles ( < 10 deg)
-        if angle < -10.0:
-            negative_angle += 1
-        elif angle > 10.0:
-            positive_angle += 1
-        index += 1
-
-    if positive_angle < negative_angle:
+    # Make sure faces are correctly oriented
+    if triangulate.IsClockwise(centered_vertex2d):
         centered_vertex2d.reverse()
         centered_vertex.reverse()
 
