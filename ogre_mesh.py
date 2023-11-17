@@ -242,70 +242,84 @@ def generate_wall(vertex):
 
 
 def generate_roof(vertex2d, vertex_index):
+    if build_barrier is False:
+        return generate_roof_for_building(vertex2d, vertex_index)
+    else:
+        return generate_roof_for_barrier(vertex2d, vertex_index)
+
+
+def generate_roof_for_building(vertex2d, vertex_index):
     face_qty = 0
     vertex_str = ""
     face_str = ""
 
-    if build_barrier is False:
-        vertex = vertex2d[::-1] if triangulate.IsClockwise(
-            vertex2d) else vertex2d[:]
-        while len(vertex) >= 3:
-            ear = triangulate.GetEar(vertex)
-            if not ear:
-                break
+    vertex = vertex2d[::-1] if triangulate.IsClockwise(
+        vertex2d) else vertex2d[:]
+    while len(vertex) >= 3:
+        ear = triangulate.GetEar(vertex)
+        if not ear:
+            break
 
-            # Add Z axis
-            ear[0].append(wall_height)
-            ear[1].append(wall_height)
-            ear[2].append(wall_height)
-            # TODO U,V are wrong here
-            vertex_str += create_vertex_with_normal_str(ear[0], [0.0, 0.0, 1.0], 0.0, 0.0)
-            vertex_str += create_vertex_with_normal_str(ear[1], [0.0, 0.0, 1.0], 0.0, 1.0)
-            vertex_str += create_vertex_with_normal_str(ear[2], [0.0, 0.0, 1.0], 1.0, 0.0)
+        # Add Z axis
+        ear[0].append(wall_height)
+        ear[1].append(wall_height)
+        ear[2].append(wall_height)
+        # TODO U,V are wrong here
+        vertex_str += create_vertex_with_normal_str(ear[0], [0.0, 0.0, 1.0], 0.0, 0.0)
+        vertex_str += create_vertex_with_normal_str(ear[1], [0.0, 0.0, 1.0], 0.0, 1.0)
+        vertex_str += create_vertex_with_normal_str(ear[2], [0.0, 0.0, 1.0], 1.0, 0.0)
 
-            face_str += create_face(vertex_index + 1, vertex_index + 2, vertex_index + 0)
+        face_str += create_face(vertex_index + 1, vertex_index + 2, vertex_index + 0)
 
-            vertex_index += 3
-            face_qty += 1
-    else:
-        # for barrier, the first half vertices are one side, the last half the other side
-        index = 0
-        vlen = len(vertex2d)
-        for v in vertex2d:
-            # 2 faces per first half vertex
-            v1 = vertex2d[index]
-            v2 = vertex2d[index+1]
-            v3 = vertex2d[vlen - 1 - index]
-            v1.append(wall_height)
-            v2.append(wall_height)
-            v3.append(wall_height)
-            vertex_str += create_vertex_with_normal_str(v1, [0.0, 0.0, 1.0], 0.0, 0.0)
-            vertex_str += create_vertex_with_normal_str(v2, [0.0, 0.0, 1.0], 0.0, 1.0)
-            vertex_str += create_vertex_with_normal_str(v3, [0.0, 0.0, 1.0], 1.0, 0.0)
+        vertex_index += 3
+        face_qty += 1
 
-            face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+    return vertex_index, face_qty, vertex_str, face_str
 
-            vertex_index += 3
-            face_qty += 1
 
-            v1 = vertex2d[index+1]
-            v2 = vertex2d[vlen - 1 - index]
-            v3 = vertex2d[vlen - 2 - index]
-            v1.append(wall_height)
-            v2.append(wall_height)
-            v3.append(wall_height)
-            vertex_str += create_vertex_with_normal_str(v1, [0.0, 0.0, 1.0], 0.0, 0.0)
-            vertex_str += create_vertex_with_normal_str(v2, [0.0, 0.0, 1.0], 0.0, 1.0)
-            vertex_str += create_vertex_with_normal_str(v3, [0.0, 0.0, 1.0], 1.0, 0.0)
+def generate_roof_for_barrier(vertex2d, vertex_index):
+    face_qty = 0
+    vertex_str = ""
+    face_str = ""
 
-            face_str += create_face(vertex_index + 0, vertex_index + 2, vertex_index + 1)
+    # for barrier, the first half vertices are one side, the last half the other side
+    index = 0
+    vlen = len(vertex2d)
+    for v in vertex2d:
+        # 2 faces per first half vertex
+        v1 = vertex2d[index]
+        v2 = vertex2d[index + 1]
+        v3 = vertex2d[vlen - 1 - index]
+        v1.append(wall_height)
+        v2.append(wall_height)
+        v3.append(wall_height)
+        vertex_str += create_vertex_with_normal_str(v1, [0.0, 0.0, 1.0], 0.0, 0.0)
+        vertex_str += create_vertex_with_normal_str(v2, [0.0, 0.0, 1.0], 0.0, 1.0)
+        vertex_str += create_vertex_with_normal_str(v3, [0.0, 0.0, 1.0], 1.0, 0.0)
 
-            vertex_index += 3
-            face_qty += 1
+        face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
-            index += 1
-            if index >= (vlen/2)-1:
-                break
+        vertex_index += 3
+        face_qty += 1
+
+        v1 = vertex2d[index + 1]
+        v2 = vertex2d[vlen - 1 - index]
+        v3 = vertex2d[vlen - 2 - index]
+        v1.append(wall_height)
+        v2.append(wall_height)
+        v3.append(wall_height)
+        vertex_str += create_vertex_with_normal_str(v1, [0.0, 0.0, 1.0], 0.0, 0.0)
+        vertex_str += create_vertex_with_normal_str(v2, [0.0, 0.0, 1.0], 0.0, 1.0)
+        vertex_str += create_vertex_with_normal_str(v3, [0.0, 0.0, 1.0], 1.0, 0.0)
+
+        face_str += create_face(vertex_index + 0, vertex_index + 2, vertex_index + 1)
+
+        vertex_index += 3
+        face_qty += 1
+
+        index += 1
+        if index >= (vlen / 2) - 1:
+            break
 
     return vertex_index, face_qty, vertex_str, face_str
 
@@ -364,32 +378,30 @@ def get_vertex(way):
         build_barrier = True
 
     if build_barrier is True:
-        # Create vertices "around" each segment
-        first_side_vertex = []
-        first_side_vertex2d = []
-        opposite_side_vertex = []
-        opposite_side_vertex2d = []
+        centered_vertex, centered_vertex2d = create_additional_vertex_for_barrier(centered_vertex, centered_vertex2d)
 
-        normal_x = 0.0
-        normal_y = 0.0
+    new_object = {"x": center_x, "y": center_y}
 
-        for i in range(len(centered_vertex) - 1):
-            normal_x = -(centered_vertex2d[i + 1][1] - centered_vertex2d[i][1])
-            normal_y = centered_vertex2d[i + 1][0] - centered_vertex2d[i][0]
-            normal_norm = math.sqrt((normal_x * normal_x) + (normal_y * normal_y))
-            normal_x = (normal_x / normal_norm) * (barrier_width / 2.0)
-            normal_y = (normal_y / normal_norm) * (barrier_width / 2.0)
+    return new_object, centered_vertex, centered_vertex2d
 
-            first_side_vertex.append(
-                [centered_vertex[i][0] + normal_x, centered_vertex[i][1] + normal_y, centered_vertex[i][2]])
-            opposite_side_vertex.append(
-                [centered_vertex[i][0] - normal_x, centered_vertex[i][1] - normal_y, centered_vertex[i][2]])
 
-            first_side_vertex2d.append([centered_vertex2d[i][0] + normal_x, centered_vertex2d[i][1] + normal_y])
-            opposite_side_vertex2d.append([centered_vertex2d[i][0] - normal_x, centered_vertex2d[i][1] - normal_y])
+def create_additional_vertex_for_barrier(centered_vertex, centered_vertex2d):
+    # Create vertices "around" each segment
+    first_side_vertex = []
+    first_side_vertex2d = []
+    opposite_side_vertex = []
+    opposite_side_vertex2d = []
 
-        # Use latest normal for last input vertex
-        i = len(centered_vertex) - 1
+    normal_x = 0.0
+    normal_y = 0.0
+
+    for i in range(len(centered_vertex) - 1):
+        normal_x = -(centered_vertex2d[i + 1][1] - centered_vertex2d[i][1])
+        normal_y = centered_vertex2d[i + 1][0] - centered_vertex2d[i][0]
+        normal_norm = math.sqrt((normal_x * normal_x) + (normal_y * normal_y))
+        normal_x = (normal_x / normal_norm) * (barrier_width / 2.0)
+        normal_y = (normal_y / normal_norm) * (barrier_width / 2.0)
+
         first_side_vertex.append(
             [centered_vertex[i][0] + normal_x, centered_vertex[i][1] + normal_y, centered_vertex[i][2]])
         opposite_side_vertex.append(
@@ -398,14 +410,22 @@ def get_vertex(way):
         first_side_vertex2d.append([centered_vertex2d[i][0] + normal_x, centered_vertex2d[i][1] + normal_y])
         opposite_side_vertex2d.append([centered_vertex2d[i][0] - normal_x, centered_vertex2d[i][1] - normal_y])
 
-        first_side_vertex.reverse()
-        first_side_vertex2d.reverse()
-        centered_vertex = opposite_side_vertex + first_side_vertex
-        centered_vertex2d = opposite_side_vertex2d + first_side_vertex2d
+    # Use latest normal for last input vertex
+    i = len(centered_vertex) - 1
+    first_side_vertex.append(
+        [centered_vertex[i][0] + normal_x, centered_vertex[i][1] + normal_y, centered_vertex[i][2]])
+    opposite_side_vertex.append(
+        [centered_vertex[i][0] - normal_x, centered_vertex[i][1] - normal_y, centered_vertex[i][2]])
 
-    new_object = {"x": center_x, "y": center_y}
+    first_side_vertex2d.append([centered_vertex2d[i][0] + normal_x, centered_vertex2d[i][1] + normal_y])
+    opposite_side_vertex2d.append([centered_vertex2d[i][0] - normal_x, centered_vertex2d[i][1] - normal_y])
 
-    return new_object, centered_vertex, centered_vertex2d
+    first_side_vertex.reverse()
+    first_side_vertex2d.reverse()
+    centered_vertex = opposite_side_vertex + first_side_vertex
+    centered_vertex2d = opposite_side_vertex2d + first_side_vertex2d
+
+    return centered_vertex, centered_vertex2d
 
 
 def create_vertex_str(v0, v1, v2, u, v):

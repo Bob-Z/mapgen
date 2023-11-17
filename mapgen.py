@@ -2,6 +2,16 @@ import ror_zip_file
 import osm
 import bbox
 import sys
+import gvar
+import osm_node
+import osm_way
+
+
+def process_relation(result):
+    for relation in result.relations:
+        if "building" in relation.tags and relation.tags["building"] == "yes":
+            print("relation", relation, " : ", relation.tags)
+
 
 if len(sys.argv) < 2:
     print("\nUsage: " + sys.argv[0] + " <north,west,south,east>")
@@ -32,5 +42,10 @@ print("Bounding box:", bbox.coord)
 ror_zip_file.create_default_file()
 ror_zip_file.create_base()
 
-osm.add_data_to_output_file()
+osm_data = osm.get_data()
 
+osm_node.process(osm_data)
+osm_way.process(osm_data)
+process_relation(osm_data)
+
+ror_zip_file.add_file(gvar.MAP_NAME + ".tobj")

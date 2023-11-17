@@ -1,16 +1,13 @@
 import overpy
-import osm_node
-import osm_way
 from gvar import LOG_PATH
 import sys
 import bbox
-import ror_zip_file
-import gvar
 import time
 
 
-def add_data_to_output_file():
-    bounding_box = str(bbox.coord["north"]) + "," + str(bbox.coord["west"]) + "," + str(bbox.coord["south"]) + "," + str(bbox.coord["east"])
+def get_data():
+    bounding_box = str(bbox.coord["north"]) + "," + str(bbox.coord["west"]) + "," + str(
+        bbox.coord["south"]) + "," + str(bbox.coord["east"])
 
     print("Requesting OpenStreetMap")
     start_time = time.time()
@@ -19,16 +16,12 @@ def add_data_to_output_file():
         "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;")
     end_time = time.time()
 
-    print("Done in " + str(end_time-start_time) + " seconds")
+    print("Done in " + str(end_time - start_time) + " seconds")
     print("")
 
     dump_result_to_file(result)
 
-    osm_node.process(result)
-    osm_way.process(result)
-    process_relation(result)
-
-    ror_zip_file.add_file(gvar.MAP_NAME + ".tobj")
+    return result
 
 
 def dump_result_to_file(result):
@@ -47,15 +40,3 @@ def dump_result_to_file(result):
             print(relation, relation.tags)
 
     sys.stdout = original_stdout
-
-
-def process_node(result):
-    for node in result.nodes:
-        if "building" in node.tags and node.tags["building"] == "yes":
-            print("node", node, " : ", node.tags)
-
-
-def process_relation(result):
-    for relation in result.relations:
-        if "building" in relation.tags and relation.tags["building"] == "yes":
-            print("relation", relation, " : ", relation.tags)
