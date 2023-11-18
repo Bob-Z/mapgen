@@ -1,108 +1,115 @@
 import * from "managed_mats.material"
 
-material mapgen_red
+material mapgen_red : RoR/Managed_Mats/Base
 {
-   technique
-   {
-      pass
-      {
-         lighting on
-
-         ambient 0.3 0.1 0.1 1
-         diffuse 0.8 0.05 0.05 1
-         emissive 0 0 0 1
-      }
-   }
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture red.png
+			}
+		}
+	}
 }
 
-material mapgen_green
+material mapgen_green : RoR/Managed_Mats/Base
 {
-   technique
-   {
-      pass
-      {
-         lighting on
-
-         ambient 0.3 0.3 0.3 1
-         diffuse 0.1 0.7 0.2 1
-         emissive 0 0 0 1
-      }
-   }
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture green.png
+			}
+		}
+	}
 }
 
-material mapgen_blue
+material mapgen_blue : RoR/Managed_Mats/Base
 {
-   technique
-   {
-      pass
-      {
-         lighting on
-
-         ambient 0.3 0.3 0.3 1
-         diffuse 0.1 0.2 0.7 1
-         emissive 0 0 0 1
-      }
-   }
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture blue.png
+			}
+		}
+	}
 }
 
-material mapgen_grey
+material mapgen_grey : RoR/Managed_Mats/Base
 {
-   technique
-   {
-      pass
-      {
-         lighting on
-
-         ambient 0.4 0.4 0.4 1
-         diffuse 0.5 0.5 0.5 1
-         emissive 0 0 0 1
-      }
-   }
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture grey.png
+			}
+		}
+	}
 }
 
-material mapgen_dark_grey
+material mapgen_dark_grey : RoR/Managed_Mats/Base
 {
-   technique
-   {
-      pass
-      {
-         lighting on
-
-         ambient 0.2 0.2 0.2 1
-         diffuse 0.4 0.4 0.4 1
-         emissive 0 0 0 1
-      }
-   }
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture dark_grey.png
+			}
+		}
+	}
 }
 
-material mapgen_beige
+material mapgen_beige : RoR/Managed_Mats/Base
 {
-   technique
-   {
-      pass
-      {
-         lighting on
-
-         ambient 0.3 0.3 0.3 1
-         diffuse 0.68 0.57 0.39 1
-         emissive 0 0 0 1
-      }
-   }
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture beige.png
+			}
+		}
+	}
 }
 
-material mapgen_yellow_sand
+material mapgen_yellow_sand : RoR/Managed_Mats/Base
 {
-   technique
-   {
-      pass
-      {
-         lighting on
-
-         ambient 0.57 0.50 0.36 1
-         diffuse 0.87 0.80 0.66 1
-         emissive 0 0 0 1
-      }
-   }
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture yellow_sand.png
+			}
+		}
+	}
 }
 
 material mapgen_grass : RoR/Managed_Mats/Base
