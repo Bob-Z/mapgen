@@ -2,7 +2,7 @@ import math
 
 import helper
 import gvar
-import overpy
+import ogre_material
 import os
 import ror_zip_file
 import triangulate
@@ -33,11 +33,19 @@ wall_height = BUILDING_LEVEL_HEIGHT
 wall_texture = DEFAULT_WALL_TEXTURE
 roof_texture = DEFAULT_ROOF_TEXTURE
 barrier_width = DEFAULT_BARRIER_WIDTH
+wall_texture_generator = None
+roof_texture_generator = None
 
 
 def create_mesh(way):
     global building_name
     global building_index
+    global wall_texture_generator
+    global roof_texture_generator
+    global roof_texture
+
+    wall_texture_generator = None
+    roof_texture_generator = None
 
     building_index = building_index + 1
 
@@ -53,6 +61,9 @@ def create_mesh(way):
     wall_vertex_index, wall_face_qty, wall_vertex_str, wall_face_str = generate_wall(vertex)
     if wall_vertex_str is None:
         return None
+
+    if roof_texture_generator is not None:
+        roof_texture = roof_texture_generator(new_object["width"],new_object["height"])
 
     # no submeshes with the same texture is allowed
     if wall_texture == roof_texture:
@@ -90,6 +101,8 @@ def process_tags(way):
     global wall_height
     global wall_texture
     global roof_texture
+    global wall_texture_generator
+    global roof_texture_generator
     global barrier_width
 
     build_barrier = False
@@ -139,8 +152,8 @@ def process_tags(way):
             collision = False
             way.tags.pop("leisure")
         elif way.tags["leisure"] == "swimming_pool":
-            wall_texture = "mapgen_swimming_pool"
-            roof_texture = "mapgen_swimming_pool"
+            wall_texture_generator = "mapgen_swimming_pool"
+            roof_texture_generator = ogre_material.create_material_swimming_pool
             wall_height = SWIMMING_POOL_HEIGHT
             collision = False
             way.tags.pop("leisure")
@@ -359,10 +372,10 @@ def get_vertex(way):
     center_x = (max_x + min_x) / 2
     center_y = (max_y + min_y) / 2
 
-    # Make sure vertices are centered on 0,0
     centered_vertex = []
     centered_vertex2d = []
 
+    # Make sure vertices are centered on 0,0
     for v in all_vertex:
         # Y axis is inverted on RoR map
         centered_vertex.append([v[0] - center_x, -(v[1] - center_y), v[2]])
@@ -380,7 +393,7 @@ def get_vertex(way):
     if build_barrier is True:
         centered_vertex, centered_vertex2d = create_additional_vertex_for_barrier(centered_vertex, centered_vertex2d)
 
-    new_object = {"x": center_x, "y": center_y}
+    new_object = {"x": center_x, "y": center_y, "width": max_x-min_x, "height": max_y-min_y}
 
     return new_object, centered_vertex, centered_vertex2d
 

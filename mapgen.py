@@ -5,6 +5,7 @@ import sys
 import gvar
 import osm_node
 import osm_way
+import ogre_material
 
 
 def process_relation(result):
@@ -49,3 +50,4 @@ osm_way.process(osm_data)
 process_relation(osm_data)
 
 ror_zip_file.add_file(gvar.MAP_NAME + ".tobj")
+ogre_material.add_file()
