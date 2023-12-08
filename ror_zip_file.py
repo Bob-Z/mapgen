@@ -80,7 +80,7 @@ terrain = mapgen\n\
     with open(os_file_name, "w") as file:
         file.write("caelum_sky_system " + MAP_NAME + ".os\n{\njulian_day 180.85\ntime_scale 1\nlongitude " + str(bbox.coord[
             "west"]) + "\nlatitude " + str(bbox.coord["north"]) + "\nmanage_ambient_light true\nminimum_ambient_light 0.06 0.08 0.12\n\
-manage_scene_fog yes\nscene_fog_density_multiplier 10.2\nsun\n{\nambient_multiplier 0.55 0.65 0.70\ndiffuse_multiplier 2.20 2.15 2.00\n\
+scene_fog_density_multiplier 10.2\nsun\n{\nambient_multiplier 0.55 0.65 0.70\ndiffuse_multiplier 2.20 2.15 2.00\n\
 specular_multiplier 1 1 1\nauto_disable_threshold 0.05\nauto_disable true\n}\n\
 point_starfield\n{\nmagnitude_scale 2.51189\nmag0_pixel_size 16\nmin_pixel_size 4\nmax_pixel_size 6\n}\n\
 sky_dome\n{\nhaze_enabled no\nsky_gradients_image EarthClearSky2.png\natmosphere_depth_image AtmosphereDepth.png\n}\n\

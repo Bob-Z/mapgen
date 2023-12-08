@@ -63,7 +63,7 @@ def create_mesh(way):
         return None
 
     if roof_texture_generator is not None:
-        roof_texture = roof_texture_generator(new_object["width"],new_object["height"])
+        roof_texture = roof_texture_generator(new_object["width"], new_object["height"])
 
     # no submeshes with the same texture is allowed
     if wall_texture == roof_texture:
@@ -201,14 +201,6 @@ def process_tags(way):
                 wall_texture = "mapgen_yellow_sand"
                 roof_texture = "mapgen_yellow_sand"
                 way.tags.pop("natural")
-
-        # FIXME: this is just for debug for now
-        elif way.tags["natural"] == "coastline":
-            build_barrier = True
-            wall_height = 10.0
-            wall_texture = "mapgen_green"
-            roof_texture = "mapgen_green"
-            way.tags.pop("natural")
         else:
             process_ok = False
 

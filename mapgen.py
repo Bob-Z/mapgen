@@ -1,3 +1,4 @@
+import helper
 import ror_zip_file
 import osm
 import bbox
@@ -28,7 +29,7 @@ south = float(coord[2])
 west = float(coord[1])
 east = float(coord[3])
 
-if north > south:
+if north < south:
     t = south
     south = north
     north = t
@@ -38,6 +39,7 @@ if west > east:
     east = t
 
 bbox.coord = {"north": north, "south": south, "west": west, "east": east}
+bbox.coordXY = {"north": helper.lat_to_x(north), "south": helper.lat_to_x(south), "west": helper.lon_to_y(west), "east": helper.lon_to_y(east)}
 print("Bounding box:", bbox.coord)
 
 ror_zip_file.create_default_file()

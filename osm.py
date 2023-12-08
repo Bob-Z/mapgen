@@ -6,8 +6,8 @@ import time
 
 
 def get_data():
-    bounding_box = str(bbox.coord["north"]) + "," + str(bbox.coord["west"]) + "," + str(
-        bbox.coord["south"]) + "," + str(bbox.coord["east"])
+    bounding_box = str(bbox.coord["south"]) + "," + str(bbox.coord["west"]) + "," + str(
+        bbox.coord["north"]) + "," + str(bbox.coord["east"])
 
     print("Requesting OpenStreetMap")
     start_time = time.time()
