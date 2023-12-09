@@ -43,7 +43,7 @@ bbox.coordXY = {"north": helper.lat_to_x(north), "south": helper.lat_to_x(south)
 print("Bounding box:", bbox.coord)
 
 ror_zip_file.create_default_file()
-ror_zip_file.create_base()
+ror_zip_file.write_default_file()
 
 osm_data = osm.get_data()
 

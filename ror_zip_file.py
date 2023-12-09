@@ -5,14 +5,15 @@ from gvar import LOG_PATH
 from gvar import RESOURCE_PATH
 from gvar import MAP_NAME
 from gvar import EXPORT_PATH
+from gvar import TERRN2_FILE_NAME
 from helper import lat_lon_to_distance
 import os
 from zipfile import ZipFile
 import shutil
+import ror_terrn2_file
 
 otc_file_name = WORK_PATH + MAP_NAME + ".otc"
 page_otc_file_name = WORK_PATH + MAP_NAME + "-page-0-0.otc"
-terrn2_file_name = WORK_PATH + MAP_NAME + ".terrn2"
 tobj_file_name = WORK_PATH + MAP_NAME + ".tobj"
 os_file_name = WORK_PATH + MAP_NAME + ".os"
 
@@ -53,22 +54,7 @@ CastsDynamicShadows=0\n\
 MaxPixelError=5\n\
 DebugBlendMaps=0\n")
 
-    with open(terrn2_file_name, "w") as terrn2_file:
-        terrn2_file.write("[General]\n\
-Name = mapgen terrain\n\
-GeometryConfig = " + MAP_NAME + ".otc" + "\n\
-CaelumConfigFile = " + MAP_NAME + ".os" + "\n\
-Water = 0\n\
-AmbientColor = 1, 1, 1\n\
-StartPosition = " + str(int(map_width / 2)) + " 0 " + str(int(map_height / 2)) + "\n\
-SandStormCubeMap = tracks/skyboxcol\n\
-Gravity = -9.81\n\
-CategoryID = 129\n\
-Version = 1\n\
-GUID = 0\n\
-[Authors]\n\
-terrain = mapgen\n\
-[Objects]\n" + MAP_NAME + ".tobj=\n")
+    ror_terrn2_file.create_file(map_width, map_height)
 
     with open(page_otc_file_name, "w") as page_otc_file:
         page_otc_file.write(
@@ -93,13 +79,13 @@ cloud_layer\n{\nheight 2000\ncoverage 0.1\ncloud_uv_factor 6\n}\n\
 }")
 
 
-def create_base():
+def write_default_file():
     all_files = os.listdir(RESOURCE_PATH)
     with ZipFile(EXPORT_PATH + MAP_NAME + ".zip", 'w') as zip_object:
         zip_object.write(otc_file_name, arcname=MAP_NAME + ".otc")
         zip_object.write(page_otc_file_name, arcname=MAP_NAME + "-page-0-0.otc")
-        zip_object.write(terrn2_file_name, arcname=MAP_NAME + ".terrn2")
         zip_object.write(os_file_name, arcname=MAP_NAME + ".os")
+        zip_object.write(WORK_PATH + TERRN2_FILE_NAME, arcname=TERRN2_FILE_NAME)
         for file in all_files:
             zip_object.write(RESOURCE_PATH + file,
                              arcname=file)
