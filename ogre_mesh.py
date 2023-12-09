@@ -139,7 +139,7 @@ def process_tags(way):
             wall_texture = "mapgen_grass"
             roof_texture = "mapgen_grass"
             wall_height = GRASS_HEIGHT
-            collision = False
+            collision = gvar.is_water_map # activate collision on water map only
             way.tags.pop("landuse")
         else:
             process_ok = False
@@ -149,13 +149,13 @@ def process_tags(way):
             wall_texture = "mapgen_grass_dandelion"
             roof_texture = "mapgen_grass_dandelion"
             wall_height = GRASS_HEIGHT
-            collision = False
+            collision = gvar.is_water_map  # activate collision on water map only
             way.tags.pop("leisure")
         elif way.tags["leisure"] == "swimming_pool":
             wall_texture_generator = "mapgen_swimming_pool"
             roof_texture_generator = ogre_material.create_material_swimming_pool
             wall_height = SWIMMING_POOL_HEIGHT
-            collision = False
+            collision = gvar.is_water_map # activate collision on water map only
             way.tags.pop("leisure")
         else:
             process_ok = False

@@ -1,5 +1,4 @@
 import gvar
-import overpy
 import helper
 import math
 
@@ -41,6 +40,8 @@ def create_road(way):
                     border_width = 0
                     border_height = 0
                     way.tags.pop("surface")
+
+        road_height = road_height + gvar.GROUND_LEVEL
 
         if way.tags["highway"] == "service":
             if "service" in way.tags:
@@ -88,7 +89,7 @@ def create_road(way):
             # Angle for first road: direction of first two points
             angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
             add_road(x_history[0], y_history[0], road_height, 0.0, 0.0, angle, road_width, border_width,
-                     border_height,sidewalk)
+                     border_height, sidewalk)
             x_history.append(x)
             y_history.append(y)
             continue
@@ -106,21 +107,23 @@ def create_road(way):
 
     # Last road, angle between previous point and last point
     angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
-    add_road(x_history[1], y_history[1], road_height, 0.0, 0.0, angle, road_width, border_width, border_height, sidewalk)
+    add_road(x_history[1], y_history[1], road_height, 0.0, 0.0, angle, road_width, border_width, border_height,
+             sidewalk)
 
     end_road()
 
 
 def add_object(obj):
+    new_line = str(obj["x"]) + ", " + str(obj["z"] + gvar.GROUND_LEVEL) + ", " + str(obj["y"]) + ", " + str(obj["rx"]) + ", " + str(
+        obj["rz"]) + ", " + str(
+        obj["ry"]) + ", " + obj["name"]
+
+    if "icon" in obj:
+        new_line = new_line + obj["icon"]
+
+    new_line = new_line + "\n"
+
     with open(gvar.WORK_PATH + gvar.MAP_NAME + ".tobj", "a") as tobj_file:
-        if "icon" in obj:
-            new_line = str(obj["x"]) + ", " + str(obj["z"]) + ", " + str(obj["y"]) + ", " + str(obj["rx"]) + ", " + str(
-                obj["rz"]) + ", " + str(
-                obj["ry"]) + ", " + obj["name"] + " " + obj["icon"] + "\n"
-        else:
-            new_line = str(obj["x"]) + ", " + str(obj["z"]) + ", " + str(obj["y"]) + ", " + str(obj["rx"]) + ", " + str(
-                obj["rz"]) + ", " + str(
-                obj["ry"]) + ", " + obj["name"] + "\n"
         tobj_file.write(new_line)
 
 
