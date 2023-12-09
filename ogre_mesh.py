@@ -177,12 +177,13 @@ def process_tags(way):
         way.tags.pop("waterway")
 
     if "natural" in way.tags:
-        if way.tags["natural"] == "water":
-            wall_height = DEFAULT_WATER_HEIGHT
-            wall_texture = "mapgen_blue"
-            roof_texture = "mapgen_blue"
-            way.tags.pop("natural")
-        elif way.tags["natural"] == "sand":
+        # This works badly with coastlines
+        #if way.tags["natural"] == "water":
+        #    wall_height = DEFAULT_WATER_HEIGHT
+        #    wall_texture = "mapgen_blue"
+        #    roof_texture = "mapgen_blue"
+        #    way.tags.pop("natural")
+        if way.tags["natural"] == "sand":
             wall_height = DEFAULT_WATER_HEIGHT
             wall_texture = "mapgen_yellow_sand"
             roof_texture = "mapgen_yellow_sand"

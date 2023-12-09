@@ -1,4 +1,6 @@
 import overpy
+
+import gvar
 from gvar import LOG_PATH
 import sys
 import bbox
@@ -21,6 +23,11 @@ def get_data():
 
     dump_result_to_file(result)
 
+    if has_tag(result, "natural", "coastline") is True:
+        print("This is a water map\n")
+        gvar.is_water_map = True
+        gvar.GROUND_LEVEL = gvar.WATER_LINE + gvar.GROUND_ABOVE_WATER
+
     return result
 
 
@@ -38,5 +45,26 @@ def dump_result_to_file(result):
 
         for relation in result.relations:
             print(relation, relation.tags)
+            for member in relation.members:
+                print(member)
 
     sys.stdout = original_stdout
+
+
+def has_tag(result, tag, value):
+    for node in result.nodes:
+        if tag in node.tags:
+            if node.tags[tag] == value:
+                return True
+
+    for way in result.ways:
+        if tag in way.tags:
+            if way.tags[tag] == value:
+                return True
+
+    for relation in result.relations:
+        if tag in relation.tags:
+            if relation.tags[tag] == value:
+                return True
+
+    return False

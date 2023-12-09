@@ -10,9 +10,7 @@ import ogre_material
 
 
 def process_relation(result):
-    for relation in result.relations:
-        if "building" in relation.tags and relation.tags["building"] == "yes":
-            print("relation", relation, " : ", relation.tags)
+    print("No relation is processed yet")
 
 
 if len(sys.argv) < 2:
@@ -42,10 +40,10 @@ bbox.coord = {"north": north, "south": south, "west": west, "east": east}
 bbox.coordXY = {"north": helper.lat_to_x(north), "south": helper.lat_to_x(south), "west": helper.lon_to_y(west), "east": helper.lon_to_y(east)}
 print("Bounding box:", bbox.coord)
 
+osm_data = osm.get_data()
+
 ror_zip_file.create_default_file()
 ror_zip_file.write_default_file()
-
-osm_data = osm.get_data()
 
 osm_node.process(osm_data)
 osm_way.process(osm_data)

@@ -141,69 +141,21 @@ def print_stats():
     print("")
 
 
-def is_coord_inside_map(coord):
-    return bbox.coordXY["north"] > coord[1] > bbox.coordXY["south"] and bbox.coordXY["east"] > coord[0] > bbox.coordXY[
-        "west"]
-
-
-def is_coord_out_side(coord, direction):
+def is_after_clock_wise(coord1, coord2, direction):
     if direction == "north":
-        if coord[1] > bbox.coordXY["north"]:
-            return True
-        else:
-            return False
-    if direction == "south":
-        if coord[1] < bbox.coordXY["south"]:
-            return True
-        else:
-            return False
-    if direction == "east":
-        if coord[0] > bbox.coordXY["east"]:
-            return True
-        else:
-            return False
-    if direction == "west":
-        if coord[0] < bbox.coordXY["west"]:
-            return True
-        else:
-            return False
-
-
-def get_out_direction(coord):
-    for side in bbox.direction:
-        if is_coord_out_side(coord, side) is True:
-            return side
-
-    return None
-
-
-# "Sea side" is the right side of the coastline, when the coastline "enters" the map
-def is_node_on_sea_side(node_ref, node, direction):
-    if direction == "north":
-        return node_ref.lon > node.lon
-    if direction == "south":
-        return node_ref.lon < node.lon
-    if direction == "east":
-        return node_ref.lat > node.lat
-    if direction == "west":
-        return node_ref.lat < node.lat
-
-
-def is_after_counter_clock_wise(coord1, coord2, direction):
-    if direction == "north":
-        if coord1[1] < coord2[1]:
-            return True
-
-    if direction == "south":
         if coord1[1] > coord2[1]:
             return True
 
+    if direction == "south":
+        if coord1[1] < coord2[1]:
+            return True
+
     if direction == "west":
-        if coord1[0] < coord2[0]:
+        if coord1[0] > coord2[0]:
             return True
 
     if direction == "east":
-        if coord1[0] > coord2[0]:
+        if coord1[0] < coord2[0]:
             return True
 
     return False
@@ -211,24 +163,24 @@ def is_after_counter_clock_wise(coord1, coord2, direction):
 
 def get_direction_corner(direction):
     if direction == "north":
-        return [bbox.coordXY["north"], bbox.coordXY["west"]]
-    if direction == "south":
-        return [bbox.coordXY["south"], bbox.coordXY["east"]]
-    if direction == "west":
-        return [bbox.coordXY["south"], bbox.coordXY["west"]]
-    if direction == "east":
         return [bbox.coordXY["north"], bbox.coordXY["east"]]
-
-
-def get_next_direction_counter_clock_wise(direction):
-    if direction == "north":
-        return "west"
     if direction == "south":
-        return "east"
+        return [bbox.coordXY["south"], bbox.coordXY["west"]]
     if direction == "west":
-        return "south"
+        return [bbox.coordXY["north"], bbox.coordXY["west"]]
     if direction == "east":
+        return [bbox.coordXY["south"], bbox.coordXY["east"]]
+
+
+def get_next_direction_clock_wise(direction):
+    if direction == "north":
+        return "east"
+    if direction == "south":
+        return "west"
+    if direction == "west":
         return "north"
+    if direction == "east":
+        return "south"
 
 
 def build_coastline(way):
@@ -245,7 +197,6 @@ def build_coastline(way):
     while len(all_coastline) > 0:
         found = True
         base_coastline = all_coastline.pop()
-        print("base_coastline", base_coastline)
         while found is True:
             found = False
             index = 0
@@ -254,14 +205,12 @@ def build_coastline(way):
                     base_coastline.pop()
                     base_coastline = base_coastline + c
                     all_coastline.pop(index)
-                    print("base_coastline", base_coastline)
                     found = True
                     break
                 if c[-1] == base_coastline[0]:
                     c.pop()
                     base_coastline = c + base_coastline
                     all_coastline.pop(index)
-                    print("base_coastline", base_coastline)
                     found = True
                     break
 
@@ -273,7 +222,9 @@ def build_coastline(way):
 
         complete_coastline.append(base_coastlineXY)
 
-        print("complete_coastline", complete_coastline)
+    print(str(len(complete_coastline)) + " complete coastlines")
+
+    polygon_list = []
 
     # Generate entry/exit list
     entry_exit_list = []
@@ -283,94 +234,98 @@ def build_coastline(way):
         prev_coord = None
         is_inside_map = False
         entry_exit_item = {}
-        for coord in coastline:
-            if prev_coord is not None:
-                intersection, cut_direction = helper.intersect_between_all_direction((prev_coord[0], prev_coord[1]),
-                                                                                 (coord[0], coord[1]))
-                if is_inside_map is False:
-                    if intersection is not None:
-                        is_inside_map = True
 
-                        entry_exit_item["coord"] = [intersection, coord]
-                        entry_exit_item["entry_direction"] = cut_direction
-                else:
-                    if intersection is not None:
-                        entry_exit_item["coord"].append(intersection)
+        # Case where all coastline is inside the map:
+        if helper.is_inside_map(coastline[0]):
+            polygon_list.append(coastline)
+            continue
+        else:
+            for coord in coastline:
+                if prev_coord is not None:
+                    intersection, cut_direction = helper.intersect_between_all_direction((prev_coord[0], prev_coord[1]),
+                                                                                         (coord[0], coord[1]))
+                    if is_inside_map is False:
+                        if intersection is not None:
+                            is_inside_map = True
 
-                        is_inside_map = False
-                        entry_exit_item["exit_direction"] = cut_direction
-                        entry_exit_item["id"] = item_id
-                        entry_exit_item["entry_done"] = False
-                        entry_exit_item["exit_done"] = False
-
-                        item_id += 1
-
-                        entry_exit_list.append(entry_exit_item)
-                        entry_exit_item = {}
+                            entry_exit_item["coord"] = [intersection, coord]
+                            entry_exit_item["entry_direction"] = cut_direction
                     else:
-                        entry_exit_item["coord"].append(coord)
+                        if intersection is not None:
+                            entry_exit_item["coord"].append(intersection)
 
-            prev_coord = coord
+                            is_inside_map = False
+                            entry_exit_item["exit_direction"] = cut_direction
+                            entry_exit_item["id"] = item_id
+                            entry_exit_item["entry_done"] = False
+                            entry_exit_item["exit_done"] = False
 
-    # Find an exit following an entry counter-clockwise
-    polygon_list = []
-    polygon = []
-    no_more_entry = False
-    while no_more_entry is False:
-        # find not processed entry
-        no_more_entry = True
-        for item in entry_exit_list:
-            if item["entry_done"] is False:
-                no_more_entry = False
-                item["entry_done"] = True
-                polygon = item["coord"].copy()
-                direction = item["entry_direction"]
-                entry_coord = item["coord"][0]
-                exit_coord = None
-                found_item = None
-                polygon_complete = False
-                start_id = item["id"]
+                            item_id += 1
 
-                while polygon_complete is False:
-                    for i in entry_exit_list:
-                        # both entry and exit are on the same direction
-                        if i["exit_done"] is False:
-                            if i["exit_direction"] == direction:
-                                if is_after_counter_clock_wise(i["coord"][-1], entry_coord, direction) is True:
-                                    if exit_coord is not None:
-                                        if is_after_counter_clock_wise(exit_coord, i["coord"][-1], direction) is True:
-                                            exit_coord = i["coord"][-1]
-                                            found_item = i
-                                            continue
-                                        else:
-                                            # this exit is "after" a previously found exit, skip this item
-                                            continue
-                                    else:
-                                        # First exit found
-                                        exit_coord = i["coord"][-1]
-                                        found_item = i
-                                        continue
-
-                    # No item found on this direction, add direction's corner's coordinates and try with the next direction
-                    if found_item is None:
-                        entry_coord = get_direction_corner(direction)
-                        polygon.insert(0, entry_coord)
-                        direction = get_next_direction_counter_clock_wise(direction)
-                    else:
-                        found_item["exit_done"] = True
-                        if found_item["id"] == start_id:
-                            # Polygon is complete
-                            polygon_list.append(polygon)
-                            polygon_complete = True
+                            entry_exit_list.append(entry_exit_item)
+                            entry_exit_item = {}
                         else:
-                            # loop again with the item's entry found
-                            found_item["entry_done"] = True
-                            polygon = found_item["coord"] + polygon
-                            direction = found_item["entry_direction"]
-                            entry_coord = found_item["coord"][0]
-                            found_item["entry_done"] = True
-                            exit_coord = None
-                            found_item = None
+                            entry_exit_item["coord"].append(coord)
+
+                prev_coord = coord
+
+            # Find an exit following an entry clockwise (because ground is left side of the coastline)
+            no_more_entry = False
+            while no_more_entry is False:
+                # find not processed entry
+                no_more_entry = True
+                for item in entry_exit_list:
+                    if item["entry_done"] is False:
+                        no_more_entry = False
+                        item["entry_done"] = True
+                        polygon = item["coord"].copy()
+                        direction = item["entry_direction"]
+                        entry_coord = item["coord"][0]
+                        exit_coord = None
+                        found_item = None
+                        polygon_complete = False
+                        start_id = item["id"]
+
+                        while polygon_complete is False:
+                            for i in entry_exit_list:
+                                # both entry and exit are on the same direction
+                                if i["exit_done"] is False:
+                                    if i["exit_direction"] == direction:
+                                        if is_after_clock_wise(i["coord"][-1], entry_coord, direction) is True:
+                                            if exit_coord is not None:
+                                                if is_after_clock_wise(exit_coord, i["coord"][-1], direction) is True:
+                                                    exit_coord = i["coord"][-1]
+                                                    found_item = i
+                                                    continue
+                                                else:
+                                                    # this exit is "after" a previously found exit, skip this item
+                                                    continue
+                                            else:
+                                                # First exit found
+                                                exit_coord = i["coord"][-1]
+                                                found_item = i
+                                                continue
+
+                            # No item found on this direction, add direction's corner's coordinates and try with the next direction
+                            if found_item is None:
+                                entry_coord = get_direction_corner(direction)
+                                polygon.insert(0, entry_coord)
+                                direction = get_next_direction_clock_wise(direction)
+                            else:
+                                found_item["exit_done"] = True
+                                if found_item["id"] == start_id:
+                                    # Polygon is complete
+                                    polygon_list.append(polygon)
+                                    polygon_complete = True
+                                else:
+                                    # loop again with the item's entry found
+                                    found_item["entry_done"] = True
+                                    polygon = found_item["coord"] + polygon
+                                    direction = found_item["entry_direction"]
+                                    entry_coord = found_item["coord"][0]
+                                    found_item["entry_done"] = True
+                                    exit_coord = None
+                                    found_item = None
 
     # FIXME remove Z axis
     for polygon in polygon_list:
@@ -378,25 +333,24 @@ def build_coastline(way):
             if len(p) == 2:
                 p.append(0.0)
 
-    sea_name_index = 0
+    ground_name_index = 0
     for polygon in polygon_list:
         wall_vertex_index, wall_face_qty, wall_vertex_str, wall_face_str = ogre_mesh.generate_wall(polygon)
         if wall_vertex_str is None:
             return
 
-        building_name = "sea" + str(sea_name_index)
+        building_name = "ground_" + str(ground_name_index)
         ogre_mesh.building_name = building_name
-        sea_name_index += 1
+        ground_name_index += 1
         roof_vertex_index, roof_face_qty, roof_vertex_str, roof_face_str = ogre_mesh.generate_roof(polygon,
                                                                                                    wall_vertex_index)
         ogre_mesh.generate_mesh_file(
             [{"vertex_index": roof_vertex_index, "face_qty": wall_face_qty + roof_face_qty,
               "vertex_str": wall_vertex_str + roof_vertex_str,
-              "face_str": wall_face_str + roof_face_str, "texture": "mapgen_blue"}])
+              "face_str": wall_face_str + roof_face_str, "texture": "mapgen_beige"}])
 
         new_object = {"x": 0.0,
-                      "y": 0.0, "z": 0.05, "rx": 180.0, "ry": 0.0, "rz": 0.0, # FIXME why 180 ?
-                      "name": building_name, "collision": False}
+                      "y": 0.0, "z": 0.0, "rx": 180.0, "ry": 0.0, "rz": 0.0,  # FIXME why 180 ?
+                      "name": building_name, "collision": True}
         ror_tobj_file.add_object(new_object)
         ror_odef_file.create_file(new_object)
-
