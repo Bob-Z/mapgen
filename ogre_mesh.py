@@ -184,21 +184,21 @@ def process_tags(way):
         #    roof_texture = "mapgen_blue"
         #    way.tags.pop("natural")
         if way.tags["natural"] == "sand":
-            wall_height = DEFAULT_WATER_HEIGHT
+            wall_height = DEFAULT_SAND_HEIGHT
             wall_texture = "mapgen_yellow_sand"
             roof_texture = "mapgen_yellow_sand"
             way.tags.pop("natural")
         elif way.tags["natural"] == "beach":
             if "surface" in way.tags:
                 if way.tags["surface"] == "sand":
-                    wall_height = DEFAULT_WATER_HEIGHT
+                    wall_height = DEFAULT_SAND_HEIGHT
                     wall_texture = "mapgen_yellow_sand"
                     roof_texture = "mapgen_yellow_sand"
                     way.tags.pop("natural")
                     way.tags.pop("surface")
             # sand by default
             else:
-                wall_height = DEFAULT_WATER_HEIGHT
+                wall_height = DEFAULT_SAND_HEIGHT
                 wall_texture = "mapgen_yellow_sand"
                 roof_texture = "mapgen_yellow_sand"
                 way.tags.pop("natural")
@@ -270,6 +270,7 @@ def generate_roof_for_building(vertex2d, vertex_index):
         ear[0].append(wall_height)
         ear[1].append(wall_height)
         ear[2].append(wall_height)
+
         # TODO U,V are wrong here
         vertex_str += create_vertex_with_normal_str(ear[0], [0.0, 0.0, 1.0], 0.0, 0.0)
         vertex_str += create_vertex_with_normal_str(ear[1], [0.0, 0.0, 1.0], 0.0, 1.0)
