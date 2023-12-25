@@ -1,15 +1,18 @@
 # mapgen
-Map generator for Rigs of Rods from real world data
+Map generator
 
 # Dependencies:
 
 *Overpy*: https://pypi.org/project/overpy/
 
 - sudo apt install python3-overpy
+or
 - pip install overpy
 
 *OgreXMLConverter* executable must be in the user's PATH environnement variable
 
+- sudo apt install ogre-1.12-tools
+or
 - https://forum.rigsofrods.org/resources/ogre-command-line-tools.967/
 
 # Usage:
