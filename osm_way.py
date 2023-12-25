@@ -22,6 +22,8 @@ way_complete_qty = 0
 way_not_processed = ""
 way_not_processed_qty = 0
 
+GROUND_HEIGHT = 1.0
+
 
 def process(result):
     global way_total
@@ -342,15 +344,18 @@ def build_coastline(way):
         building_name = "ground_" + str(ground_name_index)
         ogre_mesh.building_name = building_name
         ground_name_index += 1
+        ogre_mesh.wall_height = GROUND_HEIGHT
+        ogre_mesh.wall_texture = "mapgen_beige"
+        ogre_mesh.roof_texture = "mapgen_beige"
         roof_vertex_index, roof_face_qty, roof_vertex_str, roof_face_str = ogre_mesh.generate_roof(polygon,
                                                                                                    wall_vertex_index)
         ogre_mesh.generate_mesh_file(
             [{"vertex_index": roof_vertex_index, "face_qty": wall_face_qty + roof_face_qty,
               "vertex_str": wall_vertex_str + roof_vertex_str,
-              "face_str": wall_face_str + roof_face_str, "texture": "mapgen_beige"}])
+              "face_str": wall_face_str + roof_face_str, "texture": ogre_mesh.roof_texture}])
 
         new_object = {"x": 0.0,
-                      "y": 0.0, "z": 0.0, "rx": 180.0, "ry": 0.0, "rz": 0.0,  # FIXME why 180 ?
+                      "y": 0.0, "z": 0.0, "rx": 180.0, "ry": 0.0, "rz": 0.0,  # FIXME why 180.0 ?
                       "name": building_name, "collision": True}
         ror_tobj_file.add_object(new_object)
         ror_odef_file.create_file(new_object)
