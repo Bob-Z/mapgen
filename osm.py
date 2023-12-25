@@ -2,24 +2,36 @@ import overpy
 
 import gvar
 from gvar import LOG_PATH
+from gvar import CACHE_PATH
 import sys
 import bbox
 import time
+import os
+import pickle
 
 
 def get_data():
     bounding_box = str(bbox.coord["south"]) + "," + str(bbox.coord["west"]) + "," + str(
         bbox.coord["north"]) + "," + str(bbox.coord["east"])
 
-    print("Requesting OpenStreetMap")
-    start_time = time.time()
-    overpy_api = overpy.Overpass()
-    result = overpy_api.query(
-        "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;")
-    end_time = time.time()
+    cache_file_path = CACHE_PATH + "/" + bounding_box
+    if os.path.isfile(cache_file_path):
+        print("Reading OpenStreetMap cache file\n")
+        with open(cache_file_path, 'rb') as file:
+            result = pickle.load(file)
+    else:
+        print("Requesting OpenStreetMap")
+        start_time = time.time()
+        overpy_api = overpy.Overpass()
+        result = overpy_api.query(
+            "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;")
+        end_time = time.time()
 
-    print("Done in " + str(end_time - start_time) + " seconds")
-    print("")
+        print("Done in " + str(end_time - start_time) + " seconds\n")
+
+        print("Writing OpenStreetMap cache file\n")
+        with open(cache_file_path, 'wb') as file:
+            pickle.dump(result, file)
 
     dump_result_to_file(result)
 
