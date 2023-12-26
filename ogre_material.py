@@ -6,8 +6,8 @@ material_str = ""
 
 
 def create_material_swimming_pool(dest_width, dest_height):
-    return create_material(config.config["swimming_pool_tex_name"], config.config["swimming_pool_height"],
-                           config.config["swimming_pool_width"], dest_width, dest_height)
+    return create_material(config.data["swimming_pool_tex_name"], config.data["swimming_pool_height"],
+                           config.data["swimming_pool_width"], dest_width, dest_height)
 
 
 # return material name
@@ -40,7 +40,7 @@ def create_material(tex_name, tex_height, tex_width, dest_width, dest_height):
 def add_file():
     global material_str
 
-    with open(config.config["work_path"] + "magen_generated.material", "w") as material_file:
+    with open(config.data["work_path"] + "magen_generated.material", "w") as material_file:
         material_file.write(material_str)
 
     ror_zip_file.add_file("magen_generated.material")

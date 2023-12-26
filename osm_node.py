@@ -103,15 +103,15 @@ def calculate_stats(node, original_tags):
 
 
 def print_stats():
-    with open(config.config["log_path"] + "node_empty.txt", "w") as file:
+    with open(config.data["log_path"] + "node_empty.txt", "w") as file:
         file.write(node_empty)
-    with open(config.config["log_path"] + "node_ignored.txt", "w") as file:
+    with open(config.data["log_path"] + "node_ignored.txt", "w") as file:
         file.write(node_ignored)
-    with open(config.config["log_path"] + "node_incomplete.txt", "w") as file:
+    with open(config.data["log_path"] + "node_incomplete.txt", "w") as file:
         file.write(node_incomplete)
-    with open(config.config["log_path"] + "node_not_processed.txt", "w") as file:
+    with open(config.data["log_path"] + "node_not_processed.txt", "w") as file:
         file.write(node_not_processed)
-    with open(config.config["log_path"] + "node_complete.txt", "w") as file:
+    with open(config.data["log_path"] + "node_complete.txt", "w") as file:
         file.write(node_complete)
 
     print("Total nodes  = ", node_total)

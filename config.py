@@ -1,6 +1,6 @@
 import json
 
-config = {}
+data = {}
 
 with open("config.json", "r") as file:
-    config = json.load(file)
+    data = json.load(file)

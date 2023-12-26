@@ -121,15 +121,15 @@ def calculate_stats(way, original_tags):
 
 
 def print_stats():
-    with open(config.config["log_path"] + "way_empty.txt", "w") as file:
+    with open(config.data["log_path"] + "way_empty.txt", "w") as file:
         file.write(way_empty)
-    with open(config.config["log_path"] + "way_ignored.txt", "w") as file:
+    with open(config.data["log_path"] + "way_ignored.txt", "w") as file:
         file.write(way_ignored)
-    with open(config.config["log_path"] + "way_incomplete.txt", "w") as file:
+    with open(config.data["log_path"] + "way_incomplete.txt", "w") as file:
         file.write(way_incomplete)
-    with open(config.config["log_path"] + "way_not_processed.txt", "w") as file:
+    with open(config.data["log_path"] + "way_not_processed.txt", "w") as file:
         file.write(way_not_processed)
-    with open(config.config["log_path"] + "way_complete.txt", "w") as file:
+    with open(config.data["log_path"] + "way_complete.txt", "w") as file:
         file.write(way_complete)
 
     print("Total ways  = ", way_total)
@@ -342,7 +342,7 @@ def build_coastline(way):
         building_name = "ground_" + str(ground_name_index)
         ogre_mesh.building_name = building_name
         ground_name_index += 1
-        ogre_mesh.wall_height = config.config["ground_height"]
+        ogre_mesh.wall_height = config.data["ground_height"]
         ogre_mesh.wall_texture = "mapgen_beige"
         ogre_mesh.roof_texture = "mapgen_beige"
         roof_vertex_index, roof_face_qty, roof_vertex_str, roof_face_str = ogre_mesh.generate_roof(polygon,

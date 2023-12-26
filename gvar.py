@@ -14,4 +14,4 @@ def set_is_water_map(is_water):
     global GROUND_LEVEL
     if is_water is True:
         is_water_map = True
-        GROUND_LEVEL = config.config["water_line"] + config.config["ground_above_water"]
+        GROUND_LEVEL = config.data["water_line"] + config.data["ground_above_water"]

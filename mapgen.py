@@ -21,10 +21,10 @@ if len(sys.argv) < 2:
     print("The created map is called \"mapgen\"")
     sys.exit(0)
 
-print("Work path:", config.config["work_path"])
+print("Work path:", config.data["work_path"])
 
-if "export_path" in config.config:
-    gvar.EXPORT_PATH = config.config["export_path"]
+if "export_path" in config.data:
+    gvar.EXPORT_PATH = config.data["export_path"]
 print("Export path: ", gvar.EXPORT_PATH)
 
 coord = sys.argv[1].split(',')
@@ -57,5 +57,5 @@ osm_node.process(osm_data)
 osm_way.process(osm_data)
 process_relation(osm_data)
 
-ror_zip_file.add_file(config.config["map_name"] + ".tobj")
+ror_zip_file.add_file(config.data["map_name"] + ".tobj")
 ogre_material.add_file()

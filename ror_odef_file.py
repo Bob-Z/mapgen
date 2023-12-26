@@ -3,7 +3,7 @@ import config
 
 
 def create_file(new_object):
-    with open(config.config["work_path"] + new_object["name"] + ".odef", "w") as odef_file:
+    with open(config.data["work_path"] + new_object["name"] + ".odef", "w") as odef_file:
         odef_file.write(new_object["name"] + ".mesh\n \
 1, 1, 1\n")
 

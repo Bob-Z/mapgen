@@ -13,7 +13,7 @@ def get_data():
     bounding_box = str(bbox.coord["south"]) + "," + str(bbox.coord["west"]) + "," + str(
         bbox.coord["north"]) + "," + str(bbox.coord["east"])
 
-    cache_file_path = config.config["cache_path"] + "/" + bounding_box
+    cache_file_path = config.data["cache_path"] + "/" + bounding_box
     if os.path.isfile(cache_file_path):
         print("Reading OpenStreetMap cache file\n")
         with open(cache_file_path, 'rb') as file:
@@ -37,7 +37,7 @@ def get_data():
     if has_tag(result, "natural", "coastline") is True:
         print("This is a water map\n")
         gvar.is_water_map = True
-        gvar.GROUND_LEVEL = config.config["water_line"] + config.config["ground_above_water"]
+        gvar.GROUND_LEVEL = config.data["water_line"] + config.data["ground_above_water"]
 
     return result
 
@@ -45,7 +45,7 @@ def get_data():
 def dump_result_to_file(result):
     original_stdout = sys.stdout
 
-    with open(config.config["log_path"] + "osm_request.txt", "w") as result_file:
+    with open(config.data["log_path"] + "osm_request.txt", "w") as result_file:
         sys.stdout = result_file
 
         for node in result.nodes:
