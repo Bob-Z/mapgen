@@ -1,21 +1,16 @@
 import bbox
-import gvar
-from gvar import WORK_PATH
-from gvar import LOG_PATH
-from gvar import RESOURCE_PATH
-from gvar import MAP_NAME
 from gvar import EXPORT_PATH
-from gvar import TERRN2_FILE_NAME
 from helper import lat_lon_to_distance
 import os
 from zipfile import ZipFile
 import shutil
 import ror_terrn2_file
+import config
 
-otc_file_name = WORK_PATH + MAP_NAME + ".otc"
-page_otc_file_name = WORK_PATH + MAP_NAME + "-page-0-0.otc"
-tobj_file_name = WORK_PATH + MAP_NAME + ".tobj"
-os_file_name = WORK_PATH + MAP_NAME + ".os"
+otc_file_name = config.config["work_path"] + config.config["map_name"] + ".otc"
+page_otc_file_name = config.config["work_path"] + config.config["map_name"] + "-page-0-0.otc"
+tobj_file_name = config.config["work_path"] + config.config["map_name"] + ".tobj"
+os_file_name = config.config["work_path"] + config.config["map_name"] + ".os"
 
 
 def create_default_file():
@@ -23,10 +18,10 @@ def create_default_file():
     map_width = lat_lon_to_distance(bbox.coord["north"], bbox.coord["north"], bbox.coord["west"], bbox.coord["east"])
     print("Map size: ", map_width, "x", map_height)
 
-    shutil.rmtree(WORK_PATH, ignore_errors=True)
-    os.makedirs(WORK_PATH, exist_ok=True)
-    shutil.rmtree(LOG_PATH, ignore_errors=True)
-    os.makedirs(LOG_PATH, exist_ok=True)
+    shutil.rmtree(config.config["work_path"], ignore_errors=True)
+    os.makedirs(config.config["work_path"], exist_ok=True)
+    shutil.rmtree(config.config["log_path"], ignore_errors=True)
+    os.makedirs(config.config["log_path"], exist_ok=True)
 
     with open(otc_file_name, "w") as otc_file:
         otc_file.write("Pages_X=0 \n\
@@ -35,7 +30,7 @@ Flat=1 \n\
 WorldSizeX=" + str(int(map_height)) + "\n\
 WorldSizeZ=" + str(int(map_width)) + "\n\
 WorldSizeY=0\n\
-PageFileFormat=" + MAP_NAME + "-page-0-0.otc" + "\n\
+PageFileFormat=" + config.config["map_name"] + "-page-0-0.otc" + "\n\
 LayerBlendMapSize=128\n\
 disableCaching=0\n\
 minBatchSize=17\n\
@@ -58,13 +53,13 @@ DebugBlendMaps=0\n")
 
     with open(page_otc_file_name, "w") as page_otc_file:
         page_otc_file.write(
-            MAP_NAME + ".png\n1\n4    , asphalt_diffusespecular.dds      ,    asphalt_normalheight.dds\n")
+            config.config["map_name"] + ".png\n1\n4    , asphalt_diffusespecular.dds      ,    asphalt_normalheight.dds\n")
 
     with open(tobj_file_name, "w") as tobj_file:
         tobj_file.write("\n")
 
     with open(os_file_name, "w") as file:
-        file.write("caelum_sky_system " + MAP_NAME + ".os\n{\njulian_day 180.85\ntime_scale 1\nlongitude " + str(bbox.coord[
+        file.write("caelum_sky_system " + config.config["map_name"] + ".os\n{\njulian_day 180.85\ntime_scale 1\nlongitude " + str(bbox.coord[
             "west"]) + "\nlatitude " + str(bbox.coord["north"]) + "\nmanage_ambient_light true\nminimum_ambient_light 0.06 0.08 0.12\n\
 scene_fog_density_multiplier 10.2\nsun\n{\nambient_multiplier 0.55 0.65 0.70\ndiffuse_multiplier 2.20 2.15 2.00\n\
 specular_multiplier 1 1 1\nauto_disable_threshold 0.05\nauto_disable true\n}\n\
@@ -80,17 +75,17 @@ cloud_layer\n{\nheight 2000\ncoverage 0.1\ncloud_uv_factor 6\n}\n\
 
 
 def write_default_file():
-    all_files = os.listdir(RESOURCE_PATH)
-    with ZipFile(EXPORT_PATH + MAP_NAME + ".zip", 'w') as zip_object:
-        zip_object.write(otc_file_name, arcname=MAP_NAME + ".otc")
-        zip_object.write(page_otc_file_name, arcname=MAP_NAME + "-page-0-0.otc")
-        zip_object.write(os_file_name, arcname=MAP_NAME + ".os")
-        zip_object.write(WORK_PATH + TERRN2_FILE_NAME, arcname=TERRN2_FILE_NAME)
+    all_files = os.listdir(config.config["resource_path"])
+    with ZipFile(EXPORT_PATH + config.config["map_name"] + ".zip", 'w') as zip_object:
+        zip_object.write(otc_file_name, arcname=config.config["map_name"] + ".otc")
+        zip_object.write(page_otc_file_name, arcname=config.config["map_name"] + "-page-0-0.otc")
+        zip_object.write(os_file_name, arcname=config.config["map_name"] + ".os")
+        zip_object.write(config.config["work_path"] + config.config["map_name"] + ".terrn2", arcname=config.config["map_name"] + ".terrn2")
         for file in all_files:
-            zip_object.write(RESOURCE_PATH + file,
+            zip_object.write(config.config["resource_path"] + file,
                              arcname=file)
 
 
 def add_file(file_name_to_add):
-    with ZipFile(EXPORT_PATH + MAP_NAME + ".zip", 'a') as zip_object:
-        zip_object.write(gvar.WORK_PATH + file_name_to_add, arcname=file_name_to_add)
+    with ZipFile(EXPORT_PATH + config.config["map_name"] + ".zip", 'a') as zip_object:
+        zip_object.write(config.config["work_path"] + file_name_to_add, arcname=file_name_to_add)

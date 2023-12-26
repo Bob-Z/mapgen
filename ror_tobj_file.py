@@ -1,15 +1,11 @@
-import gvar
 import helper
 import math
+import config
+import gvar
 
 road_data = []
 
-ROAD_HEIGHT = 0.02
-LANE_WIDTH = 3.0
-SIDEWALK_WIDTH = 1.5
-SIDEWALK_HEIGHT = 0.1
-FOOTWAY_WIDTH = 1.5
-FOOTWAY_HEIGHT = 0.02
+
 
 
 def create_road(way):
@@ -21,8 +17,8 @@ def create_road(way):
     x = 0.0
     y = 0.0
 
-    road_width = LANE_WIDTH
-    road_height = ROAD_HEIGHT
+    road_width = config.config["lane_width"]
+    road_height = config.config["road_height"]
     border_width = 0
     border_height = 0
     sidewalk = "both"
@@ -31,12 +27,12 @@ def create_road(way):
         if way.tags["highway"] == "footway":
             road_width = 0
             road_height = 0
-            border_width = FOOTWAY_WIDTH
-            border_height = FOOTWAY_HEIGHT
+            border_width = config.config["footway_width"]
+            border_height = config.config["footway_height"]
             if "surface" in way.tags:
                 if way.tags["surface"] == "asphalt":
-                    road_width = FOOTWAY_WIDTH
-                    road_height = ROAD_HEIGHT
+                    road_width = config.config["footway_width"]
+                    road_height = config.config["road_height"]
                     border_width = 0
                     border_height = 0
                     way.tags.pop("surface")
@@ -54,16 +50,16 @@ def create_road(way):
     if "sidewalk" in way.tags:
         if way.tags["sidewalk"] == "both":
             sidewalk = "both"
-            border_width = SIDEWALK_WIDTH
-            border_height = SIDEWALK_HEIGHT
+            border_width = config.config["sidewalk_width"]
+            border_height = config.config["sidewalk_height"]
         elif way.tags["sidewalk"] == "left":
             sidewalk = "left"
-            border_width = SIDEWALK_WIDTH
-            border_height = SIDEWALK_HEIGHT
+            border_width = config.config["sidewalk_width"]
+            border_height = config.config["sidewalk_height"]
         elif way.tags["sidewalk"] == "right":
             sidewalk = "right"
-            border_width = SIDEWALK_WIDTH
-            border_height = SIDEWALK_HEIGHT
+            border_width = config.config["sidewalk_width"]
+            border_height = config.config["sidewalk_height"]
 
         way.tags.pop("sidewalk")
 
@@ -74,7 +70,7 @@ def create_road(way):
             way.tags.pop("surface")
 
     if "lanes" in way.tags:
-        road_width = int(way.tags["lanes"]) * LANE_WIDTH
+        road_width = int(way.tags["lanes"]) * config.config["lane_width"]
         way.tags.pop("lanes")
 
     for node in way.nodes:
@@ -123,7 +119,7 @@ def add_object(obj):
 
     new_line = new_line + "\n"
 
-    with open(gvar.WORK_PATH + gvar.MAP_NAME + ".tobj", "a") as tobj_file:
+    with open(config.config["work_path"] + config.config["map_name"] + ".tobj", "a") as tobj_file:
         tobj_file.write(new_line)
 
 
@@ -160,7 +156,7 @@ def end_road():
     global road_data
 
     if len(road_data) > 0:
-        with open(gvar.WORK_PATH + gvar.MAP_NAME + ".tobj", "a") as tobj_file:
+        with open(config.config["work_path"] + config.config["map_name"] + ".tobj", "a") as tobj_file:
             tobj_file.write("begin_procedural_roads\n")
             for road in road_data:
                 tobj_file.write(road)

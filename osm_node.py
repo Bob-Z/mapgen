@@ -1,7 +1,7 @@
 import helper
 import ror_tobj_file
 import random
-import gvar
+import config
 
 # https://wiki.openstreetmap.org/wiki/Main_Page
 ignored_tags = ["source", "addr:housenumber", "addr:street", "genus:de", "genus:en", "genus:fr", "ref", "check_date:shelter"]
@@ -103,15 +103,15 @@ def calculate_stats(node, original_tags):
 
 
 def print_stats():
-    with open(gvar.LOG_PATH + "node_empty.txt", "w") as file:
+    with open(config.config["log_path"] + "node_empty.txt", "w") as file:
         file.write(node_empty)
-    with open(gvar.LOG_PATH + "node_ignored.txt", "w") as file:
+    with open(config.config["log_path"] + "node_ignored.txt", "w") as file:
         file.write(node_ignored)
-    with open(gvar.LOG_PATH + "node_incomplete.txt", "w") as file:
+    with open(config.config["log_path"] + "node_incomplete.txt", "w") as file:
         file.write(node_incomplete)
-    with open(gvar.LOG_PATH + "node_not_processed.txt", "w") as file:
+    with open(config.config["log_path"] + "node_not_processed.txt", "w") as file:
         file.write(node_not_processed)
-    with open(gvar.LOG_PATH + "node_complete.txt", "w") as file:
+    with open(config.config["log_path"] + "node_complete.txt", "w") as file:
         file.write(node_complete)
 
     print("Total nodes  = ", node_total)

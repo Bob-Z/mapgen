@@ -1,9 +1,9 @@
-import gvar
 import ror_zip_file
+import config
 
 
 def create_file(new_object):
-    with open(gvar.WORK_PATH + new_object["name"] + ".odef", "w") as odef_file:
+    with open(config.config["work_path"] + new_object["name"] + ".odef", "w") as odef_file:
         odef_file.write(new_object["name"] + ".mesh\n \
 1, 1, 1\n")
 

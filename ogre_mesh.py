@@ -6,20 +6,7 @@ import ogre_material
 import os
 import ror_zip_file
 import triangulate
-from gvar import WORK_PATH
-
-# Arbitrary constants
-BUILDING_LEVEL_HEIGHT = 2.5
-GRASS_HEIGHT = 0.004
-SWIMMING_POOL_HEIGHT = 0.02
-DEFAULT_WALL_TEXTURE = "mapgen_beige"
-DEFAULT_ROOF_TEXTURE = "mapgen_grey"
-DEFAULT_BARRIER_WIDTH = 0.3
-DEFAULT_BARRIER_HEIGHT = 1.5
-DEFAULT_WATER_HEIGHT = 0.01
-DEFAULT_SAND_HEIGHT = 0.005
-DEFAULT_PARKING_HEIGHT = 0.008
-DEFAULT_DEBUG_HEIGHT = 0.003
+import config
 
 VERTEX_PER_WALL = 4
 
@@ -29,10 +16,10 @@ building_index = 0
 # Modified by tags
 build_barrier = False
 collision = True
-wall_height = BUILDING_LEVEL_HEIGHT
-wall_texture = DEFAULT_WALL_TEXTURE
-roof_texture = DEFAULT_ROOF_TEXTURE
-barrier_width = DEFAULT_BARRIER_WIDTH
+wall_height = config.config["building_level_height"]
+wall_texture = config.config["wall_texture"]
+roof_texture = config.config["roof_texture"]
+barrier_width = config.config["barrier_width"]
 wall_texture_generator = None
 roof_texture_generator = None
 
@@ -107,10 +94,10 @@ def process_tags(way):
 
     build_barrier = False
     collision = True
-    wall_height = BUILDING_LEVEL_HEIGHT
-    wall_texture = DEFAULT_WALL_TEXTURE
-    roof_texture = DEFAULT_ROOF_TEXTURE
-    barrier_width = DEFAULT_BARRIER_WIDTH
+    wall_height = config.config["building_level_height"]
+    wall_texture = config.config["wall_texture"]
+    roof_texture = config.config["roof_texture"]
+    barrier_width = config.config["barrier_width"]
 
     process_ok = True
 
@@ -119,7 +106,7 @@ def process_tags(way):
         levels = way.tags["building:levels"]
         way.tags.pop("building:levels")
 
-    wall_height = float(levels) * BUILDING_LEVEL_HEIGHT
+    wall_height = float(levels) * config.config["building_level_height"]
 
     if "amenity" in way.tags:
         if way.tags["amenity"] == "shelter":
@@ -129,7 +116,7 @@ def process_tags(way):
         elif way.tags["amenity"] == "fountain":
             wall_texture = "mapgen_blue"
             roof_texture = "mapgen_blue"
-            wall_height = DEFAULT_WATER_HEIGHT
+            wall_height = config.config["water_height"]
             way.tags.pop("amenity")
         else:
             process_ok = False
@@ -138,7 +125,7 @@ def process_tags(way):
         if way.tags["landuse"] == "grass":
             wall_texture = "mapgen_grass"
             roof_texture = "mapgen_grass"
-            wall_height = GRASS_HEIGHT
+            wall_height = config.config["grass_height"]
             collision = gvar.is_water_map # activate collision on water map only
             way.tags.pop("landuse")
         else:
@@ -148,13 +135,13 @@ def process_tags(way):
         if way.tags["leisure"] == "park":
             wall_texture = "mapgen_grass_dandelion"
             roof_texture = "mapgen_grass_dandelion"
-            wall_height = GRASS_HEIGHT
+            wall_height = config.config["grass_height"]
             collision = gvar.is_water_map  # activate collision on water map only
             way.tags.pop("leisure")
         elif way.tags["leisure"] == "swimming_pool":
             wall_texture_generator = "mapgen_swimming_pool"
             roof_texture_generator = ogre_material.create_material_swimming_pool
-            wall_height = SWIMMING_POOL_HEIGHT
+            wall_height = config.config["swimming_pool_height"]
             collision = gvar.is_water_map # activate collision on water map only
             way.tags.pop("leisure")
         else:
@@ -163,7 +150,7 @@ def process_tags(way):
     if "barrier" in way.tags:
         if way.tags["barrier"] == "wall":
             build_barrier = True
-            wall_height = DEFAULT_BARRIER_HEIGHT
+            wall_height = config.config["barrier_height"]
             wall_texture = "mapgen_green"
             roof_texture = "mapgen_green"
             way.tags.pop("barrier")
@@ -171,34 +158,28 @@ def process_tags(way):
             process_ok = False
 
     if "waterway" in way.tags:
-        wall_height = DEFAULT_WATER_HEIGHT
+        wall_height = config.config["water_height"]
         wall_texture = "mapgen_blue"
         roof_texture = "mapgen_blue"
         way.tags.pop("waterway")
 
     if "natural" in way.tags:
-        # This works badly with coastlines
-        #if way.tags["natural"] == "water":
-        #    wall_height = DEFAULT_WATER_HEIGHT
-        #    wall_texture = "mapgen_blue"
-        #    roof_texture = "mapgen_blue"
-        #    way.tags.pop("natural")
         if way.tags["natural"] == "sand":
-            wall_height = DEFAULT_SAND_HEIGHT
+            wall_height = config.config["sand_height"]
             wall_texture = "mapgen_yellow_sand"
             roof_texture = "mapgen_yellow_sand"
             way.tags.pop("natural")
         elif way.tags["natural"] == "beach":
             if "surface" in way.tags:
                 if way.tags["surface"] == "sand":
-                    wall_height = DEFAULT_SAND_HEIGHT
+                    wall_height = config.config["sand_height"]
                     wall_texture = "mapgen_yellow_sand"
                     roof_texture = "mapgen_yellow_sand"
                     way.tags.pop("natural")
                     way.tags.pop("surface")
             # sand by default
             else:
-                wall_height = DEFAULT_SAND_HEIGHT
+                wall_height = config.config["sand_height"]
                 wall_texture = "mapgen_yellow_sand"
                 roof_texture = "mapgen_yellow_sand"
                 way.tags.pop("natural")
@@ -481,10 +462,10 @@ def generate_mesh_file(submesh):
     mesh_str += "</mesh>\n"
 
     mesh_file_name = building_name + ".mesh"
-    with open(gvar.WORK_PATH + mesh_file_name + ".xml", "w") as mesh_file:
+    with open(config.config["work_path"] + mesh_file_name + ".xml", "w") as mesh_file:
         mesh_file.write(mesh_str)
 
     os.system(
-        "OgreXMLConverter " + WORK_PATH + building_name + ".mesh.xml > /dev/null")
+        "OgreXMLConverter " + config.config["work_path"] + building_name + ".mesh.xml > /dev/null")
 
     ror_zip_file.add_file(building_name + ".mesh")

@@ -2,7 +2,7 @@ import helper
 import ror_tobj_file
 import ror_odef_file
 import ogre_mesh
-import gvar
+import config
 import bbox
 
 # https://wiki.openstreetmap.org/wiki/Main_Page
@@ -21,8 +21,6 @@ way_complete = ""
 way_complete_qty = 0
 way_not_processed = ""
 way_not_processed_qty = 0
-
-GROUND_HEIGHT = 1.0
 
 
 def process(result):
@@ -123,15 +121,15 @@ def calculate_stats(way, original_tags):
 
 
 def print_stats():
-    with open(gvar.LOG_PATH + "way_empty.txt", "w") as file:
+    with open(config.config["log_path"] + "way_empty.txt", "w") as file:
         file.write(way_empty)
-    with open(gvar.LOG_PATH + "way_ignored.txt", "w") as file:
+    with open(config.config["log_path"] + "way_ignored.txt", "w") as file:
         file.write(way_ignored)
-    with open(gvar.LOG_PATH + "way_incomplete.txt", "w") as file:
+    with open(config.config["log_path"] + "way_incomplete.txt", "w") as file:
         file.write(way_incomplete)
-    with open(gvar.LOG_PATH + "way_not_processed.txt", "w") as file:
+    with open(config.config["log_path"] + "way_not_processed.txt", "w") as file:
         file.write(way_not_processed)
-    with open(gvar.LOG_PATH + "way_complete.txt", "w") as file:
+    with open(config.config["log_path"] + "way_complete.txt", "w") as file:
         file.write(way_complete)
 
     print("Total ways  = ", way_total)
@@ -344,7 +342,7 @@ def build_coastline(way):
         building_name = "ground_" + str(ground_name_index)
         ogre_mesh.building_name = building_name
         ground_name_index += 1
-        ogre_mesh.wall_height = GROUND_HEIGHT
+        ogre_mesh.wall_height = config.config["ground_height"]
         ogre_mesh.wall_texture = "mapgen_beige"
         ogre_mesh.roof_texture = "mapgen_beige"
         roof_vertex_index, roof_face_qty, roof_vertex_str, roof_face_str = ogre_mesh.generate_roof(polygon,

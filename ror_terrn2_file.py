@@ -1,26 +1,23 @@
 import gvar
-from gvar import MAP_NAME
-from gvar import WORK_PATH
-from gvar import TERRN2_FILE_NAME
-from gvar import WATER_LINE
+import config
 
 
 def create_file(map_width, map_height):
-    with open(WORK_PATH + TERRN2_FILE_NAME, "w") as terrn2_file:
+    with open(config.config["work_path"] + config.config["map_name"] + ".terrn2", "w") as terrn2_file:
         terrn2_file.write("[General]\n\
     Name = mapgen terrain\n\
-    GeometryConfig = " + MAP_NAME + ".otc" + "\n\
-    CaelumConfigFile = " + MAP_NAME + ".os" + "\n")
+    GeometryConfig = " + config.config["map_name"] + ".otc" + "\n\
+    CaelumConfigFile = " + config.config["map_name"] + ".os" + "\n")
 
     if gvar.is_water_map is False:
-        with open(WORK_PATH + TERRN2_FILE_NAME, "a") as terrn2_file:
+        with open(config.config["work_path"] + config.config["map_name"] + ".terrn2", "a") as terrn2_file:
             terrn2_file.write("            Water = 0\n")
     else:
-        with open(WORK_PATH + TERRN2_FILE_NAME, "a") as terrn2_file:
+        with open(config.config["work_path"] + config.config["map_name"] + ".terrn2", "a") as terrn2_file:
             terrn2_file.write("            Water = 1\n\
-    WaterLine = " + str(WATER_LINE) + "\n")
+    WaterLine = " + str(config.config["water_line"]) + "\n")
 
-    with open(WORK_PATH + TERRN2_FILE_NAME, "a") as terrn2_file:
+    with open(config.config["work_path"] + config.config["map_name"] + ".terrn2", "a") as terrn2_file:
         terrn2_file.write("    AmbientColor = 1, 1, 1\n\
     StartPosition = " + str(int(map_width / 2)) + " 0 " + str(int(map_height / 2)) + "\n\
     SandStormCubeMap = tracks/skyboxcol\n\
@@ -30,4 +27,4 @@ def create_file(map_width, map_height):
     GUID = 0\n\
     [Authors]\n\
     terrain = mapgen\n\
-    [Objects]\n" + MAP_NAME + ".tobj=\n")
+    [Objects]\n" + config.config["map_name"] + ".tobj=\n")
