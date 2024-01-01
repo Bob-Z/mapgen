@@ -5,13 +5,14 @@ texture_qty = 0
 material_str = ""
 
 
-def create_material_swimming_pool(dest_width, dest_height):
-    return create_material(config.data["swimming_pool_tex_name"], config.data["swimming_pool_height"],
-                           config.data["swimming_pool_width"], dest_width, dest_height)
+def create_material_swimming_pool(dest_width, dest_length):
+    return create_material(config.data["swimming_pool_tex_name"], config.data["swimming_pool_tex_width"],
+                           config.data["swimming_pool_tex_height"],
+                           dest_width, dest_length)
 
 
 # return material name
-def create_material(tex_name, tex_height, tex_width, dest_width, dest_height):
+def create_material(tex_name, tex_width, tex_length, dest_width, dest_length):
     global texture_qty
     global material_str
 
@@ -25,7 +26,7 @@ def create_material(tex_name, tex_height, tex_width, dest_width, dest_height):
     material_str += "           texture_unit\n"
     material_str += "           {\n"
     material_str += "               texture " + tex_name + "\n"
-    material_str += "               scale " + str(tex_width / dest_width) + " " + str(tex_height / dest_height) + "\n"
+    material_str += "               scale " + str(tex_width / dest_width) + " " + str(tex_length / dest_length) + "\n"
     material_str += "           }\n"
     material_str += "       }\n"
     material_str += "   }\n"

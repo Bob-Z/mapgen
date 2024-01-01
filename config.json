@@ -4,30 +4,28 @@
 "log_path": "./log/",
 "resource_path": "./resource/",
 "cache_path": "./cache",
-"terrn2_file_name": "./cache",
 
 "water_line": 5.0,
 "ground_above_water": 1.0,
 
-
 "swimming_pool_tex_name": "swimming_pool.jpg",
-"swimming_pool_height": 1.2,
-"swimming_pool_width": 1.6,
-
-"building_level_height": 2.5,
-"grass_height": 0.004,
+"swimming_pool_tex_height": 1.2,
+"swimming_pool_tex_width": 1.6,
 "swimming_pool_height": 0.02,
+
 "barrier_width": 0.3,
 "barrier_height": 1.0,
-"water_height": 0.01,
-"sand_height": 0.005,
-"ground_height": 1.0,
-"road_height": 0.02,
-"lane_width": 3.0,
-"sidewalk_width": 1.5,
-"sidewalk_height": 0.1,
+"building_level_height": 2.5,
 "footway_width": 1.5,
 "footway_height": 0.02,
+"grass_height": 0.004,
+"ground_height": 0.001,
+"lane_width": 3.0,
+"road_height": 0.02,
+"sand_height": 0.005,
+"sidewalk_width": 1.5,
+"sidewalk_height": 0.1,
+"water_height": 0.01,
 
 "wall_texture": "mapgen_beige",
 "roof_texture": "mapgen_grey"

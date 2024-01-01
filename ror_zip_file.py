@@ -14,9 +14,9 @@ os_file_name = config.data["work_path"] + config.data["map_name"] + ".os"
 
 
 def create_default_file():
-    map_height = lat_lon_to_distance(bbox.coord["north"], bbox.coord["south"], bbox.coord["east"], bbox.coord["east"])
+    map_length = lat_lon_to_distance(bbox.coord["north"], bbox.coord["south"], bbox.coord["east"], bbox.coord["east"])
     map_width = lat_lon_to_distance(bbox.coord["north"], bbox.coord["north"], bbox.coord["west"], bbox.coord["east"])
-    print("Map size: ", map_width, "x", map_height)
+    print("Map size: ", map_width, "x", map_length)
 
     shutil.rmtree(config.data["work_path"], ignore_errors=True)
     os.makedirs(config.data["work_path"], exist_ok=True)
@@ -27,7 +27,7 @@ def create_default_file():
         otc_file.write("Pages_X=0 \n\
 Pages_Y=0 \n\
 Flat=1 \n\
-WorldSizeX=" + str(int(map_height)) + "\n\
+WorldSizeX=" + str(int(map_length)) + "\n\
 WorldSizeZ=" + str(int(map_width)) + "\n\
 WorldSizeY=0\n\
 PageFileFormat=" + config.data["map_name"] + "-page-0-0.otc" + "\n\
@@ -49,7 +49,7 @@ CastsDynamicShadows=0\n\
 MaxPixelError=5\n\
 DebugBlendMaps=0\n")
 
-    ror_terrn2_file.create_file(map_width, map_height)
+    ror_terrn2_file.create_file(map_width, map_length)
 
     with open(page_otc_file_name, "w") as page_otc_file:
         page_otc_file.write(

@@ -2,16 +2,16 @@ import ror_zip_file
 import config
 
 
-def create_file(new_object):
-    with open(config.data["work_path"] + new_object["name"] + ".odef", "w") as odef_file:
-        odef_file.write(new_object["name"] + ".mesh\n \
+def create_file(name, collision=True):
+    with open(config.data["work_path"] + name + ".odef", "w") as odef_file:
+        odef_file.write(name + ".mesh\n \
 1, 1, 1\n")
 
-        if new_object["collision"] is True:
+        if collision is True:
             odef_file.write("beginmesh\n\
-mesh " + new_object["name"] + ".mesh\n\
+mesh " + name + ".mesh\n\
 endmesh\n")
 
         odef_file.write("end\n")
 
-    ror_zip_file.add_file(new_object["name"] + ".odef")
+    ror_zip_file.add_file(name + ".odef")

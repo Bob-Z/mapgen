@@ -4,15 +4,19 @@ import ror_zip_file
 import osm
 import bbox
 import sys
-import osm_node
-import osm_way
 import ogre_material
 import gvar
-
-
-def process_relation(result):
-    print("No relation is processed yet")
-
+import gen_barrier
+import gen_building
+import gen_land
+import gen_water
+import gen_road
+import gen_sea
+import gen_object
+import osm_node
+import osm_way
+import osm_relation
+import copy
 
 if len(sys.argv) < 2:
     print("\nUsage: " + sys.argv[0] + " <north,west,south,east>")
@@ -43,19 +47,32 @@ if west > east:
     west = east
     east = t
 
-
 bbox.coord = {"north": north, "south": south, "west": west, "east": east}
-bbox.coordXY = {"north": helper.lat_to_x(north), "south": helper.lat_to_x(south), "west": helper.lon_to_y(west), "east": helper.lon_to_y(east)}
+bbox.coordXY = {"north": helper.lat_to_x(north), "south": helper.lat_to_x(south), "west": helper.lon_to_y(west),
+                "east": helper.lon_to_y(east)}
 print("Bounding box:", bbox.coord)
-
-osm_data = osm.get_data()
 
 ror_zip_file.create_default_file()
 ror_zip_file.write_default_file()
 
-osm_node.process(osm_data)
-osm_way.process(osm_data)
-process_relation(osm_data)
+osm_data = osm.get_data()
+
+nodes_original = copy.deepcopy(osm_data.nodes)
+ways_original = copy.deepcopy(osm_data.ways)
+relations_original = copy.deepcopy(osm_data.relations)
+
+gen_sea.process(osm_data)
+
+gen_barrier.process(osm_data)
+gen_building.process(osm_data)
+gen_land.process(osm_data)
+gen_road.process(osm_data)
+gen_water.process(osm_data)
+gen_object.process(osm_data)
 
 ror_zip_file.add_file(config.data["map_name"] + ".tobj")
 ogre_material.add_file()
+
+osm_node.show_stat(nodes_original, osm_data.nodes)
+osm_way.show_stat(ways_original, osm_data.ways)
+osm_relation.show_stat(relations_original, osm_data.relations)

@@ -45,6 +45,7 @@ def get_data():
 def dump_result_to_file(result):
     original_stdout = sys.stdout
 
+    print("Dumping OSM data in " + config.data["log_path"] + "osm_request.txt")
     with open(config.data["log_path"] + "osm_request.txt", "w") as result_file:
         sys.stdout = result_file
 
