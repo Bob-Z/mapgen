@@ -52,10 +52,12 @@ bbox.coordXY = {"north": helper.lat_to_x(north), "south": helper.lat_to_x(south)
                 "east": helper.lon_to_y(east)}
 print("Bounding box:", bbox.coord)
 
+osm_data = osm.get_data()
+
 ror_zip_file.create_default_file()
 ror_zip_file.write_default_file()
 
-osm_data = osm.get_data()
+osm.dump_result_to_file(osm_data)
 
 nodes_original = copy.deepcopy(osm_data.nodes)
 ways_original = copy.deepcopy(osm_data.ways)
