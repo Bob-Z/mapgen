@@ -3,6 +3,7 @@ import config
 
 
 def process(osm_data):
+    print("Generating barriers")
     for way in osm_data.ways:
         if "barrier" in way.tags:
             if way.tags["barrier"] == "wall":

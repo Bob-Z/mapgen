@@ -6,6 +6,7 @@ import helper
 
 
 def process(osm_data):
+    print("Generating sea")
     for way in osm_data.ways:
         if "natural" in way.tags:
             if way.tags["natural"] == "coastline":

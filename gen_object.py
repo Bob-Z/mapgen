@@ -4,6 +4,7 @@ import helper
 
 
 def process(osm_data):
+    print("Generating objects")
     for node in osm_data.nodes:
         if "natural" in node.tags:
             if node.tags["natural"] == "tree":

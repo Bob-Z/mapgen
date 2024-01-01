@@ -6,6 +6,7 @@ import math
 
 
 def process(osm_data):
+    print("Generating roads")
     for way in osm_data.ways:
         if "highway" in way.tags:
             create_road(way)

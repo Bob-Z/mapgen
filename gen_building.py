@@ -3,6 +3,7 @@ import config
 
 
 def process(osm_data):
+    print("Generating buildings")
     for way in osm_data.ways:
         level_qty = 1
         if "building:levels" in way.tags:

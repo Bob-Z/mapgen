@@ -80,3 +80,9 @@ def has_tag(result, tag, value):
                 return True
 
     return False
+
+
+def get_way_by_id(osm_data, way_id):
+    for way in osm_data.ways:
+        if way.id == way_id:
+            return way
