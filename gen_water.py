@@ -22,6 +22,13 @@ def process(osm_data):
 
                 way.tags.pop("leisure")
 
+        elif "natural" in way.tags:
+            if way.tags["natural"] == "water":
+                object_3d.create_all_object_file(way.nodes, height=config.data["water_height"],
+                                                 wall_texture="mapgen_blue",
+                                                 roof_texture="mapgen_blue")
+                way.tags.pop("natural")
+
         # if "waterway" in way.tags:
         #    object_3d.create_all_object_file(way.nodes, elevation=config.data["water_height"],
         #                                     wall_texture="mapgen_blue",

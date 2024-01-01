@@ -34,9 +34,3 @@ def process(osm_data):
 
                         way.tags.pop("natural")
                         way.tags.pop("surface")
-            # sand by default
-            else:
-                object_3d.create_all_object_file(way.nodes, height=gvar.GROUND_LEVEL + config.data["sand_height"], z=-gvar.GROUND_LEVEL,
-                                                 wall_texture="mapgen_yellow_sand",
-                                                 roof_texture="mapgen_yellow_sand")
-                way.tags.pop("natural")
