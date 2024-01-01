@@ -7,8 +7,8 @@ import object_3d
 
 # https://wiki.openstreetmap.org/wiki/Main_Page
 ignored_tags = ["source", "access", "description", "description:en", "description:de", "description:fr", "old_ref"]
-ignored_tags_value = []
-ignored_relations = ["admin_level"]
+ignored_tags_value = [["natural", "bay"]]
+ignored_relations = ["admin_level", "disused:admin_level", "disused:boundary", "boundary"]
 
 relation_total = 0
 relation_empty = ""
