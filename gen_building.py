@@ -13,12 +13,13 @@ def process(osm_data):
             if rel.tags["building"] == "yes" or rel.tags["building"] == "industrial":
                 build_from_relation(osm_data, rel)
                 rel.tags.pop("building")
+                rel.tags.pop("type")  # FIXME is this always multipolygon ?
 
         elif "building:part" in rel.tags:
             if rel.tags["building:part"] == "yes":
                 build_from_relation(osm_data, rel)
                 rel.tags.pop("building:part")
-
+                rel.tags.pop("type")  # FIXME is this always multipolygon ?
 
 def build_from_relation(osm_data, rel):
     height = None
@@ -31,8 +32,6 @@ def build_from_relation(osm_data, rel):
         min_height = float(rel.tags["min_height"])
         height = height - min_height
         rel.tags.pop("min_height")
-
-    rel.tags.pop("type")  # FIXME is this always multipolygon ?
 
     for member in rel.members:
         way = osm.get_way_by_id(osm_data, member.ref)
