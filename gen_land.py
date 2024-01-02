@@ -64,3 +64,18 @@ def process(osm_data):
                             object_3d.create_all_object_file(way.nodes, height=config.data["island_height"],
                                                              wall_texture="mapgen_beige",
                                                              roof_texture="mapgen_beige")
+                rel.tags.pop("natural")
+
+            elif rel.tags["natural"] == "sand":
+                for member in rel.members:
+                    way = osm.get_way_by_id(osm_data, member.ref)
+                    if way is not None:
+                        if member.role == "outer":
+                            object_3d.create_all_object_file(way.nodes, height=config.data["sand_height"],
+                                                             wall_texture="mapgen_yellow_sand",
+                                                             roof_texture="mapgen_yellow_sand")
+                        elif member.role == "inner":
+                            object_3d.create_all_object_file(way.nodes, height=config.data["island_height"],
+                                                             wall_texture="mapgen_beige",
+                                                             roof_texture="mapgen_beige")
+                rel.tags.pop("natural")
