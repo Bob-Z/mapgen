@@ -65,6 +65,7 @@ def process(osm_data):
                                                              wall_texture="mapgen_beige",
                                                              roof_texture="mapgen_beige")
                 rel.tags.pop("natural")
+                rel.tags.pop("type")  # FIXME is this always multipolygon ?
 
             elif rel.tags["natural"] == "sand":
                 for member in rel.members:
@@ -79,3 +80,4 @@ def process(osm_data):
                                                              wall_texture="mapgen_beige",
                                                              roof_texture="mapgen_beige")
                 rel.tags.pop("natural")
+                rel.tags.pop("type")  # FIXME is this always multipolygon ?

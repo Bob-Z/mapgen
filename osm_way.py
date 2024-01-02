@@ -6,7 +6,8 @@ import bbox
 import object_3d
 
 # https://wiki.openstreetmap.org/wiki/Main_Page
-ignored_tags = ["source", "access", "description", "description:en", "description:de", "description:fr", "old_ref"]
+ignored_tags = ["source", "access", "description", "description:en", "description:de", "description:fr", "old_ref",
+                "addr:city", "addr:state"]
 ignored_tags_value = [["landuse", "residential"], ["landuse", "retail"], ["railway", "razed"]]
 ignored_ways = ["admin_level", "disused:admin_level"]
 

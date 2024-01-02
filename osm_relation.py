@@ -6,7 +6,8 @@ import bbox
 import object_3d
 
 # https://wiki.openstreetmap.org/wiki/Main_Page
-ignored_tags = ["source", "access", "description", "description:en", "description:de", "description:fr", "old_ref"]
+ignored_tags = ["source", "access", "description", "description:en", "description:de", "description:fr", "old_ref",
+                "addr:city", "addr:state"]
 ignored_tags_value = [["natural", "bay"]]
 ignored_relations = ["admin_level", "disused:admin_level", "disused:boundary", "boundary", "name"]
 
@@ -44,7 +45,6 @@ def show_stat(original_relations, modified_relations):
         for tag in ignored_tags:
             if tag in rel.tags:
                 rel.tags.pop(tag)
-                original_rel.tags.pop(tag)
 
         calculate_stats(original_rel, rel)
 

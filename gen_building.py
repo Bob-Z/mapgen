@@ -35,6 +35,8 @@ def build_from_relation(osm_data, rel):
         height = height - min_height
         rel.tags.pop("min_height")
 
+    rel.tags.pop("type")  # FIXME is this always multipolygon ?
+
     for member in rel.members:
         way = osm.get_way_by_id(osm_data, member.ref)
         if way is not None:

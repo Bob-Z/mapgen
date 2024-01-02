@@ -60,3 +60,4 @@ def process(osm_data):
                                                              roof_texture="mapgen_beige")
 
                 rel.tags.pop("natural")
+                rel.tags.pop("type")  # FIXME is this always multipolygon ?
