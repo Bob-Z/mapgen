@@ -48,9 +48,6 @@ def process(osm_data):
                 way.tags.pop("natural")
 
     for rel in osm_data.relations:
-        if "name" in rel.tags:
-            continue
-
         if "natural" in rel.tags:
             if rel.tags["natural"] == "scrub":
                 for member in rel.members:

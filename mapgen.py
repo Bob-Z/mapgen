@@ -63,6 +63,10 @@ nodes_original = copy.deepcopy(osm_data.nodes)
 ways_original = copy.deepcopy(osm_data.ways)
 relations_original = copy.deepcopy(osm_data.relations)
 
+osm_node.filter_ignored(osm_data.nodes)
+osm_way.filter_ignored(osm_data.ways)
+osm_relation.filter_ignored(osm_data.relations)
+
 gen_sea.process(osm_data)
 
 gen_barrier.process(osm_data)

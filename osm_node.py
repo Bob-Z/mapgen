@@ -1,7 +1,8 @@
 import config
 
 # https://wiki.openstreetmap.org/wiki/Main_Page
-ignored_tags = ["source", "addr:housenumber", "addr:street", "genus:de", "genus:en", "genus:fr", "ref", "check_date:shelter"]
+ignored_tags = ["source", "addr:housenumber", "addr:street", "genus:de", "genus:en", "genus:fr", "ref",
+                "check_date:shelter"]
 
 node_total = 0
 node_incomplete = ""
@@ -16,6 +17,19 @@ node_not_processed = ""
 node_not_processed_qty = 0
 
 
+def filter_ignored(modified_nodes):
+    for node in modified_nodes:
+        if len(node.tags) == 0:
+            node.tags["empty"] = True
+
+        for tag in ignored_tags:
+            if tag in node.tags:
+                node.tags.pop(tag)
+
+        if len(node.tags) == 0:
+            node.tags["ignored"] = True
+
+
 def show_stat(original_nodes, modified_nodes):
     global node_total
     global node_empty_qty
@@ -23,17 +37,6 @@ def show_stat(original_nodes, modified_nodes):
     node_total = len(modified_nodes)
 
     for original_node, node in zip(original_nodes, modified_nodes):
-        if len(node.tags) == 0:
-            node.tags["empty"] = True
-
-        for tag in ignored_tags:
-            if tag in node.tags:
-                node.tags.pop(tag)
-                original_node.tags.pop(tag)
-
-        if len(node.tags) == 0:
-            node.tags["ignored"] = True
-
         calculate_stats(original_node, node)
 
     print_stats()

@@ -24,12 +24,8 @@ way_not_processed = ""
 way_not_processed_qty = 0
 
 
-def show_stat(original_ways, modified_ways):
-    global way_total
-
-    way_total = len(modified_ways)
-
-    for original_way, way in zip(original_ways, modified_ways):
+def filter_ignored(modified_ways):
+    for way in modified_ways:
         if len(way.tags) == 0:
             way.tags["empty"] = True
 
@@ -45,8 +41,14 @@ def show_stat(original_ways, modified_ways):
         for tag in ignored_tags:
             if tag in way.tags:
                 way.tags.pop(tag)
-                original_way.tags.pop(tag)
 
+
+def show_stat(original_ways, modified_ways):
+    global way_total
+
+    way_total = len(modified_ways)
+
+    for original_way, way in zip(original_ways, modified_ways):
         calculate_stats(original_way, way)
 
     print_stats()

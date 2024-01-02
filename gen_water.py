@@ -37,9 +37,6 @@ def process(osm_data):
         #   way.tags.pop("waterway")
 
     for rel in osm_data.relations:
-        if "name" in rel.tags:
-            continue
-
         if "natural" in rel.tags:
             if rel.tags["natural"] == "water":
                 # This fix a bug in Manathan

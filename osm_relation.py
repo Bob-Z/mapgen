@@ -8,8 +8,8 @@ import object_3d
 # https://wiki.openstreetmap.org/wiki/Main_Page
 ignored_tags = ["source", "access", "description", "description:en", "description:de", "description:fr", "old_ref",
                 "addr:city", "addr:state"]
-ignored_tags_value = [["natural", "bay"]]
-ignored_relations = ["admin_level", "disused:admin_level", "disused:boundary", "boundary", "name"]
+ignored_tags_value = []
+ignored_relations = ["admin_level", "disused:admin_level", "disused:boundary", "boundary"]
 
 relation_total = 0
 relation_empty = ""
@@ -24,12 +24,8 @@ relation_not_processed = ""
 relation_not_processed_qty = 0
 
 
-def show_stat(original_relations, modified_relations):
-    global relation_total
-
-    relation_total = len(modified_relations)
-
-    for original_rel, rel in zip(original_relations, modified_relations):
+def filter_ignored(modified_relations):
+    for rel in modified_relations:
         if len(rel.tags) == 0:
             rel.tags["empty"] = True
 
@@ -46,6 +42,13 @@ def show_stat(original_relations, modified_relations):
             if tag in rel.tags:
                 rel.tags.pop(tag)
 
+
+def show_stat(original_relations, modified_relations):
+    global relation_total
+
+    relation_total = len(modified_relations)
+
+    for original_rel, rel in zip(original_relations, modified_relations):
         calculate_stats(original_rel, rel)
 
     print_stats()

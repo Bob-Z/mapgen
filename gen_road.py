@@ -48,9 +48,6 @@ def create_road(way):
                 way.tags.pop("service")
         way.tags.pop("highway")
 
-        if "name" in way.tags:
-            way.tags.pop("name")
-
     if "sidewalk" in way.tags:
         if way.tags["sidewalk"] == "both":
             sidewalk = "both"
