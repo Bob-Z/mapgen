@@ -39,11 +39,6 @@ def process(osm_data):
     for rel in osm_data.relations:
         if "natural" in rel.tags:
             if rel.tags["natural"] == "water":
-                # This fix a bug in Manathan
-                if "water" in rel.tags:
-                    if rel.tags["water"] == "river" and gvar.is_water_map is True:
-                        continue
-
                 for member in rel.members:
                     way = osm.get_way_by_id(osm_data, member.ref)
                     if way is not None:
