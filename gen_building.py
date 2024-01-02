@@ -9,6 +9,9 @@ def process(osm_data):
         build_from_way(way)
 
     for rel in osm_data.relations:
+        if "name" in rel.tags:
+            continue
+
         if "building" in rel.tags:
             if rel.tags["building"] == "yes" or rel.tags["building"] == "industrial":
                 build_from_relation(osm_data, rel)
