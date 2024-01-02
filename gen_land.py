@@ -64,7 +64,7 @@ def process(osm_data):
                 rel.tags.pop("natural")
                 rel.tags.pop("type")  # FIXME is this always multipolygon ?
 
-            elif rel.tags["natural"] == "sand":
+            elif rel.tags["natural"] == "sand" or rel.tags["natural"] == "beach":
                 for member in rel.members:
                     way = osm.get_way_by_id(osm_data, member.ref)
                     if way is not None:
