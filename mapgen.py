@@ -13,9 +13,7 @@ import gen_water
 import gen_road
 import gen_sea
 import gen_object
-import osm_node
-import osm_way
-import osm_relation
+import osm_tags
 import copy
 
 if len(sys.argv) < 2:
@@ -63,9 +61,9 @@ nodes_original = copy.deepcopy(osm_data.nodes)
 ways_original = copy.deepcopy(osm_data.ways)
 relations_original = copy.deepcopy(osm_data.relations)
 
-osm_node.filter_ignored(osm_data.nodes)
-osm_way.filter_ignored(osm_data.ways)
-osm_relation.filter_ignored(osm_data.relations)
+osm_tags.filter_ignored(osm_data.nodes)
+osm_tags.filter_ignored(osm_data.ways)
+osm_tags.filter_ignored(osm_data.relations)
 
 gen_sea.process(osm_data)
 
@@ -79,6 +77,6 @@ gen_object.process(osm_data)
 ror_zip_file.add_file(config.data["map_name"] + ".tobj")
 ogre_material.add_file()
 
-osm_node.show_stat(nodes_original, osm_data.nodes)
-osm_way.show_stat(ways_original, osm_data.ways)
-osm_relation.show_stat(relations_original, osm_data.relations)
+osm_tags.show_stat("nodes", nodes_original, osm_data.nodes)
+osm_tags.show_stat("ways", ways_original, osm_data.ways)
+osm_tags.show_stat("relations", relations_original, osm_data.relations)
