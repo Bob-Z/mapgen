@@ -2,12 +2,10 @@ import object_3d
 import config
 import osm
 
-build_tag_value = [["building", "apartments"], ["building", "bunker"], ["building", "civic"], ["building", "container"],
-                   ["building", "hospital"],
-                   ["building", "industrial"], ["building", "residential"], ["building", "school"],
-                   ["building", "university"], ["building", "yes"], ["type", "building"]]
-build_tag = ["building:part"]
-negative_tag_value = [["amenity", "shelter"]]
+build_tag_value = [["type", "building"]]
+build_tag = ["building:part", "building"]
+negative_tag_value = [["amenity", "shelter"], ["building", "rocket"]]
+# Exception for rocket for Bocca Chica
 
 
 def process(osm_data):
