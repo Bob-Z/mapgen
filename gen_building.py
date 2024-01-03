@@ -5,6 +5,8 @@ import osm
 build_tag_value = [["type", "building"]]
 build_tag = ["building:part", "building"]
 negative_tag_value = [["amenity", "shelter"], ["building", "rocket"]]
+
+
 # Exception for rocket for Bocca Chica
 
 
@@ -98,14 +100,15 @@ def build_from_way(way, height=None, min_height=None, from_relation=False):
 
 def calculate_height(entity):
     height = None
-    if "height" in entity.tags:
-        height = float(entity.tags["height"])
-        entity.tags.pop("height")
 
     if "building:levels" in entity.tags:
         level_qty = entity.tags["building:levels"]
         height = float(level_qty) * config.data["building_level_height"]
         entity.tags.pop("building:levels")
+
+    if "height" in entity.tags:
+        height = float(entity.tags["height"])
+        entity.tags.pop("height")
 
     min_height = None
     if "min_height" in entity.tags:
