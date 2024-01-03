@@ -27,6 +27,7 @@
 "scrub_height": 0.005,
 "sidewalk_width": 1.5,
 "sidewalk_height": 0.1,
+"shelter_roof_height": 0.15,
 "water_height": 0.01,
 
 "wall_texture": "mapgen_beige",

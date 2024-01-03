@@ -26,13 +26,16 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
 
     obj_name = "obj" + str(object_index)
 
-    if hasattr(nodes[0], 'lat'):
-        center_x, center_y, width, length, vertex = get_info_from_input_data(nodes, is_node=True)
-    else:
-        center_x, center_y, width, length, vertex = get_info_from_input_data(nodes, is_node=False)
+    if len(nodes) > 1:
+        if hasattr(nodes[0], 'lat'):
+            center_x, center_y, width, length, vertex = get_info_from_input_data(nodes, is_node=True)
+        else:
+            center_x, center_y, width, length, vertex = get_info_from_input_data(nodes, is_node=False)
 
-    if is_barrier is True:
-        vertex = create_additional_vertex_for_barrier(vertex)
+        if is_barrier is True:
+            vertex = create_additional_vertex_for_barrier(vertex)
+    else:
+        center_x, center_y, width, length, vertex = create_vertex_for_pillar(nodes[0])
 
     wall_vertex_index, wall_face_qty, wall_vertex_str, wall_face_str = generate_wall(vertex, height)
     if wall_vertex_str is None:
@@ -260,6 +263,17 @@ def create_additional_vertex_for_barrier(vertex):
     centered_vertex = opposite_side_vertex + first_side_vertex
 
     return centered_vertex
+
+
+def create_vertex_for_pillar(node):
+    x = helper.lat_to_x(node.lat)
+    y = helper.lon_to_y(node.lon)
+
+    length = config.data["barrier_width"] / 2.0
+
+    vertex = [[length, length], [length, -length],
+              [-length, -length], [-length, length]]
+    return x, y, config.data["barrier_width"], config.data["barrier_width"], vertex
 
 
 def create_vertex_str(v0, v1, v2, u, v):

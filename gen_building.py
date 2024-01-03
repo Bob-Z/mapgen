@@ -2,9 +2,12 @@ import object_3d
 import config
 import osm
 
-build_tag_value = [["amenity", "shelter"], ["building", "bunker"], ["building", "container"], ["building", "industrial"],
-                   ["building", "university"], ["building", "yes"]]
+build_tag_value = [["building", "apartments"], ["building", "bunker"], ["building", "civic"], ["building", "container"],
+                   ["building", "hospital"],
+                   ["building", "industrial"], ["building", "residential"], ["building", "school"],
+                   ["building", "university"], ["building", "yes"], ["type", "building"]]
 build_tag = ["building:part"]
+negative_tag_value = [["amenity", "shelter"]]
 
 
 def process(osm_data):
@@ -12,21 +15,32 @@ def process(osm_data):
     for way in osm_data.ways:
         build_from_way(way)
 
+    # Negative tags first
+
     for rel in osm_data.relations:
+        found = False
         for tag_value in build_tag_value:
             if tag_value[0] in rel.tags:
                 if rel.tags[tag_value[0]] == tag_value[1]:
-                    build_from_relation(osm_data, rel)
-                    rel.tags.pop(tag_value[0])
-                    rel.tags.pop("type")  # FIXME is this always multipolygon ?
-                    continue
+                    if is_allowed(rel):
+                        build_from_relation(osm_data, rel)
+                        rel.tags.pop(tag_value[0])
+                        if "type" in rel.tags:
+                            if rel.tags["type"] == "multipolygon":
+                                rel.tags.pop("type")
+                        found = True
+                        break
 
-        for tag in build_tag:
-            if tag in rel.tags:
-                build_from_relation(osm_data, rel)
-                rel.tags.pop(tag)
-                rel.tags.pop("type")  # FIXME is this always multipolygon ?
-                continue
+        if found is False:
+            for tag in build_tag:
+                if tag in rel.tags:
+                    if is_allowed(rel):
+                        build_from_relation(osm_data, rel)
+                        rel.tags.pop(tag)
+                        if "type" in rel.tags:
+                            if rel.tags["type"] == "multipolygon":
+                                rel.tags.pop("type")
+                        break
 
 
 def build_from_relation(osm_data, rel):
@@ -58,23 +72,30 @@ def build_from_way(way, height=None, min_height=None, from_relation=False):
         object_3d.create_all_object_file(way.nodes, height, z=min_height, wall_texture=config.data["wall_texture"],
                                          roof_texture=config.data["roof_texture"], is_barrier=is_barrier)
     else:
+        found = False
         for tag_value in build_tag_value:
             if tag_value[0] in way.tags:
                 if way.tags[tag_value[0]] == tag_value[1]:
-                    object_3d.create_all_object_file(way.nodes, height, z=min_height,
-                                                     wall_texture=config.data["wall_texture"],
-                                                     roof_texture=config.data["roof_texture"], is_barrier=is_barrier)
+                    if is_allowed(way):
+                        object_3d.create_all_object_file(way.nodes, height, z=min_height,
+                                                         wall_texture=config.data["wall_texture"],
+                                                         roof_texture=config.data["roof_texture"],
+                                                         is_barrier=is_barrier)
 
-                    way.tags.pop(tag_value[0])
-                    continue
+                        way.tags.pop(tag_value[0])
+                        found = True
+                        break
 
-        for tag in build_tag:
-            if tag in way.tags:
-                object_3d.create_all_object_file(way.nodes, height, z=min_height,
-                                                 wall_texture=config.data["wall_texture"],
-                                                 roof_texture=config.data["roof_texture"], is_barrier=is_barrier)
-                way.tags.pop(tag)
-                continue
+        if found is False:
+            for tag in build_tag:
+                if tag in way.tags:
+                    if is_allowed(way):
+                        object_3d.create_all_object_file(way.nodes, height, z=min_height,
+                                                         wall_texture=config.data["wall_texture"],
+                                                         roof_texture=config.data["roof_texture"],
+                                                         is_barrier=is_barrier)
+                        way.tags.pop(tag)
+                        break
 
 
 def calculate_height(entity):
@@ -95,3 +116,12 @@ def calculate_height(entity):
         entity.tags.pop("min_height")
 
     return height, min_height
+
+
+def is_allowed(entity):
+    for tag_value in negative_tag_value:
+        if tag_value[0] in entity.tags:
+            if entity.tags[tag_value[0]] == tag_value[1]:
+                return False
+
+    return True

@@ -12,6 +12,7 @@ import gen_land
 import gen_water
 import gen_road
 import gen_sea
+import gen_shelter
 import gen_object
 import osm_tags
 import copy
@@ -69,6 +70,7 @@ gen_sea.process(osm_data)
 
 gen_barrier.process(osm_data)
 gen_building.process(osm_data)
+gen_shelter.process(osm_data)
 gen_land.process(osm_data)
 gen_road.process(osm_data)
 gen_water.process(osm_data)
