@@ -12,18 +12,13 @@ VERTEX_PER_WALL = 4
 object_index = 0
 
 
-# build_barrier = False
-# collision = True
-# wall_height = config.data["building_level_height"]
-# wall_texture = config.data["wall_texture"]
-# roof_texture = config.data["roof_texture"]
-# barrier_width = config.data["barrier_width"]
-# wall_texture_generator = None
-# roof_texture_generator = None
-
-
-def create_all_object_file(nodes, height=config.data["building_level_height"], z=0.0, wall_texture=config.data["wall_texture"], roof_texture=config.data["roof_texture"], is_barrier=False, roof_texture_generator=None):
+def create_all_object_file(nodes, height=config.data["building_level_height"], z=0.0,
+                           wall_texture=config.data["wall_texture"], roof_texture=config.data["roof_texture"],
+                           is_barrier=False, roof_texture_generator=None):
     global object_index
+
+    if height is None:
+        height = config.data["building_level_height"]
 
     object_index = object_index + 1
 
@@ -46,7 +41,8 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
 
     # no submeshes with the same texture is allowed
     if wall_texture == roof_texture:
-        roof_vertex_index, roof_face_qty, roof_vertex_str, roof_face_str = generate_roof(vertex, height, wall_vertex_index,
+        roof_vertex_index, roof_face_qty, roof_vertex_str, roof_face_str = generate_roof(vertex, height,
+                                                                                         wall_vertex_index,
                                                                                          is_barrier)
         generate_mesh_file(
             [{"vertex_index": roof_vertex_index, "face_qty": wall_face_qty + roof_face_qty,
