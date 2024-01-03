@@ -50,10 +50,10 @@ def dump_result_to_file(result):
         sys.stdout = result_file
 
         for node in result.nodes:
-            print(node, node.tags)
+            print(node.tags, node)
 
         for way in result.ways:
-            print(way, way.tags)
+            print(way.tags, way)
 
         for relation in result.relations:
             print(relation, relation.tags)

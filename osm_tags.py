@@ -7,7 +7,7 @@ ignored_tags = ["access", "addr:city", "addr:housenumber", "addr:state", "check_
                 "name", "old_name", "old_ref", "ref", "source"]
 
 ignored_tags_value = [["landuse", "residential"], ["landuse", "retail"], ["railway", "razed"]]
-ignored = ["admin_level", "disused:admin_level", "disused:boundary", "boundary"]
+ignored = ["admin_level", "boundary", "disused:admin_level", "disused:boundary", "disused:route"]
 
 entity_total = 0
 entity_empty = ""
@@ -90,19 +90,19 @@ def calculate_stats(original_entity, entity):
             original_without_ignored_tags.pop(tag)
 
     if "empty" in entity.tags:
-        entity_empty = entity_empty + " -- {0}\n".format(entity)
+        entity_empty = entity_empty + "{0}\n".format(entity)
         entity_empty_qty += 1
     elif "ignored" in entity.tags:
-        entity_ignored = entity_ignored + " -- {0}{1}\n".format(entity, original_entity.tags)
+        entity_ignored = entity_ignored + "{0} {1}\n".format(original_entity.tags, entity)
         entity_ignored_qty += 1
     elif len(entity.tags) == len(original_without_ignored_tags):
-        entity_not_processed = entity_not_processed + " -- {0}{1}\n".format(entity, entity.tags)
+        entity_not_processed = entity_not_processed + "{0} {1}\n".format(entity.tags, entity)
         entity_not_processed_qty += 1
     elif len(entity.tags) > 0:
-        entity_incomplete = entity_incomplete + " -- {0}{1}{2}\n".format(entity, entity.tags, original_entity.tags)
+        entity_incomplete = entity_incomplete + "{0} ||| {1} {2}\n".format(entity.tags, original_entity.tags, entity)
         entity_incomplete_qty += 1
     else:
-        entity_complete = entity_complete + " -- {0}{1}\n".format(entity, original_entity.tags)
+        entity_complete = entity_complete + "{0} {1}\n".format(original_entity.tags, entity)
         entity_complete_qty += 1
 
 
