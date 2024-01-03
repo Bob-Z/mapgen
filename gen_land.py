@@ -21,15 +21,24 @@ def process(osm_data):
                                                  wall_texture="mapgen_grass_dandelion",
                                                  roof_texture="mapgen_grass_dandelion")
                 way.tags.pop("leisure")
+                continue
+            if way.tags["leisure"] == "pitch":
+                object_3d.create_all_object_file(way.nodes, height=gvar.GROUND_LEVEL + config.data["grass_height"],
+                                                 z=-gvar.GROUND_LEVEL,
+                                                 wall_texture="mapgen_grass",
+                                                 roof_texture="mapgen_grass")
+                way.tags.pop("leisure")
+                continue
 
-        elif "natural" in way.tags:
+        if "natural" in way.tags:
             if way.tags["natural"] == "sand":
                 object_3d.create_all_object_file(way.nodes, height=gvar.GROUND_LEVEL + config.data["sand_height"],
                                                  z=-gvar.GROUND_LEVEL,
                                                  wall_texture="mapgen_yellow_sand", roof_texture="mapgen_yellow_sand")
 
                 way.tags.pop("natural")
-            elif way.tags["natural"] == "beach":
+                continue
+            if way.tags["natural"] == "beach":
                 if "surface" in way.tags:
                     if way.tags["surface"] == "sand":
                         object_3d.create_all_object_file(way.nodes,
@@ -40,12 +49,14 @@ def process(osm_data):
 
                         way.tags.pop("natural")
                         way.tags.pop("surface")
-            elif way.tags["natural"] == "scrub":
+                        continue
+            if way.tags["natural"] == "scrub":
                 object_3d.create_all_object_file(way.nodes, height=gvar.GROUND_LEVEL + config.data["scrub_height"],
                                                  z=-gvar.GROUND_LEVEL,
                                                  wall_texture="mapgen_scrub", roof_texture="mapgen_scrub")
 
                 way.tags.pop("natural")
+                continue
 
     for rel in osm_data.relations:
         if "natural" in rel.tags:
@@ -63,8 +74,9 @@ def process(osm_data):
                                                              roof_texture="mapgen_beige")
                 rel.tags.pop("natural")
                 rel.tags.pop("type")  # FIXME is this always multipolygon ?
+                continue
 
-            elif rel.tags["natural"] == "sand" or rel.tags["natural"] == "beach":
+            if rel.tags["natural"] == "sand" or rel.tags["natural"] == "beach":
                 for member in rel.members:
                     way = osm.get_way_by_id(osm_data, member.ref)
                     if way is not None:
@@ -78,3 +90,4 @@ def process(osm_data):
                                                              roof_texture="mapgen_beige")
                 rel.tags.pop("natural")
                 rel.tags.pop("type")  # FIXME is this always multipolygon ?
+                continue

@@ -10,16 +10,27 @@ def process(osm_data):
 
     for rel in osm_data.relations:
         if "building" in rel.tags:
-            if rel.tags["building"] == "yes" or rel.tags["building"] == "industrial":
+            if rel.tags["building"] == "yes" or rel.tags["building"] == "industrial" or rel.tags[
+                "building"] == "university":
                 build_from_relation(osm_data, rel)
                 rel.tags.pop("building")
                 rel.tags.pop("type")  # FIXME is this always multipolygon ?
+                continue
 
-        elif "building:part" in rel.tags:
-            if rel.tags["building:part"] == "yes":
+        if "building:part" in rel.tags:
+            if rel.tags["building:part"] == "yes" or rel.tags["building:part"] == "grandstand":
                 build_from_relation(osm_data, rel)
                 rel.tags.pop("building:part")
                 rel.tags.pop("type")  # FIXME is this always multipolygon ?
+                continue
+
+        if "area" in rel.tags:
+            if rel.tags["area"] == "yes":
+                build_from_relation(osm_data, rel)
+                rel.tags.pop("area")
+                rel.tags.pop("type")  # FIXME is this always multipolygon ?
+                continue
+
 
 def build_from_relation(osm_data, rel):
     height = None
@@ -32,6 +43,11 @@ def build_from_relation(osm_data, rel):
         min_height = float(rel.tags["min_height"])
         height = height - min_height
         rel.tags.pop("min_height")
+
+    if "building:levels" in rel.tags:
+        level_qty = rel.tags["building:levels"]
+        height = float(level_qty) * config.data["building_level_height"]
+        rel.tags.pop("building:levels")
 
     for member in rel.members:
         way = osm.get_way_by_id(osm_data, member.ref)
@@ -69,19 +85,29 @@ def build_from_way(way, height=None, min_height=0.0, from_relation=False):
                                                  roof_texture="mapgen_red", is_barrier=is_barrier)
 
                 way.tags.pop("amenity")
+                return
 
-        elif "building" in way.tags:
+        if "building" in way.tags:
             object_3d.create_all_object_file(way.nodes, height=height, wall_texture=config.data["wall_texture"],
                                              roof_texture=config.data["roof_texture"],
                                              is_barrier=is_barrier, roof_texture_generator=None)
             way.tags.pop("building")
-        elif "disused:building" in way.tags:
-            object_3d.create_all_object_file(way.nodes, height=height, wall_texture=config.data["wall_texture"],
-                                             roof_texture=config.data["roof_texture"],
-                                             is_barrier=is_barrier, roof_texture_generator=None)
-            way.tags.pop("disused:building")
-        elif "demolished:building" in way.tags:
-            object_3d.create_all_object_file(way.nodes, height=height, wall_texture=config.data["wall_texture"],
-                                             roof_texture=config.data["roof_texture"],
-                                             is_barrier=is_barrier, roof_texture_generator=None)
-            way.tags.pop("demolished:building")
+            return
+        # elif "disused:building" in way.tags:
+        #    object_3d.create_all_object_file(way.nodes, height=height, wall_texture=config.data["wall_texture"],
+        #                                     roof_texture=config.data["roof_texture"],
+        #                                     is_barrier=is_barrier, roof_texture_generator=None)
+        #    way.tags.pop("disused:building")
+        # elif "demolished:building" in way.tags:
+        #    object_3d.create_all_object_file(way.nodes, height=height, wall_texture=config.data["wall_texture"],
+        #                                     roof_texture=config.data["roof_texture"],
+        #                                     is_barrier=is_barrier, roof_texture_generator=None)
+        #    way.tags.pop("demolished:building")
+
+        if "area" in way.tags:
+            if way.tags["area"] == "yes":
+                object_3d.create_all_object_file(way.nodes, height=height, wall_texture=config.data["wall_texture"],
+                                                 roof_texture=config.data["roof_texture"],
+                                                 is_barrier=is_barrier, roof_texture_generator=None)
+                way.tags.pop("area")
+                return
