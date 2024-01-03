@@ -33,7 +33,7 @@ def process(osm_data):
                 way.tags.pop("natural")
                 continue
 
-        #if "waterway" in way.tags:
+        # if "waterway" in way.tags:
         #    if way.tags["waterway"] == "river":
         #        object_3d.create_all_object_file(way.nodes, height=config.data["water_height"],
         #                                         wall_texture="mapgen_blue",
@@ -42,20 +42,21 @@ def process(osm_data):
         #        continue
 
     for rel in osm_data.relations:
-        if "natural" in rel.tags:
-            if rel.tags["natural"] == "water":
-                for member in rel.members:
-                    way = osm.get_way_by_id(osm_data, member.ref)
-                    if way is not None:
-                        if member.role == "outer":
-                            object_3d.create_all_object_file(way.nodes, height=config.data["water_height"],
-                                                             wall_texture="mapgen_blue",
-                                                             roof_texture="mapgen_blue")
-                        elif member.role == "inner":
-                            object_3d.create_all_object_file(way.nodes, height=config.data["island_height"],
-                                                             wall_texture="mapgen_beige",
-                                                             roof_texture="mapgen_beige")
+        if "type" in rel.tags:
+            if "natural" in rel.tags:
+                if rel.tags["natural"] == "water":
+                    for member in rel.members:
+                        way = osm.get_way_by_id(osm_data, member.ref)
+                        if way is not None:
+                            if member.role == "outer":
+                                object_3d.create_all_object_file(way.nodes, height=config.data["water_height"],
+                                                                 wall_texture="mapgen_blue",
+                                                                 roof_texture="mapgen_blue")
+                            elif member.role == "inner":
+                                object_3d.create_all_object_file(way.nodes, height=config.data["island_height"],
+                                                                 wall_texture="mapgen_beige",
+                                                                 roof_texture="mapgen_beige")
 
-                rel.tags.pop("natural")
-                rel.tags.pop("type")  # FIXME is this always multipolygon ?
-                continue
+                    rel.tags.pop("natural")
+                    rel.tags.pop("type")  # FIXME is this always multipolygon ?
+                    continue

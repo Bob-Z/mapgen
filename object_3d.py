@@ -19,6 +19,8 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
 
     if height is None:
         height = config.data["building_level_height"]
+    if z is None:
+        z = 0.0
 
     object_index = object_index + 1
 

@@ -2,8 +2,9 @@ import object_3d
 import config
 import osm
 
-build_tag_value = [["amenity", "shelter"], ["area", "yes"]]
-build_tag = ["building", "building:part"]
+build_tag_value = [["amenity", "shelter"], ["building", "bunker"], ["building", "container"], ["building", "industrial"],
+                   ["building", "university"], ["building", "yes"]]
+build_tag = ["building:part"]
 
 
 def process(osm_data):
@@ -40,13 +41,18 @@ def build_from_relation(osm_data, rel):
             # elif member.role == "inner":
 
 
-def build_from_way(way, height=None, min_height=0.0, from_relation=False):
+def build_from_way(way, height=None, min_height=None, from_relation=False):
     is_barrier = False
     if len(way.nodes) < 3:
         is_barrier = True
 
-    if height is None:
-        height, min_height = calculate_height(way)
+    calc_height, calc_min_height = calculate_height(way)
+
+    if calc_height is not None:
+        height = calc_height
+
+    if calc_min_height is not None:
+        min_height = calc_min_height
 
     if from_relation is True:
         object_3d.create_all_object_file(way.nodes, height, z=min_height, wall_texture=config.data["wall_texture"],
@@ -82,7 +88,7 @@ def calculate_height(entity):
         height = float(level_qty) * config.data["building_level_height"]
         entity.tags.pop("building:levels")
 
-    min_height = 0.0
+    min_height = None
     if "min_height" in entity.tags:
         min_height = float(entity.tags["min_height"])
         height = height - min_height
