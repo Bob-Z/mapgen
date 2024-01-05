@@ -107,11 +107,19 @@ def calculate_height(entity):
         entity.tags.pop("building:levels")
 
     if "height" in entity.tags:
-        height = float(entity.tags["height"])
+        convert_rate = 1.0
+        h = entity.tags["height"]
+        h = h.replace(' m', '')  # Some height appear like: 100 m
+        if h.find(" ft") != -1:
+            h = h.replace(' ft', '')
+            convert_rate = 0.3048
+        height = float(h) * convert_rate
         entity.tags.pop("height")
 
     min_height = None
     if "min_height" in entity.tags:
+        if height is None:
+            height = config.data["building_level_height"]
         min_height = float(entity.tags["min_height"])
         height = height - min_height
         entity.tags.pop("min_height")
