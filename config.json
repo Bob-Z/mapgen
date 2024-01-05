@@ -23,11 +23,13 @@
 "island_height": 0.015,
 "lane_width": 3.0,
 "road_height": 0.02,
+"runway_height": 0.04,
 "sand_height": 0.005,
 "scrub_height": 0.005,
 "sidewalk_width": 1.5,
 "sidewalk_height": 0.1,
 "shelter_roof_height": 0.15,
+"taxiway_height": 0.02,
 "water_height": 0.01,
 
 "wall_texture": "mapgen_beige",

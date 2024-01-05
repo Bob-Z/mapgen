@@ -8,8 +8,7 @@ import math
 def process(osm_data):
     print("Generating roads")
     for way in osm_data.ways:
-        if "highway" in way.tags:
-            create_road(way)
+        create_road(way)
 
 
 def create_road(way):
@@ -22,12 +21,15 @@ def create_road(way):
     y = 0.0
 
     road_width = config.data["lane_width"]
-    road_height = config.data["road_height"]
+    road_height = config.data["road_height"] + gvar.GROUND_LEVEL
     border_width = 0
     border_height = 0
     sidewalk = "both"
 
+    found = False
+
     if "highway" in way.tags:
+        found = True
         if way.tags["highway"] == "footway":
             road_width = 0
             road_height = 0
@@ -40,8 +42,6 @@ def create_road(way):
                     border_width = 0
                     border_height = 0
                     way.tags.pop("surface")
-
-        road_height = road_height + gvar.GROUND_LEVEL
 
         if way.tags["highway"] == "service":
             if "service" in way.tags:
@@ -64,15 +64,26 @@ def create_road(way):
 
         way.tags.pop("sidewalk")
 
-    if "surface" in way.tags:
-        # Asphalt is the default surface
-        # TODO manage other type of surface
-        if way.tags["surface"] == "asphalt":
-            way.tags.pop("surface")
-
     if "lanes" in way.tags:
         road_width = int(way.tags["lanes"]) * config.data["lane_width"]
         way.tags.pop("lanes")
+
+    # aeroways
+    if "aeroway" in way.tags:
+        if way.tags["aeroway"] == "runway":
+            road_height = config.data["runway_height"] + gvar.GROUND_LEVEL
+            found = True
+            way.tags.pop("aeroway")
+        elif way.tags["aeroway"] == "taxiway":
+            road_height = config.data["taxiway_height"] + gvar.GROUND_LEVEL
+            found = True
+            way.tags.pop("aeroway")
+        if "width" in way.tags:
+            road_width = way.tags["width"]
+            way.tags.pop("width")
+
+    if found is False:
+        return
 
     for node in way.nodes:
         x = helper.lat_to_x(node.lat)
