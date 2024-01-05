@@ -7,12 +7,7 @@ import helper
 
 def process(osm_data):
     print("Generating sea")
-    for way in osm_data.ways:
-        if "natural" in way.tags:
-            if way.tags["natural"] == "coastline":
-                build_coastline(osm_data.ways)
-                way.tags.pop("natural")
-                break
+    build_coastline(osm_data.ways)
 
 
 def is_after_clock_wise(coord1, coord2, direction):
@@ -63,6 +58,7 @@ def build_coastline(way):
         if "natural" in w.tags:
             if w.tags["natural"] == "coastline":
                 all_coastline.append(w.nodes)
+                w.tags.pop("natural")
 
     print(len(all_coastline), "coastlines")
 
@@ -202,5 +198,6 @@ def build_coastline(way):
                                     found_item = None
 
     for polygon in polygon_list:
-        object_3d.create_all_object_file(polygon, height=gvar.GROUND_LEVEL, z=-gvar.GROUND_LEVEL, wall_texture="mapgen_beige",
+        object_3d.create_all_object_file(polygon, height=gvar.GROUND_LEVEL, z=-gvar.GROUND_LEVEL,
+                                         wall_texture="mapgen_beige",
                                          roof_texture="mapgen_beige")
