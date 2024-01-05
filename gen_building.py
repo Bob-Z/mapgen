@@ -2,20 +2,13 @@ import object_3d
 import config
 import osm
 
-build_tag_value = [["type", "building"]]
+build_tag_value = [["type", "building"], ['man_made', 'street_cabinet']]
 build_tag = ["building:part", "building"]
-negative_tag_value = [["amenity", "shelter"], ["building", "rocket"]]
-
-
-# Exception for rocket for Bocca Chica
+negative_tag_value = [["amenity", "shelter"], ["building", "rocket"]]  # Rocket exception for Bocca Chica's Stophopper
 
 
 def process(osm_data):
     print("Generating buildings")
-    for way in osm_data.ways:
-        build_from_way(way)
-
-    # Negative tags first
 
     for rel in osm_data.relations:
         found = False
@@ -41,6 +34,9 @@ def process(osm_data):
                             if rel.tags["type"] == "multipolygon":
                                 rel.tags.pop("type")
                         break
+
+    for way in osm_data.ways:
+        build_from_way(way)
 
 
 def build_from_relation(osm_data, rel):
@@ -71,7 +67,11 @@ def build_from_way(way, height=None, min_height=None, from_relation=False):
     if from_relation is True:
         object_3d.create_all_object_file(way.nodes, height, z=min_height, wall_texture=config.data["wall_texture"],
                                          roof_texture=config.data["roof_texture"], is_barrier=is_barrier)
+        way.tags["mapgen"] = "done"  # Avoid ways being processed 2 times
     else:
+        if "mapgen" in way.tags:
+            way.tags.pop("mapgen")
+            return
         found = False
         for tag_value in build_tag_value:
             if tag_value[0] in way.tags:
