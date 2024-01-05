@@ -19,7 +19,7 @@ def create_file(map_width, map_length):
 
     with open(config.data["work_path"] + config.data["map_name"] + ".terrn2", "a") as terrn2_file:
         terrn2_file.write("    AmbientColor = 1, 1, 1\n\
-    StartPosition = " + str(int(map_width / 2)) + " 0 " + str(int(map_length / 2)) + "\n\
+    StartPosition = " + str(map_length / 2) + " " + str(gvar.GROUND_LEVEL) + " " + str(map_width / 2) + "\n\
     SandStormCubeMap = tracks/skyboxcol\n\
     Gravity = -9.81\n\
     CategoryID = 129\n\
