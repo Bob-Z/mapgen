@@ -1,12 +1,14 @@
 import config
 
 # https://wiki.openstreetmap.org/wiki/Main_Page
-ignored_tags = ["access", "addr:city", "addr:housenumber", "addr:state", "check_date:shelter", "description",
+ignored_tags = ["access", "addr:city", "addr:hamlet", "addr:housenumber", "addr:postcode", "addr:state", "addr:street",
+                "check_date",
+                "check_date:shelter", "description",
                 "description:en", "description:de", "description:fr", "fixme", "genus:de", "genus:en", "genus:fr",
                 "intermittent",
                 "name", "old_name", "old_ref", "ref", "source"]
 
-ignored_tags_value = [["landuse", "residential"], ["landuse", "retail"], ["railway", "razed"]]
+ignored_tags_value = [["landuse", "industrial"], ["landuse", "residential"], ["landuse", "retail"], ["railway", "razed"]]
 ignored = ["admin_level", "boundary", "disused:admin_level", "disused:boundary", "disused:route"]
 
 entity_total = 0
