@@ -8,7 +8,7 @@ def process(osm_data):
     for node in osm_data.nodes:
         if "natural" in node.tags:
             if node.tags["natural"] == "tree":
-                ror_tobj_file.add_object(x=helper.lat_to_x(node.lat), y=helper.lon_to_y(node.lon), z=0.5, rx=90.0,
+                ror_tobj_file.add_object(x=helper.lat_to_x(node.lat), y=helper.lon_to_y(node.lon), z=0.0, rx=90.0,
                                          ry=float(random.randint(0, 359)), rz=0.0, name="tree1")
                 node.tags.pop("natural")
 
