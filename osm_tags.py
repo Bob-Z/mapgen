@@ -68,8 +68,8 @@ def show_stat(name, original_entity, modified_entity):
     entity_not_processed = ""
     entity_not_processed_qty = 0
 
-    for original_rel, rel in zip(original_entity, modified_entity):
-        calculate_stats(original_rel, rel)
+    for original, modified in zip(original_entity, modified_entity):
+        calculate_stats(original, modified)
 
     print_stats(name)
 
