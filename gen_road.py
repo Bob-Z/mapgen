@@ -12,6 +12,10 @@ def process(osm_data):
 
 
 def create_road(way):
+    if "level" in way.tags:
+        if way.tags["level"][0] == '-':  # Skip negative levels
+            return
+
     road_data = []
 
     # index 0 is the oldest point, index 1 the newest
@@ -43,9 +47,6 @@ def create_road(way):
                     border_height = 0
                     way.tags.pop("surface")
 
-        if way.tags["highway"] == "service":
-            if "service" in way.tags:
-                way.tags.pop("service")
         way.tags.pop("highway")
 
     if "sidewalk" in way.tags:
