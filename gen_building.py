@@ -4,8 +4,8 @@ import osm
 
 build_tag_value = [["type", "building"], ['man_made', 'street_cabinet']]
 build_tag = ["building:part", "building"]
-negative_tag_value = [["amenity", "shelter"], ["building", "rocket"]]  # Rocket exception for Bocca Chica's Stophopper
-
+negative_tag_value = [["amenity", "shelter"]]
+negative_tag = ["wikipedia", "wikidata"]
 
 def process(osm_data):
     print("Generating buildings")
@@ -113,6 +113,9 @@ def calculate_height(entity):
         if h.find(" ft") != -1:
             h = h.replace(' ft', '')
             convert_rate = 0.3048
+        if h.find(" storey") != -1:
+            h = h.replace(' storey', '')
+            convert_rate = config.data["building_level_height"]
         height = float(h) * convert_rate
         entity.tags.pop("height")
 
@@ -132,5 +135,13 @@ def is_allowed(entity):
         if tag_value[0] in entity.tags:
             if entity.tags[tag_value[0]] == tag_value[1]:
                 return False
+
+    for tag in negative_tag:
+        if tag in entity.tags:
+            return False
+
+    if "level" in entity.tags:
+        if entity.tags["level"][0] == '-':  # Skip negative levels
+            return False
 
     return True
