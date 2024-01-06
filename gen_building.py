@@ -7,6 +7,7 @@ build_tag = ["building:part", "building"]
 negative_tag_value = [["amenity", "shelter"]]
 negative_tag = ["wikipedia", "wikidata"]
 
+
 def process(osm_data):
     print("Generating buildings")
 
@@ -40,7 +41,7 @@ def process(osm_data):
 
 
 def build_from_relation(osm_data, rel):
-    height, min_height = calculate_height(rel)
+    height, min_height = get_height(rel)
 
     for member in rel.members:
         way = osm.get_way_by_id(osm_data, member.ref)
@@ -52,63 +53,65 @@ def build_from_relation(osm_data, rel):
 
 
 def build_from_way(way, height=None, min_height=None, from_relation=False):
-    is_barrier = False
-    if len(way.nodes) < 3:
-        is_barrier = True
-
-    calc_height, calc_min_height = calculate_height(way)
-
-    if calc_height is not None:
-        height = calc_height
-
-    if calc_min_height is not None:
-        min_height = calc_min_height
-
+    found = False
     if from_relation is True:
-        object_3d.create_all_object_file(way.nodes, height, z=min_height, wall_texture=config.data["wall_texture"],
-                                         roof_texture=config.data["roof_texture"], is_barrier=is_barrier)
+        found = True
         way.tags["mapgen"] = "done"  # Avoid ways being processed 2 times
     else:
         if "mapgen" in way.tags:
             way.tags.pop("mapgen")
             return
-        found = False
+
         for tag_value in build_tag_value:
             if tag_value[0] in way.tags:
                 if way.tags[tag_value[0]] == tag_value[1]:
                     if is_allowed(way):
-                        object_3d.create_all_object_file(way.nodes, height, z=min_height,
-                                                         wall_texture=config.data["wall_texture"],
-                                                         roof_texture=config.data["roof_texture"],
-                                                         is_barrier=is_barrier)
-
-                        way.tags.pop(tag_value[0])
                         found = True
+                        way.tags.pop(tag_value[0])
                         break
 
         if found is False:
             for tag in build_tag:
                 if tag in way.tags:
                     if is_allowed(way):
-                        object_3d.create_all_object_file(way.nodes, height, z=min_height,
-                                                         wall_texture=config.data["wall_texture"],
-                                                         roof_texture=config.data["roof_texture"],
-                                                         is_barrier=is_barrier)
+                        found = True
                         way.tags.pop(tag)
                         break
 
+    if found is True:
+        is_barrier = False
+        if len(way.nodes) < 3:
+            is_barrier = True
 
-def calculate_height(entity):
+        calc_height, calc_min_height = get_height(way)
+
+        if calc_height is not None:
+            height = calc_height
+
+        if calc_min_height is not None:
+            min_height = calc_min_height
+
+        object_3d.create_all_object_file(way.nodes, height, z=min_height,
+                                         wall_texture=config.data["wall_texture"],
+                                         roof_texture=config.data["roof_texture"],
+                                         is_barrier=is_barrier)
+
+
+def get_height(entity):
     height = None
 
     if "building:levels" in entity.tags:
         level_qty = entity.tags["building:levels"]
-        height = float(level_qty) * config.data["building_level_height"]
-        entity.tags.pop("building:levels")
+        try:
+            height = float(level_qty) * config.data["building_level_height"]
+            entity.tags.pop("building:levels")
+        except ValueError:
+            print("Cannot convert building:levels : " + entity.tags["building:levels"])
 
     if "height" in entity.tags:
-        convert_rate = 1.0
         h = entity.tags["height"]
+
+        convert_rate = 1.0
         h = h.replace(' m', '')  # Some height appear like: 100 m
         if h.find(" ft") != -1:
             h = h.replace(' ft', '')
@@ -116,16 +119,23 @@ def calculate_height(entity):
         if h.find(" storey") != -1:
             h = h.replace(' storey', '')
             convert_rate = config.data["building_level_height"]
-        height = float(h) * convert_rate
-        entity.tags.pop("height")
+
+        try:
+            height = float(h) * convert_rate
+            entity.tags.pop("height")
+        except ValueError:
+            print("Cannot convert height: " + entity.tags["height"])
 
     min_height = None
     if "min_height" in entity.tags:
         if height is None:
             height = config.data["building_level_height"]
-        min_height = float(entity.tags["min_height"])
-        height = height - min_height
-        entity.tags.pop("min_height")
+        try:
+            min_height = float(entity.tags["min_height"])
+            height = height - min_height
+            entity.tags.pop("min_height")
+        except ValueError:
+            print("Cannot convert min_height: " + entity.tags["min_height"])
 
     return height, min_height
 

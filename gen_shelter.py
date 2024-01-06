@@ -3,8 +3,8 @@ import config
 import osm
 import gen_building
 
-build_tag_value = [["amenity", "shelter"]]
-build_tag = []
+shelter_tag_value = [["amenity", "shelter"]]
+shelter_tag = []
 
 
 def process(osm_data):
@@ -14,7 +14,7 @@ def process(osm_data):
 
     for rel in osm_data.relations:
         found = False
-        for tag_value in build_tag_value:
+        for tag_value in shelter_tag_value:
             if tag_value[0] in rel.tags:
                 if rel.tags[tag_value[0]] == tag_value[1]:
                     build_from_relation(osm_data, rel)
@@ -26,7 +26,7 @@ def process(osm_data):
                     break
 
         if found is False:
-            for tag in build_tag:
+            for tag in shelter_tag:
                 if tag in rel.tags:
                     build_from_relation(osm_data, rel)
                     rel.tags.pop(tag)
@@ -37,7 +37,7 @@ def process(osm_data):
 
 
 def build_from_relation(osm_data, rel):
-    height, min_height = gen_building.calculate_height(rel)
+    height, min_height = gen_building.get_height(rel)
 
     for member in rel.members:
         way = osm.get_way_by_id(osm_data, member.ref)
@@ -49,36 +49,38 @@ def build_from_relation(osm_data, rel):
 
 
 def build_from_way(way, height=None, min_height=None, from_relation=False):
-    is_barrier = False
-    if len(way.nodes) < 3:
-        is_barrier = True
-
-    calc_height, calc_min_height = gen_building.calculate_height(way)
-
-    if calc_height is not None:
-        height = calc_height
-
-    if calc_min_height is not None:
-        min_height = calc_min_height
-
+    found = False
     if from_relation is True:
-        build_shelter(way, height, min_height, is_barrier)
+        found = True
     else:
-        found = False
-        for tag_value in build_tag_value:
+        for tag_value in shelter_tag_value:
             if tag_value[0] in way.tags:
                 if way.tags[tag_value[0]] == tag_value[1]:
-                    build_shelter(way, height, min_height, is_barrier)
-                    way.tags.pop(tag_value[0])
                     found = True
+                    way.tags.pop(tag_value[0])
                     break
 
         if found is False:
-            for tag in build_tag:
+            for tag in shelter_tag:
                 if tag in way.tags:
-                    build_shelter(way, height, min_height, is_barrier)
+                    found = True
                     way.tags.pop(tag)
                     break
+
+    if found is True:
+        is_barrier = False
+        if len(way.nodes) < 3:
+            is_barrier = True
+
+        calc_height, calc_min_height = gen_building.get_height(way)
+
+        if calc_height is not None:
+            height = calc_height
+
+        if calc_min_height is not None:
+            min_height = calc_min_height
+
+        build_shelter(way, height, min_height, is_barrier)
 
 
 def build_shelter(way, height, min_height, is_barrier):
