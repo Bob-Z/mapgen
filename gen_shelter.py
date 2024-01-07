@@ -7,33 +7,33 @@ shelter_tag_value = [["amenity", "shelter"]]
 shelter_tag = []
 
 
-def process(osm_data):
-    print("Generating shelters")
-    for way in osm_data.ways:
-        build_from_way(way)
+def process(entity, osm_data=None):
+    for tag_value in shelter_tag_value:
+        if tag_value[0] in entity.tags:
+            if entity.tags[tag_value[0]] == tag_value[1]:
+                if osm_data is None:
+                    build_from_way(entity)
+                else:
+                    build_from_relation(osm_data, entity)
+                entity.tags.pop(tag_value[0])
+                if "type" in entity.tags:
+                    if entity.tags["type"] == "multipolygon":
+                        entity.tags.pop("type")
+                return True
 
-    for rel in osm_data.relations:
-        found = False
-        for tag_value in shelter_tag_value:
-            if tag_value[0] in rel.tags:
-                if rel.tags[tag_value[0]] == tag_value[1]:
-                    build_from_relation(osm_data, rel)
-                    rel.tags.pop(tag_value[0])
-                    if "type" in rel.tags:
-                        if rel.tags["type"] == "multipolygon":
-                            rel.tags.pop("type")
-                    found = True
-                    break
+    for tag in shelter_tag:
+        if tag in entity.tags:
+            if osm_data is None:
+                build_from_way(entity)
+            else:
+                build_from_relation(osm_data, entity)
+            entity.tags.pop(tag)
+            if "type" in entity.tags:
+                if entity.tags["type"] == "multipolygon":
+                    entity.tags.pop("type")
+            return True
 
-        if found is False:
-            for tag in shelter_tag:
-                if tag in rel.tags:
-                    build_from_relation(osm_data, rel)
-                    rel.tags.pop(tag)
-                    if "type" in rel.tags:
-                        if rel.tags["type"] == "multipolygon":
-                            rel.tags.pop("type")
-                    break
+    return False
 
 
 def build_from_relation(osm_data, rel):
@@ -49,38 +49,19 @@ def build_from_relation(osm_data, rel):
 
 
 def build_from_way(way, height=None, min_height=None, from_relation=False):
-    found = False
-    if from_relation is True:
-        found = True
-    else:
-        for tag_value in shelter_tag_value:
-            if tag_value[0] in way.tags:
-                if way.tags[tag_value[0]] == tag_value[1]:
-                    found = True
-                    way.tags.pop(tag_value[0])
-                    break
+    is_barrier = False
+    if len(way.nodes) < 3:
+        is_barrier = True
 
-        if found is False:
-            for tag in shelter_tag:
-                if tag in way.tags:
-                    found = True
-                    way.tags.pop(tag)
-                    break
+    calc_height, calc_min_height = gen_building.get_height(way)
 
-    if found is True:
-        is_barrier = False
-        if len(way.nodes) < 3:
-            is_barrier = True
+    if calc_height is not None:
+        height = calc_height
 
-        calc_height, calc_min_height = gen_building.get_height(way)
+    if calc_min_height is not None:
+        min_height = calc_min_height
 
-        if calc_height is not None:
-            height = calc_height
-
-        if calc_min_height is not None:
-            min_height = calc_min_height
-
-        build_shelter(way, height, min_height, is_barrier)
+    build_shelter(way, height, min_height, is_barrier)
 
 
 def build_shelter(way, height, min_height, is_barrier):

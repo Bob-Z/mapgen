@@ -5,13 +5,7 @@ import helper
 import math
 
 
-def process(osm_data):
-    print("Generating roads")
-    for way in osm_data.ways:
-        create_road(way)
-
-
-def create_road(way):
+def process(way):
     if "level" in way.tags:
         if way.tags["level"][0] == '-':  # Skip negative levels
             return

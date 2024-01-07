@@ -68,13 +68,62 @@ osm_tags.filter_ignored(osm_data.relations)
 
 gen_sea.process(osm_data)
 
-gen_barrier.process(osm_data)
-gen_building.process(osm_data)
-gen_shelter.process(osm_data)
-gen_land.process(osm_data)
-gen_road.process(osm_data)
-gen_water.process(osm_data)
-gen_object.process(osm_data)
+node_total = len(osm_data.nodes)
+node_qty = 0
+for node in osm_data.nodes:
+    node_qty += 1
+    if node_qty % 100 == 0:
+        print("nodes: ", node_qty, "/", node_total, "\r", end="")
+
+    if len(node.tags) == 0:
+        continue
+    gen_object.process(node)
+print("nodes: ", node_qty, "/", node_total)
+
+rel_total = len(osm_data.relations)
+rel_qty = 0
+for rel in osm_data.relations:
+    rel_qty += 1
+    if rel_qty % 10 == 0:
+        print("relations: ", rel_qty, "/", rel_total, "\r", end="")
+
+    if len(rel.tags) == 0:
+        continue
+
+    if gen_building.process(rel, osm_data):
+        continue
+    if gen_shelter.process(rel, osm_data):
+        continue
+    if gen_land.process(rel, osm_data):
+        continue
+    if gen_water.process(rel, osm_data):
+        continue
+print("relations: ", rel_qty, "/", rel_total)
+
+way_total = len(osm_data.ways)
+way_qty = 0
+for way in osm_data.ways:
+    way_qty += 1
+    if way_qty % 10 == 0:
+        print("ways: ", way_qty, "/", way_total, "\r", end="")
+
+    if len(way.tags) == 0:
+        continue
+
+    if gen_building.process(way):
+        continue
+    if gen_shelter.process(way):
+        continue
+    if gen_land.process(way):
+        continue
+    if gen_water.process(way):
+        continue
+
+    if gen_barrier.process(way):
+        continue
+    if gen_road.process(way):
+        continue
+print("ways: ", way_qty, "/", way_total)
 
 ror_zip_file.add_file(config.data["map_name"] + ".tobj")
 ogre_material.add_file()

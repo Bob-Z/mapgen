@@ -32,8 +32,6 @@ def get_data():
         with open(cache_file_path, 'wb') as file:
             pickle.dump(result, file)
 
-    dump_result_to_file(result)
-
     if has_tag(result, "natural", "coastline") is True:
         print("This is a water map\n")
         gvar.is_water_map = True
