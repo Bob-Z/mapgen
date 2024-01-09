@@ -34,7 +34,8 @@
 "water_height": 0.01,
 
 "wall_texture": "mapgen_beige",
-"roof_texture": "mapgen_grey"
+"roof_texture": "mapgen_grey",
+"ground_texture": "mapgen_dust"
 
 }
 

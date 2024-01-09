@@ -144,6 +144,22 @@ material mapgen_grass_dandelion : RoR/Managed_Mats/Base
 	}
 }
 
+material mapgen_dust : RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture dust.png
+			}
+		}
+	}
+}
+
 material mapgen_scrub : RoR/Managed_Mats/Base
 {
 	technique BaseTechnique

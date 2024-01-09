@@ -199,5 +199,5 @@ def build_coastline(way):
 
     for polygon in polygon_list:
         object_3d.create_all_object_file(polygon, height=gvar.GROUND_LEVEL, z=-gvar.GROUND_LEVEL,
-                                         wall_texture="mapgen_beige",
-                                         roof_texture="mapgen_beige")
+                                         wall_texture=config.data["ground_texture"],
+                                         roof_texture=config.data["ground_texture"])

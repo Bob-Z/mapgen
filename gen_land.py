@@ -50,8 +50,8 @@ def process(entity, osm_data=None):
 
 
 def create_from_entity(osm_data, entity, height, z,
-                       wall_texture, roof_texture, island_wall_texture="mapgen_beige",
-                       island_roof_texture="mapgen_beige", roof_texture_generator=None):
+                       wall_texture, roof_texture, island_wall_texture=config.data["ground_texture"],
+                       island_roof_texture=config.data["ground_texture"], roof_texture_generator=None):
     if hasattr(entity, "members"):
         for member in entity.members:
             way = osm.get_way_by_id(osm_data, member.ref)
