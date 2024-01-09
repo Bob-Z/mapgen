@@ -111,4 +111,4 @@ def intersect_between_all_direction(p1, p2):
 
 def is_inside_map(p1):
     x, y = p1
-    return bbox.coordXY["west"] < x < bbox.coordXY["east"] and bbox.coordXY["south"] < y < bbox.coordXY["north"]
+    return bbox.coordXY["west"] < y < bbox.coordXY["east"] and bbox.coordXY["south"] < x < bbox.coordXY["north"]
