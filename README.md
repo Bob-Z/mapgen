@@ -23,4 +23,4 @@ mapgen.py <north,west,south,east>
 <north,west,south,east> are latitude and longitude of the bounding box used to create a map
 
 
-Eg: mapgen.py 48.87814394530428,2.2821558610475257,48.86862582223842,2.3059560444047054"
+Eg: python3 mapgen.py 48.87814394530428,2.2821558610475257,48.86862582223842,2.3059560444047054
