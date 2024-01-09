@@ -5,6 +5,8 @@
 "resource_path": "./resource/",
 "cache_path": "./cache",
 
+"hide_wiki": true,
+
 "water_line": 5.0,
 "ground_above_water": 1.0,
 

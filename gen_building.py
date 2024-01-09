@@ -5,7 +5,10 @@ import osm
 build_tag_value = [["type", "building"], ['man_made', 'street_cabinet']]
 build_tag = ["building:part", "building"]
 negative_tag_value = [["amenity", "shelter"]]
-negative_tag = ["wikipedia", "wikidata"]
+if config.data["hide_wiki"] is True:
+    negative_tag = ["wikipedia", "wikidata"]
+else:
+    negative_tag = []
 
 
 def process(entity, osm_data=None):
