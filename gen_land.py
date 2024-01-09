@@ -46,6 +46,15 @@ def process(entity, osm_data=None):
             entity.tags.pop("natural")
             return True
 
+    if "landuse" in entity.tags:
+        if entity.tags["landuse"] == "grass":
+            create_from_entity(osm_data, entity, height=gvar.GROUND_LEVEL + config.data["grass_height"],
+                               z=-gvar.GROUND_LEVEL,
+                               wall_texture="mapgen_grass",
+                               roof_texture="mapgen_grass")
+            entity.tags.pop("landuse")
+            return True
+
     return False
 
 
