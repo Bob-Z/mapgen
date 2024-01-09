@@ -67,10 +67,12 @@ def process(way):
     if "aeroway" in way.tags:
         if way.tags["aeroway"] == "runway":
             road_height = config.data["runway_height"] + gvar.GROUND_LEVEL
+            road_width = 60.0
             found = True
             way.tags.pop("aeroway")
         elif way.tags["aeroway"] == "taxiway":
             road_height = config.data["taxiway_height"] + gvar.GROUND_LEVEL
+            road_width = 15.0
             found = True
             way.tags.pop("aeroway")
         if "width" in way.tags:
