@@ -6,7 +6,7 @@ import helper
 
 
 def process(osm_data):
-    print("Generating sea")
+    print("Generating sea...")
     build_coastline(osm_data.ways)
 
 
@@ -59,6 +59,10 @@ def build_coastline(way):
             if w.tags["natural"] == "coastline":
                 all_coastline.append(w.nodes)
                 w.tags.pop("natural")
+
+    if len(all_coastline) == 0:
+        print("No sea")
+        return
 
     print(len(all_coastline), "coastlines")
 

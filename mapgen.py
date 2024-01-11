@@ -68,6 +68,8 @@ osm_tags.filter_ignored(osm_data.relations)
 
 gen_sea.process(osm_data)
 
+
+print("Processing nodes...")
 node_total = len(osm_data.nodes)
 node_qty = 0
 for node in osm_data.nodes:
@@ -80,6 +82,7 @@ for node in osm_data.nodes:
     gen_object.process(node)
 print("nodes: ", node_qty, "/", node_total)
 
+print("Processing relations...")
 rel_total = len(osm_data.relations)
 rel_qty = 0
 for rel in osm_data.relations:
@@ -100,6 +103,7 @@ for rel in osm_data.relations:
         continue
 print("relations: ", rel_qty, "/", rel_total)
 
+print("Processing ways...")
 way_total = len(osm_data.ways)
 way_qty = 0
 for way in osm_data.ways:
