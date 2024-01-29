@@ -131,6 +131,7 @@ print("ways: ", way_qty, "/", way_total)
 
 ror_zip_file.add_file(config.data["map_name"] + ".tobj")
 ogre_material.add_file()
+ror_zip_file.zip_add_file()
 
 osm_tags.show_stat("nodes", nodes_original, osm_data.nodes)
 osm_tags.show_stat("ways", ways_original, osm_data.ways)
