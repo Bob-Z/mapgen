@@ -1,4 +1,6 @@
 {
+"generate_statistics": false,
+
 "map_name": "mapgen",
 "work_path": "./work/",
 "log_path": "./log/",
