@@ -8,9 +8,14 @@ EARTH_RADIUS = 6371000
 
 # Return distance (in meters) between 2 points described by their latitude/longitude
 def lat_lon_to_distance(lat1, lat2, lon1, lon2):
-    return math.acos(
-        math.sin(math.radians(lat1)) * math.sin(math.radians(lat2)) + math.cos(math.radians(lat1)) * math.cos(
-            math.radians(lat2)) * math.cos(math.radians(lon2 - lon1))) * EARTH_RADIUS
+    a = math.sin(math.radians(lat1)) * math.sin(math.radians(lat2)) + math.cos(math.radians(lat1)) * math.cos(
+        math.radians(lat2)) * math.cos(math.radians(lon2 - lon1))
+    if a > 1.0:
+        a = 1.0
+    if a < -1.0:
+        a = -1.0
+
+    return math.acos(a) * EARTH_RADIUS
 
 
 # Return X from latitude
