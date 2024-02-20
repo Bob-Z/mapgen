@@ -41,6 +41,9 @@ def process(way):
                     border_height = 0
                     way.tags.pop("surface")
 
+        if way.tags["highway"] == "raceway":
+            road_width = 12.0  # 12 meters seems to be the legal minimum for a F1 circuit but there are exceptions (Monaco, Baku...)
+
         way.tags.pop("highway")
 
     if "sidewalk" in way.tags:
