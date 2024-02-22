@@ -5,7 +5,7 @@ import config
 def create_file(map_width, map_length):
     with open(config.data["work_path"] + config.data["map_name"] + ".terrn2", "w") as terrn2_file:
         terrn2_file.write("[General]\n\
-    Name = mapgen terrain\n\
+    Name = " + config.data["map_name"] + " generated terrain\n\
     GeometryConfig = " + config.data["map_name"] + ".otc" + "\n\
     CaelumConfigFile = " + config.data["map_name"] + ".os" + "\n")
 
