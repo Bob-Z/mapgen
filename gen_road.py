@@ -42,7 +42,7 @@ def process(way):
                     way.tags.pop("surface")
 
         if way.tags["highway"] == "raceway":
-            road_width = 12.0  # 12 meters seems to be the legal minimum for a F1 circuit but there are exceptions (Monaco, Baku...)
+            road_width = config.data["raceway_width"]
 
         way.tags.pop("highway")
 

@@ -29,6 +29,7 @@
 "monorail_height": 10.0,
 "park_height": 0.008,
 "road_height": 0.02,
+"raceway_width": 12.0,
 "runway_height": 0.04,
 "sand_height": 0.005,
 "scrub_height": 0.005,
