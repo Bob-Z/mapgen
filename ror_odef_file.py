@@ -14,4 +14,4 @@ endmesh\n")
 
         odef_file.write("end\n")
 
-    ror_zip_file.add_file(name + ".odef")
+    ror_zip_file.add_to_zip_file_list(name + ".odef")

@@ -2,7 +2,8 @@ import object_3d
 import config
 import osm
 
-build_tag_value = [["type", "building"], ['man_made', 'street_cabinet']]
+build_tag_value = [["type", "building"], ['man_made', 'street_cabinet'], ['man_made', 'reservoir_covered'],
+                   ['man_made', 'pumping_station']]
 build_tag = ["building:part", "building"]
 negative_tag_value = [["amenity", "shelter"]]
 if config.data["hide_wiki"] is True:

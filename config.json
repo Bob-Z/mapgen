@@ -1,21 +1,25 @@
 {
 "generate_statistics": false,
 
+"hide_wiki": false,
+
 "map_name": "mapgen",
 "work_path": "./work/",
 "log_path": "./log/",
 "resource_path": "./resource/",
 "cache_path": "./cache",
 
-"hide_wiki": true,
-
-"water_line": 5.0,
-"ground_above_water": 1.0,
+"ground_line": 8.0,
+"water_line": 7.5,
+"water_depth": 4.0,
 
 "swimming_pool_tex_name": "swimming_pool.jpg",
 "swimming_pool_tex_height": 1.2,
 "swimming_pool_tex_width": 1.6,
 "swimming_pool_height": 0.02,
+"swimming_pool_depth": 3.0,
+
+"fountain_depth": 7.0,
 
 "barrier_width": 0.3,
 "barrier_height": 1.0,

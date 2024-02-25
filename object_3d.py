@@ -328,4 +328,4 @@ def generate_mesh_file(submesh, obj_name):
     os.system(
         "OgreXMLConverter " + config.data["work_path"] + obj_name + ".mesh.xml > /dev/null")
 
-    ror_zip_file.add_file(obj_name + ".mesh")
+    ror_zip_file.add_to_zip_file_list(obj_name + ".mesh")

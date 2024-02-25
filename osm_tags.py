@@ -8,7 +8,7 @@ ignored_tags = ["access", "addr:city", "addr:hamlet", "addr:housenumber", "addr:
                 "intermittent",
                 "name", "old_name", "old_ref", "ref", "source"]
 
-ignored_tags_value = [["landuse", "construction"], ["landuse", "industrial"], ["landuse", "residential"], ["landuse", "retail"], ["railway", "razed"]]
+ignored_tags_value = [["railway", "razed"]]
 ignored = ["admin_level", "boundary", "disused:admin_level", "disused:boundary", "disused:route"]
 
 entity_total = 0

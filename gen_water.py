@@ -1,29 +1,27 @@
-import gen_land
 import config
-import ogre_material
+import ogre_map_surface
+import ogre_map_height
 
 
 def process(entity, osm_data=None):
     if "amenity" in entity.tags:
         if entity.tags["amenity"] == "fountain":
-            gen_land.create_from_entity(osm_data, entity, height=config.data["water_height"], z=0.0,
-                                        wall_texture="mapgen_blue", roof_texture="mapgen_blue")
-
+            ogre_map_height.draw_entity(osm_data, entity,
+                                        config.data["ground_line"] - config.data["fountain_depth"], config.data["ground_line"])
             entity.tags.pop("amenity")
             return True
 
     if "leisure" in entity.tags:
         if entity.tags["leisure"] == "swimming_pool":
-            gen_land.create_from_entity(osm_data, entity, height=config.data["swimming_pool_height"], z=0.0,
-                                        wall_texture="mapgen_swimming_pool", roof_texture=None,
-                                        roof_texture_generator=ogre_material.create_material_swimming_pool)
+            ogre_map_height.draw_entity(osm_data, entity,
+                                        config.data["ground_line"] - config.data["swimming_pool_depth"], config.data["ground_line"])
             entity.tags.pop("leisure")
             return True
 
     if "natural" in entity.tags:
         if entity.tags["natural"] == "water":
-            gen_land.create_from_entity(osm_data, entity, height=config.data["water_height"], z=0.0,
-                                        wall_texture="mapgen_blue", roof_texture="mapgen_blue")
+            ogre_map_height.draw_entity(osm_data, entity, config.data["water_depth"], config.data["ground_line"])
+            ogre_map_surface.draw_rock_entity(osm_data, entity)
             entity.tags.pop("natural")
             return True
 

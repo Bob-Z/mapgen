@@ -1,8 +1,7 @@
-import gvar
-import object_3d
 import config
 import bbox
 import helper
+import ogre_map_height
 
 
 def process(osm_data):
@@ -66,6 +65,9 @@ def build_coastline(way):
 
     print(len(all_coastline), "coastlines")
 
+    # Set the whole map with water. We will draw ground on top of it
+    ogre_map_height.set_map_height(config.data["water_depth"])
+
     # Generate complete coastline from fragmented coastlines
     complete_coastline = []
     while len(all_coastline) > 0:
@@ -111,7 +113,12 @@ def build_coastline(way):
 
         # Case where all coastline is inside the map:
         if helper.is_inside_map(coastline[0]):
-            polygon_list.append(coastline)
+            # FIXME should use directly tuple since PIL wants it
+            polygon = []
+            for coord in coastline:
+                polygon.append(coord[0])
+                polygon.append(coord[1])
+            polygon_list.append(polygon)
             continue
         else:
             for coord in coastline:
@@ -152,7 +159,12 @@ def build_coastline(way):
                     if item["entry_done"] is False:
                         no_more_entry = False
                         item["entry_done"] = True
-                        polygon = item["coord"].copy()
+                        # FIXME should use directly tuple since PIL wants it
+                        polygon = []
+                        for coord in item["coord"]:
+                            polygon.append(coord[0])
+                            polygon.append(coord[1])
+                        #polygon = item["coord"].copy()
                         direction = item["entry_direction"]
                         entry_coord = item["coord"][0]
                         exit_coord = None
@@ -183,7 +195,8 @@ def build_coastline(way):
                             # No item found on this direction, add direction's corner's coordinates and try with the next direction
                             if found_item is None:
                                 entry_coord = get_direction_corner(direction)
-                                polygon.insert(0, entry_coord)
+                                polygon.insert(0, entry_coord[1])
+                                polygon.insert(0, entry_coord[0])
                                 direction = get_next_direction_clock_wise(direction)
                             else:
                                 found_item["exit_done"] = True
@@ -194,7 +207,12 @@ def build_coastline(way):
                                 else:
                                     # loop again with the item's entry found
                                     found_item["entry_done"] = True
-                                    polygon = found_item["coord"] + polygon
+                                    found_polygon = []
+                                    for coord in found_item["coord"]:
+                                        found_polygon.append(coord[0])
+                                        found_polygon.append(coord[1])
+
+                                    polygon = found_polygon + polygon
                                     direction = found_item["entry_direction"]
                                     entry_coord = found_item["coord"][0]
                                     found_item["entry_done"] = True
@@ -202,6 +220,4 @@ def build_coastline(way):
                                     found_item = None
 
     for polygon in polygon_list:
-        object_3d.create_all_object_file(polygon, height=gvar.GROUND_LEVEL, z=-gvar.GROUND_LEVEL,
-                                         wall_texture=config.data["ground_texture"],
-                                         roof_texture=config.data["ground_texture"])
+        ogre_map_height.draw_polygon(polygon, ogre_map_height.height_to_color(config.data["ground_line"]))

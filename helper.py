@@ -2,6 +2,7 @@ import math
 import bbox
 import numpy
 from math import atan2, degrees
+import ogre_map_height
 
 EARTH_RADIUS = 6371000
 
@@ -117,3 +118,23 @@ def intersect_between_all_direction(p1, p2):
 def is_inside_map(p1):
     x, y = p1
     return bbox.coordXY["west"] < y < bbox.coordXY["east"] and bbox.coordXY["south"] < x < bbox.coordXY["north"]
+
+
+def is_power_of_2(n):
+    return (math.log(n) / math.log(2)).is_integer()
+
+
+def node_to_map_coord(all_node):
+    all_coord = []
+
+    # First and last nodes are sometimes the same. In this case skip the last node
+    if all_node[0] == all_node[-1]:
+        all_node.pop()
+
+    for node in all_node:
+        x = lat_to_x(node.lat) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR
+        y = lon_to_y(node.lon) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR
+        all_coord.append(x)
+        all_coord.append(y)
+
+    return all_coord

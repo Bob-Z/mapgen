@@ -16,26 +16,34 @@ import gen_shelter
 import gen_object
 import osm_tags
 import copy
+import ogre_map_height
+import ogre_map_surface
 
-if len(sys.argv) < 2:
-    print("\nUsage: " + sys.argv[0] + " <north,west,south,east>")
-    print("<north,west,south,east> are latitudes and longitudes of the bounding box used to create a map")
-    print("Eg: " + sys.argv[0] + " 48.87814394530428,2.2821558610475257,48.86862582223842,2.3059560444047054")
-    print("The created map is called \"mapgen\"")
+if len(sys.argv) < 2 or len(sys.argv) > 3:
+    print("\nUsage: " + sys.argv[0] + " <latitude, longitude> <map size>")
+    print("<latitude, longitude> coordinate of the map center")
+    print("<map size> Map is always square. This must be a power of 2. Default to 512 meters")
+    print("Eg: " + sys.argv[0] + " 48.87814394530428,2.2821558610475257 1024")
+    print("Default map name is \"mapgen\". This can be modified in config.json file.")
     sys.exit(0)
 
-print("Work path:", config.data["work_path"])
+map_size = 512.0
+if len(sys.argv) == 3:
+    map_size = float(sys.argv[2])
+    if helper.is_power_of_2(map_size) is False:
+        print("Map size must be a power of 2")
+        sys.exit(0)
 
-if "export_path" in config.data:
-    gvar.EXPORT_PATH = config.data["export_path"]
-print("Export path: ", gvar.EXPORT_PATH)
+center_coord = sys.argv[1].split(',')
+center_lat = float(center_coord[0])
+center_lon = float(center_coord[1])
+meter_by_decimal_latitude = helper.lat_lon_to_distance(center_lat, center_lat + 0.1, center_lon, center_lon)
+meter_by_decimal_longitude = helper.lat_lon_to_distance(center_lat, center_lat, center_lon, center_lon + 0.1)
 
-coord = sys.argv[1].split(',')
-
-north = float(coord[0])
-south = float(coord[2])
-west = float(coord[1])
-east = float(coord[3])
+north = center_lat + (map_size / 2.0) / meter_by_decimal_latitude * 0.1
+south = center_lat - (map_size / 2.0) / meter_by_decimal_latitude * 0.1
+west = center_lon + (map_size / 2.0) / meter_by_decimal_longitude * 0.1
+east = center_lon - (map_size / 2.0) / meter_by_decimal_longitude * 0.1
 
 if north < south:
     t = south
@@ -51,9 +59,15 @@ bbox.coordXY = {"north": helper.lat_to_x(north), "south": helper.lat_to_x(south)
                 "east": helper.lon_to_y(east)}
 print("Bounding box:", bbox.coord)
 
+print("Work path:", config.data["work_path"])
+
+if "export_path" in config.data:
+    gvar.EXPORT_PATH = config.data["export_path"]
+print("Export path: ", gvar.EXPORT_PATH)
+
 osm_data = osm.get_data()
 
-ror_zip_file.create_default_file()
+ror_zip_file.create_default_file(map_size)
 ror_zip_file.write_default_file()
 
 osm.dump_result_to_file(osm_data)
@@ -68,7 +82,6 @@ osm_tags.filter_ignored(osm_data.ways)
 osm_tags.filter_ignored(osm_data.relations)
 
 gen_sea.process(osm_data)
-
 
 print("Processing nodes...")
 node_total = len(osm_data.nodes)
@@ -130,9 +143,13 @@ for way in osm_data.ways:
         continue
 print("ways: ", way_qty, "/", way_total)
 
-ror_zip_file.add_file(config.data["map_name"] + ".tobj")
-ogre_material.add_file()
-ror_zip_file.zip_add_file()
+ror_zip_file.add_to_zip_file_list(config.data["map_name"] + ".tobj")
+
+ogre_material.create_file()
+ogre_map_height.create_file()
+ogre_map_surface.create_file()
+
+ror_zip_file.create_zip_file()
 
 if config.data["generate_statistics"] is True:
     osm_tags.show_stat("nodes", nodes_original, osm_data.nodes)

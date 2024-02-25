@@ -38,10 +38,10 @@ def create_material(tex_name, tex_width, tex_length, dest_width, dest_length):
     return name
 
 
-def add_file():
+def create_file():
     global material_str
 
     with open(config.data["work_path"] + "magen_generated.material", "w") as material_file:
         material_file.write(material_str)
 
-    ror_zip_file.add_file("magen_generated.material")
+    ror_zip_file.add_to_zip_file_list("magen_generated.material")

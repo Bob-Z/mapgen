@@ -44,6 +44,10 @@ def process(way):
         if way.tags["highway"] == "raceway":
             road_width = config.data["raceway_width"]
 
+        if "bridge" in way.tags and way.tags["bridge"] == "yes":
+            road_type = "bridge"
+            way.tags.pop("bridge")
+
         way.tags.pop("highway")
 
     if "sidewalk" in way.tags:

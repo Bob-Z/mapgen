@@ -35,7 +35,6 @@ def get_data():
     if has_tag(result, "natural", "coastline") is True:
         print("This is a water map\n")
         gvar.is_water_map = True
-        gvar.GROUND_LEVEL = config.data["water_line"] + config.data["ground_above_water"]
 
     return result
 
