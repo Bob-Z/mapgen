@@ -94,7 +94,7 @@ def build_coastline(way):
 
         base_coastline_xy = []
         for n in base_coastline:
-            base_coastline_xy.append([helper.lat_to_x(n.lat), helper.lon_to_y(n.lon)])
+            base_coastline_xy.append([helper.lon_to_x(n.lon), helper.lat_to_y(n.lat)])
 
         complete_coastline.append(base_coastline_xy)
 

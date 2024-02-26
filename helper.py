@@ -20,15 +20,15 @@ def lat_lon_to_distance(lat1, lat2, lon1, lon2):
 
 
 # Return X from latitude
-def lat_to_x(lat):
-    if float(lat) > bbox.coord["south"]:
-        return lat_lon_to_distance(float(lat), bbox.coord["south"], bbox.coord["east"], bbox.coord["east"])
+def lat_to_y(lat):
+    if float(lat) > bbox.coord["north"]:
+        return -lat_lon_to_distance(float(lat), bbox.coord["north"], bbox.coord["east"], bbox.coord["east"])
     else:
-        return -lat_lon_to_distance(float(lat), bbox.coord["south"], bbox.coord["east"], bbox.coord["east"])
+        return lat_lon_to_distance(float(lat), bbox.coord["north"], bbox.coord["east"], bbox.coord["east"])
 
 
 # Return Y from longitude
-def lon_to_y(lon):
+def lon_to_x(lon):
     if float(lon) > bbox.coord["west"]:
         return lat_lon_to_distance(bbox.coord["north"], bbox.coord["north"], bbox.coord["west"], float(lon))
     else:
@@ -132,8 +132,9 @@ def node_to_map_coord(all_node):
         all_node.pop()
 
     for node in all_node:
-        x = lat_to_x(node.lat) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR
-        y = lon_to_y(node.lon) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR
+        x = lon_to_x(node.lon) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR
+        y = lat_to_y(node.lat) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR
+
         all_coord.append(x)
         all_coord.append(y)
 

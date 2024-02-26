@@ -199,8 +199,8 @@ def get_info_from_input_data(nodes, is_node):
 
     for node in nodes:
         if is_node is True:
-            x = helper.lat_to_x(node.lat)
-            y = helper.lon_to_y(node.lon)
+            x = helper.lon_to_x(node.lon)
+            y = helper.lat_to_y(node.lat)
         else:
             x = node[0]
             y = node[1]
@@ -266,8 +266,8 @@ def create_additional_vertex_for_barrier(vertex):
 
 
 def create_vertex_for_pillar(node):
-    x = helper.lat_to_x(node.lat)
-    y = helper.lon_to_y(node.lon)
+    x = helper.lon_to_x(node.lon)
+    y = helper.lat_to_y(node.lat)
 
     length = config.data["barrier_width"] / 2.0
 

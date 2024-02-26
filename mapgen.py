@@ -55,8 +55,8 @@ if west > east:
     east = t
 
 bbox.coord = {"north": north, "south": south, "west": west, "east": east}
-bbox.coordXY = {"north": helper.lat_to_x(north), "south": helper.lat_to_x(south), "west": helper.lon_to_y(west),
-                "east": helper.lon_to_y(east)}
+bbox.coordXY = {"north": helper.lat_to_y(north), "south": helper.lat_to_y(south), "west": helper.lon_to_x(west),
+                "east": helper.lon_to_x(east)}
 print("Bounding box:", bbox.coord)
 
 print("Work path:", config.data["work_path"])

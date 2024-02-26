@@ -105,8 +105,8 @@ def process(way):
         return
 
     for node in way.nodes:
-        x = helper.lat_to_x(node.lat)
-        y = helper.lon_to_y(node.lon)
+        x = helper.lon_to_x(node.lon)
+        y = helper.lat_to_y(node.lat)
 
         if len(x_history) == 0:
             x_history.append(x)
