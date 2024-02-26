@@ -4,7 +4,7 @@ import ogre_map_vegetation
 
 
 def add_object(x, y, z, rx, ry, rz, name):
-    new_line = str(x) + ", " + str(z + gvar.GROUND_LEVEL) + ", " + str(y) + ", " + str(rx) + ", " + str(
+    new_line = str(x) + ", " + str(z + config.data["ground_line"]) + ", " + str(y) + ", " + str(rx) + ", " + str(
         rz) + ", " + str(
         ry) + ", " + name + "\n"
 

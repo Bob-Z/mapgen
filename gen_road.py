@@ -19,7 +19,7 @@ def process(way):
     y = 0.0
 
     road_width = config.data["lane_width"]
-    road_height = config.data["road_height"] + gvar.GROUND_LEVEL
+    road_height = config.data["road_height"] + config.data["ground_line"]
     border_width = 0
     border_height = 0
     road_type = "both"
@@ -73,12 +73,12 @@ def process(way):
     # aeroways
     if "aeroway" in way.tags:
         if way.tags["aeroway"] == "runway":
-            road_height = config.data["runway_height"] + gvar.GROUND_LEVEL
+            road_height = config.data["runway_height"] + config.data["ground_line"]
             road_width = 60.0
             found = True
             way.tags.pop("aeroway")
         elif way.tags["aeroway"] == "taxiway":
-            road_height = config.data["taxiway_height"] + gvar.GROUND_LEVEL
+            road_height = config.data["taxiway_height"] + config.data["ground_line"]
             road_width = 15.0
             found = True
             way.tags.pop("aeroway")
@@ -91,7 +91,7 @@ def process(way):
         if way.tags["railway"] == "monorail":
             if "bridge" in way.tags:
                 if way.tags["bridge"] == "viaduct":
-                    road_height = config.data["monorail_height"] + gvar.GROUND_LEVEL
+                    road_height = config.data["monorail_height"] + config.data["ground_line"]
                     road_width = 0.90
                     border_width = 0
                     border_height = 0

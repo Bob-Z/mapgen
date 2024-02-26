@@ -11,7 +11,6 @@ def create_file():
 Pages_X=0 \n\
 Pages_Y=0 \n\
 PageSize=" + str(int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR + 1) + "\n\
-#Flat=1 \n\
 Flat=0 \n\
 WorldSizeX=" + str(int(gvar.map_size)) + "\n\
 WorldSizeZ=" + str(int(gvar.map_size)) + "\n\
