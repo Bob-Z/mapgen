@@ -21,9 +21,10 @@ def write_road(road_data):
             tobj_file.write("end_procedural_roads\n")
 
 
-def add_tree(osm_data, entity, density, mesh_name, collision_mesh_name):
+def add_tree(osm_data, entity, scaleFrom, scaleTo, density, mesh_name, collision_mesh_name):
     map_file_name = ogre_map_vegetation.add_tree_map(osm_data, entity, 0xff)
-    new_line = "trees 0, 360, 0.80, 1.90, 1.0, 250, " + str(
+    # trees yawFrom, yawTo, scaleFrom, scaleTo, highDensity, distance1, distance2, meshName colormap densitymap gridspacing collmesh
+    new_line = "trees 0, 360, " + str(scaleFrom) + ", " + str(scaleTo) + ", 1.0, 250, " + str(
         gvar.map_size) + "," + mesh_name + " none " + map_file_name + " " + str(
         density) + "  " + collision_mesh_name + "\n"
 

@@ -48,6 +48,10 @@ def process(entity, osm_data=None):
             ogre_map_surface.draw_grass_entity(osm_data, entity)
             entity.tags.pop("natural")
             return True
+        if entity.tags["natural"] == "wood":
+            ror_tobj_file.add_tree(osm_data, entity, 0.80, 1.90, -10, "tree.mesh", "tree.mesh")
+            entity.tags.pop("natural")
+            return True
 
     if "landuse" in entity.tags:
         if entity.tags["landuse"] == "grass" or entity.tags["landuse"] == "recreation_ground":
@@ -60,7 +64,11 @@ def process(entity, osm_data=None):
             entity.tags.pop("landuse")
             return True
         if entity.tags["landuse"] == "forest":
-            ror_tobj_file.add_tree(osm_data, entity, -10, "tree.mesh", "tree.mesh")
+            ror_tobj_file.add_tree(osm_data, entity, 0.80, 1.90, -10, "tree.mesh", "tree.mesh")
+            entity.tags.pop("landuse")
+            return True
+        if entity.tags["landuse"] == "orchard":
+            ror_tobj_file.add_tree(osm_data, entity, 1.0, 1.0, 15, "tree2.mesh", "tree2.mesh")
             entity.tags.pop("landuse")
             return True
 
