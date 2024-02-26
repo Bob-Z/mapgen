@@ -32,24 +32,21 @@ def process(entity, osm_data=None):
             return True
 
     if "natural" in entity.tags:
-        if entity.tags["natural"] == "sand":
+
+        if entity.tags["natural"] == "sand" or entity.tags["natural"] == "beach":
             ogre_map_surface.draw_sand_entity(osm_data, entity)
             entity.tags.pop("natural")
             return True
-        if entity.tags["natural"] == "beach":
-            ogre_map_surface.draw_sand_entity(osm_data, entity)
-            entity.tags.pop("natural")
-            return True
-        if entity.tags["natural"] == "grassland":
-            ogre_map_surface.draw_grass_entity(osm_data, entity)
-            entity.tags.pop("natural")
-            return True
-        if entity.tags["natural"] == "scrub":
+        if entity.tags["natural"] == "grassland" or entity.tags["natural"] == "scrub":
             ogre_map_surface.draw_grass_entity(osm_data, entity)
             entity.tags.pop("natural")
             return True
         if entity.tags["natural"] == "wood":
             ror_tobj_file.add_tree(osm_data, entity, 0.80, 1.90, -10, "tree.mesh", "tree.mesh")
+            entity.tags.pop("natural")
+            return True
+        if entity.tags["natural"] == "shingle":
+            ogre_map_surface.draw_gravel_entity(osm_data, entity)
             entity.tags.pop("natural")
             return True
 
