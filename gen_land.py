@@ -1,7 +1,6 @@
-import object_3d
-import config
-import osm
 import ogre_map_surface
+import ogre_map_vegetation
+import ror_tobj_file
 
 
 def process(entity, osm_data=None):
@@ -58,6 +57,10 @@ def process(entity, osm_data=None):
         if entity.tags["landuse"] == "construction" or entity.tags["landuse"] == "industrial" or entity.tags[
             "landuse"] == "residential" or entity.tags["landuse"] == "retail":
             ogre_map_surface.draw_asphalt_entity(osm_data, entity)
+            entity.tags.pop("landuse")
+            return True
+        if entity.tags["landuse"] == "forest":
+            ror_tobj_file.add_tree(osm_data, entity, -10, "tree.mesh", "tree.mesh")
             entity.tags.pop("landuse")
             return True
 

@@ -1,6 +1,7 @@
 import bbox
 import ogre_map_height
 import ogre_map_surface
+import ogre_map_vegetation
 from gvar import EXPORT_PATH
 import os
 from zipfile import ZipFile
@@ -9,32 +10,39 @@ import ror_terrn2_file
 import ogre_otc_file
 import ogre_page_otc_file
 import config
+import gvar
 
 otc_file_name = config.data["work_path"] + config.data["map_name"] + ".otc"
 page_otc_file_name = config.data["work_path"] + config.data["map_name"] + "-page-0-0.otc"
 tobj_file_name = config.data["work_path"] + config.data["map_name"] + ".tobj"
+vegetation_tobj_file_name = config.data["work_path"] + config.data["map_name"] + "_vegetation.tobj"
 os_file_name = config.data["work_path"] + config.data["map_name"] + ".os"
 
 file_list = []
 
 
-def create_default_file(map_size):
-    print("Map size: ", map_size, "x", map_size)
+def create_default_file():
+    print("Map size: ", gvar.map_size, "x", gvar.map_size)
 
     shutil.rmtree(config.data["work_path"], ignore_errors=True)
     os.makedirs(config.data["work_path"], exist_ok=True)
     shutil.rmtree(config.data["log_path"], ignore_errors=True)
     os.makedirs(config.data["log_path"], exist_ok=True)
 
-    ror_terrn2_file.create_file(map_size)
+    ror_terrn2_file.create_file()
 
-    ogre_map_height.init(map_size)
-    ogre_map_surface.init(map_size)
-    ogre_otc_file.create_file(map_size)
+    ogre_map_height.init()
+    ogre_map_surface.init()
+    ogre_map_vegetation.init()
+
+    ogre_otc_file.create_file()
     ogre_page_otc_file.create_file()
 
     with open(tobj_file_name, "w") as tobj_file:
         tobj_file.write("\n")
+
+    with open(vegetation_tobj_file_name, "w") as tobj_file:
+        tobj_file.write("//trees yawFrom, yawTo, scaleFrom, scaleTo, highDensity, distance1, distance2, meshName colormap densitymap gridspacing collmesh\n")
 
     with open(os_file_name, "w") as file:
         file.write("caelum_sky_system " + config.data[

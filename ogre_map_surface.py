@@ -6,20 +6,21 @@ import ror_zip_file
 import ogre_map_height
 import osm
 import helper
+import gvar
 
 surf = []
 draw = []
 
 
-def init(map_size):
+def init():
     global surf
     global draw
 
     surf.append(PIL.Image.new(mode="RGB", size=(
-        int(map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR, int(map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR),
+        int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR, int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR),
                               color=(0, 0, 0)))
     surf.append(PIL.Image.new(mode="RGB", size=(
-        int(map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR, int(map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR),
+        int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR, int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR),
                               color=(0, 0, 0)))
 
     draw.append(PIL.ImageDraw.Draw(surf[0]))

@@ -1,19 +1,20 @@
 import config
 import ogre_map_height
+import gvar
 
 MAX_HEIGHT = config.data["ground_line"]  # just managing water depth for now
 
 
-def create_file(map_size):
+def create_file():
     with open(config.data["work_path"] + config.data["map_name"] + ".otc", "w") as otc_file:
         otc_file.write("\
 Pages_X=0 \n\
 Pages_Y=0 \n\
-PageSize=" + str(int(map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR + 1) + "\n\
+PageSize=" + str(int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR + 1) + "\n\
 #Flat=1 \n\
 Flat=0 \n\
-WorldSizeX=" + str(int(map_size)) + "\n\
-WorldSizeZ=" + str(int(map_size)) + "\n\
+WorldSizeX=" + str(int(gvar.map_size)) + "\n\
+WorldSizeZ=" + str(int(gvar.map_size)) + "\n\
 WorldSizeY=" + str(int(MAX_HEIGHT)) + "\n\
 PageFileFormat=" + config.data["map_name"] + "-page-0-0.otc" + "\n\
 LayerBlendMapSize=2048\n\

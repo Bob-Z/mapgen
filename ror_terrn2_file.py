@@ -2,7 +2,7 @@ import gvar
 import config
 
 
-def create_file(map_size):
+def create_file():
     with open(config.data["work_path"] + config.data["map_name"] + ".terrn2", "w") as terrn2_file:
         terrn2_file.write("\
 [General]\n\
@@ -12,7 +12,7 @@ CaelumConfigFile = " + config.data["map_name"] + ".os" + "\n\
 Water = 1\n \
 WaterLine = " + str(config.data["water_line"]) + "\n\
 AmbientColor = 1, 1, 1\n\
-StartPosition = " + str(map_size / 2) + " " + str(gvar.GROUND_LEVEL) + " " + str(map_size / 2) + "\n\
+StartPosition = " + str(gvar.map_size / 2) + " " + str(gvar.GROUND_LEVEL) + " " + str(gvar.map_size / 2) + "\n\
 SandStormCubeMap = tracks/skyboxcol\n\
 Gravity = -9.81\n\
 CategoryID = 129\n\
@@ -20,4 +20,6 @@ Version = 1\n\
 GUID = 0\n\
 [Authors]\n\
 terrain = mapgen\n\
-[Objects]\n" + config.data["map_name"] + ".tobj=\n")
+[Objects]\n" +
+                          config.data["map_name"] + ".tobj=\n" +
+                          config.data["map_name"] + "_vegetation.tobj=")

@@ -34,16 +34,18 @@ if len(sys.argv) == 3:
         print("Map size must be a power of 2")
         sys.exit(0)
 
+gvar.map_size = map_size
+
 center_coord = sys.argv[1].split(',')
 center_lat = float(center_coord[0])
 center_lon = float(center_coord[1])
 meter_by_decimal_latitude = helper.lat_lon_to_distance(center_lat, center_lat + 0.1, center_lon, center_lon)
 meter_by_decimal_longitude = helper.lat_lon_to_distance(center_lat, center_lat, center_lon, center_lon + 0.1)
 
-north = center_lat + (map_size / 2.0) / meter_by_decimal_latitude * 0.1
-south = center_lat - (map_size / 2.0) / meter_by_decimal_latitude * 0.1
-west = center_lon + (map_size / 2.0) / meter_by_decimal_longitude * 0.1
-east = center_lon - (map_size / 2.0) / meter_by_decimal_longitude * 0.1
+north = center_lat + (gvar.map_size / 2.0) / meter_by_decimal_latitude * 0.1
+south = center_lat - (gvar.map_size / 2.0) / meter_by_decimal_latitude * 0.1
+west = center_lon + (gvar.map_size / 2.0) / meter_by_decimal_longitude * 0.1
+east = center_lon - (gvar.map_size / 2.0) / meter_by_decimal_longitude * 0.1
 
 if north < south:
     t = south
@@ -67,7 +69,7 @@ print("Export path: ", gvar.EXPORT_PATH)
 
 osm_data = osm.get_data()
 
-ror_zip_file.create_default_file(map_size)
+ror_zip_file.create_default_file()
 ror_zip_file.write_default_file()
 
 osm.dump_result_to_file(osm_data)
@@ -144,6 +146,7 @@ for way in osm_data.ways:
 print("ways: ", way_qty, "/", way_total)
 
 ror_zip_file.add_to_zip_file_list(config.data["map_name"] + ".tobj")
+ror_zip_file.add_to_zip_file_list(config.data["map_name"] + "_vegetation.tobj")
 
 ogre_material.create_file()
 ogre_map_height.create_file()
