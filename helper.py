@@ -84,30 +84,30 @@ def intersect(p1, p2, p3, p4):
         return None
     x = x1 + ua * (x2 - x1)
     y = y1 + ua * (y2 - y1)
-    return [x, y]
+    return x, y
 
 
 def intersect_between_all_direction(p1, p2):
-    p3 = bbox.coordXY["north"], bbox.coordXY["west"]
-    p4 = bbox.coordXY["north"], bbox.coordXY["east"]
+    p3 = bbox.coordXY["west"], bbox.coordXY["north"]
+    p4 = bbox.coordXY["east"], bbox.coordXY["north"]
     intersection_coord = intersect(p1, p2, p3, p4)
     if intersection_coord is not None:
         return intersection_coord, "north"
 
-    p3 = bbox.coordXY["south"], bbox.coordXY["west"]
-    p4 = bbox.coordXY["south"], bbox.coordXY["east"]
+    p3 = bbox.coordXY["west"], bbox.coordXY["south"]
+    p4 = bbox.coordXY["east"], bbox.coordXY["south"]
     intersection_coord = intersect(p1, p2, p3, p4)
     if intersection_coord is not None:
         return intersection_coord, "south"
 
-    p3 = bbox.coordXY["north"], bbox.coordXY["west"]
-    p4 = bbox.coordXY["south"], bbox.coordXY["west"]
+    p3 = bbox.coordXY["west"], bbox.coordXY["north"]
+    p4 = bbox.coordXY["west"], bbox.coordXY["south"]
     intersection_coord = intersect(p1, p2, p3, p4)
     if intersection_coord is not None:
         return intersection_coord, "west"
 
-    p3 = bbox.coordXY["north"], bbox.coordXY["east"]
-    p4 = bbox.coordXY["south"], bbox.coordXY["east"]
+    p3 = bbox.coordXY["east"], bbox.coordXY["north"]
+    p4 = bbox.coordXY["east"], bbox.coordXY["south"]
     intersection_coord = intersect(p1, p2, p3, p4)
     if intersection_coord is not None:
         return intersection_coord, "east"
@@ -117,7 +117,7 @@ def intersect_between_all_direction(p1, p2):
 
 def is_inside_map(p1):
     x, y = p1
-    return bbox.coordXY["west"] < y < bbox.coordXY["east"] and bbox.coordXY["south"] < x < bbox.coordXY["north"]
+    return bbox.coordXY["west"] < x < bbox.coordXY["east"] and bbox.coordXY["north"] < y < bbox.coordXY["south"]
 
 
 def is_power_of_2(n):

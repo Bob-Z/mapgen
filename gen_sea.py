@@ -11,19 +11,19 @@ def process(osm_data):
 
 def is_after_clock_wise(coord1, coord2, direction):
     if direction == "north":
-        if coord1[1] > coord2[1]:
-            return True
-
-    if direction == "south":
-        if coord1[1] < coord2[1]:
-            return True
-
-    if direction == "west":
         if coord1[0] > coord2[0]:
             return True
 
-    if direction == "east":
+    if direction == "south":
         if coord1[0] < coord2[0]:
+            return True
+
+    if direction == "west":
+        if coord1[1] < coord2[1]:
+            return True
+
+    if direction == "east":
+        if coord1[1] > coord2[1]:
             return True
 
     return False
@@ -31,13 +31,13 @@ def is_after_clock_wise(coord1, coord2, direction):
 
 def get_direction_corner(direction):
     if direction == "north":
-        return [bbox.coordXY["north"], bbox.coordXY["east"]]
+        return bbox.coordXY["east"], bbox.coordXY["north"]
     if direction == "south":
-        return [bbox.coordXY["south"], bbox.coordXY["west"]]
+        return bbox.coordXY["west"], bbox.coordXY["south"]
     if direction == "west":
-        return [bbox.coordXY["north"], bbox.coordXY["west"]]
+        return bbox.coordXY["west"], bbox.coordXY["north"]
     if direction == "east":
-        return [bbox.coordXY["south"], bbox.coordXY["east"]]
+        return bbox.coordXY["east"], bbox.coordXY["south"]
 
 
 def get_next_direction_clock_wise(direction):
@@ -94,7 +94,7 @@ def build_coastline(way):
 
         base_coastline_xy = []
         for n in base_coastline:
-            base_coastline_xy.append([helper.lon_to_x(n.lon), helper.lat_to_y(n.lat)])
+            base_coastline_xy.append((helper.lon_to_x(n.lon), helper.lat_to_y(n.lat)))
 
         complete_coastline.append(base_coastline_xy)
 
@@ -113,12 +113,7 @@ def build_coastline(way):
 
         # Case where all coastline is inside the map:
         if helper.is_inside_map(coastline[0]):
-            # FIXME should use directly tuple since PIL wants it
-            polygon = []
-            for coord in coastline:
-                polygon.append(coord[0])
-                polygon.append(coord[1])
-            polygon_list.append(polygon)
+            polygon_list.append(coastline)
             continue
         else:
             for coord in coastline:
@@ -159,12 +154,7 @@ def build_coastline(way):
                     if item["entry_done"] is False:
                         no_more_entry = False
                         item["entry_done"] = True
-                        # FIXME should use directly tuple since PIL wants it
-                        polygon = []
-                        for coord in item["coord"]:
-                            polygon.append(coord[0])
-                            polygon.append(coord[1])
-                        #polygon = item["coord"].copy()
+                        polygon = item["coord"].copy()
                         direction = item["entry_direction"]
                         entry_coord = item["coord"][0]
                         exit_coord = None
@@ -195,8 +185,7 @@ def build_coastline(way):
                             # No item found on this direction, add direction's corner's coordinates and try with the next direction
                             if found_item is None:
                                 entry_coord = get_direction_corner(direction)
-                                polygon.insert(0, entry_coord[1])
-                                polygon.insert(0, entry_coord[0])
+                                polygon.insert(0, entry_coord)
                                 direction = get_next_direction_clock_wise(direction)
                             else:
                                 found_item["exit_done"] = True
@@ -207,12 +196,7 @@ def build_coastline(way):
                                 else:
                                     # loop again with the item's entry found
                                     found_item["entry_done"] = True
-                                    found_polygon = []
-                                    for coord in found_item["coord"]:
-                                        found_polygon.append(coord[0])
-                                        found_polygon.append(coord[1])
-
-                                    polygon = found_polygon + polygon
+                                    polygon = found_item["coord"] + polygon
                                     direction = found_item["entry_direction"]
                                     entry_coord = found_item["coord"][0]
                                     found_item["entry_done"] = True
