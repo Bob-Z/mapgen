@@ -51,7 +51,7 @@ def process(entity, osm_data=None):
             return True
 
     if "landuse" in entity.tags:
-        if entity.tags["landuse"] == "grass":
+        if entity.tags["landuse"] == "grass" or entity.tags["landuse"] == "recreation_ground":
             ogre_map_surface.draw_grass_entity(osm_data, entity)
             entity.tags.pop("landuse")
             return True
@@ -59,6 +59,15 @@ def process(entity, osm_data=None):
             "landuse"] == "residential" or entity.tags["landuse"] == "retail":
             ogre_map_surface.draw_asphalt_entity(osm_data, entity)
             entity.tags.pop("landuse")
+            return True
+
+    if "place" in entity.tags:
+        if entity.tags["place"] == "square":
+            ogre_map_surface.draw_asphalt_entity(osm_data, entity)
+            # square are asphalt by default for now, so just remove surface tags in this case.
+            if "surface" in entity.tags and entity.tags["surface"] == "asphalt":
+                entity.tags.pop("surface")
+            entity.tags.pop("place")
             return True
 
     return False
