@@ -1,4 +1,3 @@
-import math
 import helper
 import os
 import ror_zip_file
@@ -13,7 +12,8 @@ object_index = 0
 
 
 def create_all_object_file(nodes, height=config.data["building_level_height"], z=0.0,
-                           wall_texture=config.data["wall_texture"], roof_texture=config.data["roof_texture"], scale=1.0,
+                           wall_texture=config.data["wall_texture"], roof_texture=config.data["roof_texture"],
+                           scale=1.0,
                            is_barrier=False, roof_texture_generator=None, barrier_width=config.data["barrier_width"]):
     global object_index
 
@@ -240,27 +240,67 @@ def get_info_from_input_data(nodes, scale=1.0, is_node=True, keep_all_nodes=Fals
 
 def create_additional_vertex_for_barrier(vertex, barrier_width):
     # Create vertices "around" each segment
+
+    loop = False
+    if vertex[0] == vertex[-1]:
+        # With a looped barrier, we calculate all vertex with intersections.
+        # As we need 3 points to calculate an intersection, we had the missing point here.
+        # If not looped, we just draw normals of the first and last vertex
+        loop = True
+        last_vertex = vertex[-2]
+        second_vertex = vertex[1]
+        vertex.insert(0, last_vertex)  # For intersection on first vertex
+        vertex.append(second_vertex)  # for intersection on last vertex
+
     first_side_vertex = []
     opposite_side_vertex = []
 
-    normal_x = 0.0
-    normal_y = 0.0
+    if loop is False:
+        first_vertex_normal = helper.calc_normal(vertex[0], vertex[1], barrier_width / 2.0)
+        first_vertex_normal_coord_1 = (vertex[0][0] + first_vertex_normal[0], vertex[0][1] + first_vertex_normal[1])
+        first_side_vertex.append(list(first_vertex_normal_coord_1))
+        first_vertex_normal_coord_2 = (vertex[0][0] - first_vertex_normal[0], vertex[0][1] - first_vertex_normal[1])
+        opposite_side_vertex.append(list(first_vertex_normal_coord_2))
 
-    for i in range(len(vertex) - 1):
-        normal_x = -(vertex[i + 1][1] - vertex[i][1])
-        normal_y = vertex[i + 1][0] - vertex[i][0]
-        normal_norm = math.sqrt((normal_x * normal_x) + (normal_y * normal_y))
-        normal_x = (normal_x / normal_norm) * (barrier_width / 2.0)
-        normal_y = (normal_y / normal_norm) * (barrier_width / 2.0)
+    while len(vertex) >= 3:
+        # Calculate intersections around current segment and next segment
+        start_vertex = vertex.pop(0)
+        next_vertex = vertex[0]
+        end_vertex = vertex[1]
 
-        first_side_vertex.append([vertex[i][0] + normal_x, vertex[i][1] + normal_y])
-        opposite_side_vertex.append([vertex[i][0] - normal_x, vertex[i][1] - normal_y])
+        # First side
+        start_vertex_normal = helper.calc_normal(start_vertex, next_vertex, barrier_width / 2.0)
+        start_parallel_p1 = (start_vertex[0] + start_vertex_normal[0], start_vertex[1] + start_vertex_normal[1])
+        start_parallel_p2 = (next_vertex[0] + start_vertex_normal[0], next_vertex[1] + start_vertex_normal[1])
 
-    # Use latest normal for last input vertex
-    i = len(vertex) - 1
+        end_vertex_normal = helper.calc_normal(next_vertex, end_vertex, barrier_width / 2.0)
+        end_parallel_p1 = (end_vertex[0] + end_vertex_normal[0], end_vertex[1] + end_vertex_normal[1])
+        end_parallel_p2 = (next_vertex[0] + end_vertex_normal[0], next_vertex[1] + end_vertex_normal[1])
 
-    first_side_vertex.append([vertex[i][0] + normal_x, vertex[i][1] + normal_y])
-    opposite_side_vertex.append([vertex[i][0] - normal_x, vertex[i][1] - normal_y])
+        intersection = helper.intersect_line((start_parallel_p1, start_parallel_p2), (end_parallel_p1, end_parallel_p2))
+        first_side_vertex.append(list(intersection))
+
+        # second side
+        start_vertex_normal = helper.calc_normal(start_vertex, next_vertex, barrier_width / 2.0)
+        # Difference with first side is here - instead of +
+        start_parallel_p1 = (start_vertex[0] - start_vertex_normal[0], start_vertex[1] - start_vertex_normal[1])
+        start_parallel_p2 = (next_vertex[0] - start_vertex_normal[0], next_vertex[1] - start_vertex_normal[1])
+
+        end_vertex_normal = helper.calc_normal(next_vertex, end_vertex, barrier_width / 2.0)
+        end_parallel_p1 = (end_vertex[0] - end_vertex_normal[0], end_vertex[1] - end_vertex_normal[1])
+        end_parallel_p2 = (next_vertex[0] - end_vertex_normal[0], next_vertex[1] - end_vertex_normal[1])
+
+        intersection = helper.intersect_line((start_parallel_p1, start_parallel_p2), (end_parallel_p1, end_parallel_p2))
+        opposite_side_vertex.append(list(intersection))
+
+    if loop is False:
+        last_vertex_normal = helper.calc_normal(vertex[-2], vertex[-1], barrier_width / 2.0)
+
+        last_vertex_normal_coord_1 = (vertex[-1][0] + last_vertex_normal[0], vertex[-1][1] + last_vertex_normal[1])
+        first_side_vertex.append(list(last_vertex_normal_coord_1))
+
+        last_vertex_normal_coord_2 = (vertex[-1][0] - last_vertex_normal[0], vertex[-1][1] - last_vertex_normal[1])
+        opposite_side_vertex.append(list(last_vertex_normal_coord_2))
 
     first_side_vertex.reverse()
     centered_vertex = opposite_side_vertex + first_side_vertex

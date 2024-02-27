@@ -50,6 +50,15 @@ def calc_norm(triangle_vertices):
     return cross / numpy.linalg.norm(cross)
 
 
+def calc_normal(p1, p2, external_norm=1.0):
+    p1x, p1y = p1
+    p2x, p2y = p2
+    normal_x = -(p2y - p1y)
+    normal_y = p2x - p1x
+    normal_norm = math.sqrt((normal_x * normal_x) + (normal_y * normal_y))
+    return (normal_x / normal_norm) * external_norm, (normal_y / normal_norm) * external_norm
+
+
 def angle_between(v1, v2, v3):
     x1, y1 = v1
     x2, y2 = v2
@@ -67,8 +76,8 @@ def angle_between(v1, v2, v3):
     return angle
 
 
-# intersection between line(p1, p2) and line(p3, p4)
-def intersect(p1, p2, p3, p4):
+# intersection between segment(p1, p2) and segment(p3, p4)
+def intersect_segment(p1, p2, p3, p4):
     x1, y1 = p1
     x2, y2 = p2
     x3, y3 = p3
@@ -87,28 +96,46 @@ def intersect(p1, p2, p3, p4):
     return x, y
 
 
+# intersection between line(p1, p2) and line(p3, p4)
+def intersect_line(line1, line2):
+    xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
+    ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
+
+    def det(a, b):
+        return a[0] * b[1] - a[1] * b[0]
+
+    div = det(xdiff, ydiff)
+    if div == 0: # Parallel
+        return None
+
+    d = (det(*line1), det(*line2))
+    x = det(d, xdiff) / div
+    y = det(d, ydiff) / div
+    return x, y
+
+
 def intersect_between_all_direction(p1, p2):
     p3 = bbox.coordXY["west"], bbox.coordXY["north"]
     p4 = bbox.coordXY["east"], bbox.coordXY["north"]
-    intersection_coord = intersect(p1, p2, p3, p4)
+    intersection_coord = intersect_segment(p1, p2, p3, p4)
     if intersection_coord is not None:
         return intersection_coord, "north"
 
     p3 = bbox.coordXY["west"], bbox.coordXY["south"]
     p4 = bbox.coordXY["east"], bbox.coordXY["south"]
-    intersection_coord = intersect(p1, p2, p3, p4)
+    intersection_coord = intersect_segment(p1, p2, p3, p4)
     if intersection_coord is not None:
         return intersection_coord, "south"
 
     p3 = bbox.coordXY["west"], bbox.coordXY["north"]
     p4 = bbox.coordXY["west"], bbox.coordXY["south"]
-    intersection_coord = intersect(p1, p2, p3, p4)
+    intersection_coord = intersect_segment(p1, p2, p3, p4)
     if intersection_coord is not None:
         return intersection_coord, "west"
 
     p3 = bbox.coordXY["east"], bbox.coordXY["north"]
     p4 = bbox.coordXY["east"], bbox.coordXY["south"]
-    intersection_coord = intersect(p1, p2, p3, p4)
+    intersection_coord = intersect_segment(p1, p2, p3, p4)
     if intersection_coord is not None:
         return intersection_coord, "east"
 
