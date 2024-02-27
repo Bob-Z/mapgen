@@ -3,7 +3,7 @@ import config
 import osm
 import gen_building
 
-shelter_tag_value = [["amenity", "shelter"], ["shelter", "yes"]]
+shelter_tag_value = [["amenity", "shelter"], ["building", "roof"], ["shelter", "yes"]]
 shelter_tag = []
 
 

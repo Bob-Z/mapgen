@@ -5,7 +5,7 @@ import osm
 build_tag_value = [["type", "building"], ['man_made', 'street_cabinet'], ['man_made', 'reservoir_covered'],
                    ['man_made', 'pumping_station']]
 build_tag = ["building:part", "building"]
-negative_tag_value = [["amenity", "shelter"]]
+negative_tag_value = [["amenity", "shelter"], ["building", "roof"]]
 if config.data["hide_wiki"] is True:
     negative_tag = ["wikipedia", "wikidata"]
 else:
@@ -85,36 +85,67 @@ def get_height(entity):
         except ValueError:
             print("Cannot convert building:levels : " + entity.tags["building:levels"])
 
+    h = None
     if "height" in entity.tags:
-        h = entity.tags["height"]
-
-        convert_rate = 1.0
-        h = h.replace(' m', '')  # Some height appear like: 100 m
-        if h.find(" ft") != -1:
-            h = h.replace(' ft', '')
-            convert_rate = 0.3048
-        if h.find(" storey") != -1:
-            h = h.replace(' storey', '')
-            convert_rate = config.data["building_level_height"]
-
-        try:
-            height = float(h) * convert_rate
+        h = convert_height_to_meter(entity.tags["height"])
+        if h is not None:
+            height = h
             entity.tags.pop("height")
-        except ValueError:
-            print("Cannot convert height: " + entity.tags["height"])
+
+    if h is None and "est_roof:height" in entity.tags:
+        h = convert_height_to_meter(entity.tags["est_roof:height"])
+        if h is not None:
+            height = h
+            entity.tags.pop("est_roof:height")
 
     min_height = None
     if "min_height" in entity.tags:
-        if height is None:
-            height = config.data["building_level_height"]
-        try:
-            min_height = float(entity.tags["min_height"])
-            height = height - min_height
+        height, min_height = get_min_height(height, convert_height_to_meter(entity.tags["min_height"]))
+        if min_height is not None:
             entity.tags.pop("min_height")
+    elif "building:min_level" in entity.tags:
+        level_qty = entity.tags["building:min_level"]
+        min_h = None
+        try:
+            min_h = float(level_qty) * config.data["building_level_height"]
         except ValueError:
-            print("Cannot convert min_height: " + entity.tags["min_height"])
+            print("Cannot convert building:levels : " + entity.tags["building:min_level"])
+
+        height, min_height = get_min_height(height, min_h)
+        if min_height is not None:
+            entity.tags.pop("building:min_level")
 
     return height, min_height
+
+
+def get_min_height(height, min_height):
+    if min_height is not None:
+        if height is None:
+            height = config.data["building_level_height"]
+        else:
+            height = height - min_height
+
+    return height, min_height
+
+
+def convert_height_to_meter(height):
+    height_in_meter = None
+
+    convert_rate = 1.0
+    height = height.replace(' m', '')  # Some height appear like: 100 m
+    if height.find(" ft") != -1:
+        height = height.replace(' ft', '')
+        convert_rate = 0.3048
+    if height.find(" storey") != -1:
+        height = height.replace(' storey', '')
+        convert_rate = config.data["building_level_height"]
+
+    try:
+        height_in_meter = float(height) * convert_rate
+    except ValueError:
+        print("Cannot convert height: " + height)
+
+    return height_in_meter
 
 
 def is_allowed(entity):
