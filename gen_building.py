@@ -50,12 +50,12 @@ def build_from_relation(osm_data, rel):
         way = osm.get_way_by_id(osm_data, member.ref)
         if way is not None:
             if member.role == "outer":
-                build_from_way(way, height, min_height, from_relation=True)
+                build_from_way(way, height, min_height)
             # FIXME: How to manager inner ?
             # elif member.role == "inner":
 
 
-def build_from_way(way, height=None, min_height=None, from_relation=False):
+def build_from_way(way, height=None, min_height=None):
     is_barrier = False
     if len(way.nodes) < 3:
         is_barrier = True

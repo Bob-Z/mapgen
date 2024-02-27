@@ -13,8 +13,8 @@ object_index = 0
 
 
 def create_all_object_file(nodes, height=config.data["building_level_height"], z=0.0,
-                           wall_texture=config.data["wall_texture"], roof_texture=config.data["roof_texture"],
-                           is_barrier=False, roof_texture_generator=None):
+                           wall_texture=config.data["wall_texture"], roof_texture=config.data["roof_texture"], scale=1.0,
+                           is_barrier=False, roof_texture_generator=None, barrier_width=config.data["barrier_width"]):
     global object_index
 
     if height is None:
@@ -28,12 +28,14 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
 
     if len(nodes) > 1:
         if hasattr(nodes[0], 'lat'):
-            center_x, center_y, width, length, vertex = get_info_from_input_data(nodes, is_node=True)
+            center_x, center_y, width, length, vertex = get_info_from_input_data(nodes, scale=scale, is_node=True,
+                                                                                 keep_all_nodes=is_barrier)
         else:
-            center_x, center_y, width, length, vertex = get_info_from_input_data(nodes, is_node=False)
+            center_x, center_y, width, length, vertex = get_info_from_input_data(nodes, scale=scale, is_node=False,
+                                                                                 keep_all_nodes=is_barrier)
 
         if is_barrier is True:
-            vertex = create_additional_vertex_for_barrier(vertex)
+            vertex = create_additional_vertex_for_barrier(vertex, barrier_width)
     else:
         center_x, center_y, width, length, vertex = create_vertex_for_pillar(nodes[0])
 
@@ -186,16 +188,17 @@ def generate_roof_for_barrier(vertex2d, height, vertex_index):
     return vertex_index, face_qty, vertex_str, face_str
 
 
-def get_info_from_input_data(nodes, is_node):
+def get_info_from_input_data(nodes, scale=1.0, is_node=True, keep_all_nodes=False):
     all_vertex = []
     min_x = 9999999.0
     min_y = 9999999.0
     max_x = -9999999.0
     max_y = -9999999.0
 
-    # First and last nodes are sometimes the same. In this case skip the last node
-    if nodes[0] == nodes[-1]:
-        nodes.pop()
+    # First and last nodes are sometimes the same. In this case skip the last node unless specified otherwise
+    if keep_all_nodes is False:
+        if nodes[0] == nodes[-1]:
+            nodes.pop()
 
     for node in nodes:
         if is_node is True:
@@ -226,7 +229,7 @@ def get_info_from_input_data(nodes, is_node):
     # Make sure vertices are centered on 0,0
     for v in all_vertex:
         # 'Y' axis is inverted on RoR map
-        centered_vertex.append([v[0] - center_x, -(v[1] - center_y)])
+        centered_vertex.append([(v[0] - center_x) * scale, (-(v[1] - center_y)) * scale])
 
     # Make sure faces are correctly oriented
     if triangulate.IsClockwise(centered_vertex):
@@ -235,7 +238,7 @@ def get_info_from_input_data(nodes, is_node):
     return center_x, center_y, max_x - min_x, max_y - min_y, centered_vertex
 
 
-def create_additional_vertex_for_barrier(vertex):
+def create_additional_vertex_for_barrier(vertex, barrier_width):
     # Create vertices "around" each segment
     first_side_vertex = []
     opposite_side_vertex = []
@@ -247,8 +250,8 @@ def create_additional_vertex_for_barrier(vertex):
         normal_x = -(vertex[i + 1][1] - vertex[i][1])
         normal_y = vertex[i + 1][0] - vertex[i][0]
         normal_norm = math.sqrt((normal_x * normal_x) + (normal_y * normal_y))
-        normal_x = (normal_x / normal_norm) * (config.data["barrier_width"] / 2.0)
-        normal_y = (normal_y / normal_norm) * (config.data["barrier_width"] / 2.0)
+        normal_x = (normal_x / normal_norm) * (barrier_width / 2.0)
+        normal_y = (normal_y / normal_norm) * (barrier_width / 2.0)
 
         first_side_vertex.append([vertex[i][0] + normal_x, vertex[i][1] + normal_y])
         opposite_side_vertex.append([vertex[i][0] - normal_x, vertex[i][1] - normal_y])
