@@ -74,14 +74,14 @@ ror_zip_file.write_default_file()
 
 osm.dump_result_to_file(osm_data)
 
+osm_tags.filter_ignored(osm_data.nodes)
+osm_tags.filter_ignored(osm_data.ways)
+osm_tags.filter_ignored(osm_data.relations)
+
 if config.data["generate_statistics"] is True:
     nodes_original = copy.deepcopy(osm_data.nodes)
     ways_original = copy.deepcopy(osm_data.ways)
     relations_original = copy.deepcopy(osm_data.relations)
-
-osm_tags.filter_ignored(osm_data.nodes)
-osm_tags.filter_ignored(osm_data.ways)
-osm_tags.filter_ignored(osm_data.relations)
 
 gen_sea.process(osm_data)
 
