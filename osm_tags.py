@@ -1,15 +1,39 @@
 import config
 
 # https://wiki.openstreetmap.org/wiki/Main_Page
-ignored_tags = ["access", "addr:city", "addr:hamlet", "addr:housenumber", "addr:postcode", "addr:state", "addr:street",
+ignored_tags = ["access",
+                "addr:city",
+                "addr:hamlet",
+                "addr:housenumber",
+                "addr:postcode",
+                "addr:state",
+                "addr:street",
                 "check_date",
-                "check_date:shelter", "description",
-                "description:en", "description:de", "description:fr", "fixme", "genus:de", "genus:en", "genus:fr",
+                "check_date:shelter",
+                "description",
+                "description:en",
+                "description:de",
+                "description:fr",
+                "fixme",
                 "intermittent",
-                "name", "old_name", "old_ref", "ref", "source"]
+                "name",
+                "old_name",
+                "old_ref",
+                "ref",
+                "source"]
 
-ignored_tags_value = [["railway", "razed"]]
-ignored = ["admin_level", "boundary", "disused:admin_level", "disused:boundary", "disused:route"]
+ignored_tags_value = [
+    ["railway", "razed"],
+    ["level", "-1"]]
+
+ignored = [
+    "admin_level",
+    "boundary",
+    "disused:admin_level",
+    "disused:boundary",
+    "disused:highway",
+    "disused:route",
+    "indoor"]
 
 entity_total = 0
 entity_empty = ""
@@ -41,6 +65,9 @@ def filter_ignored(modified_entity):
         for tag in ignored_tags:
             if tag in entity.tags:
                 entity.tags.pop(tag)
+
+        if len(entity.tags) == 0:
+            entity.tags["ignored"] = True
 
 
 def show_stat(name, original_entity, modified_entity):
