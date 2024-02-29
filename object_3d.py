@@ -269,12 +269,12 @@ def create_additional_vertex_for_barrier(vertex, half_barrier, barrier_width):
     def calc_normal_coord(origin_vertex, normal, factor):
         return origin_vertex[0] + (factor * normal[0]), origin_vertex[1] + (factor * normal[1])
 
-    def calc_intersection(v1, v2, v3, factor, barrier_width):
-        start_vertex_normal = helper.calc_normal(v1, v2, barrier_width / 2.0)
+    def calc_intersection(v1, v2, v3, factor, width):
+        start_vertex_normal = helper.calc_normal(v1, v2, width / 2.0)
         start_parallel_p1 = calc_normal_coord(v1, start_vertex_normal, factor)
         start_parallel_p2 = calc_normal_coord(v2, start_vertex_normal, factor)
 
-        end_vertex_normal = helper.calc_normal(v2, v3, barrier_width / 2.0)
+        end_vertex_normal = helper.calc_normal(v2, v3, width / 2.0)
         end_parallel_p1 = calc_normal_coord(v3, end_vertex_normal, factor)
         end_parallel_p2 = calc_normal_coord(v2, end_vertex_normal, factor)
 
@@ -290,13 +290,18 @@ def create_additional_vertex_for_barrier(vertex, half_barrier, barrier_width):
         f = 1.0  # Draw all around the barrier equally
         if half_barrier:
             f = 0.0  # Draw only one side of the barrier
-        first_side_vertex.append(list(calc_intersection(start_vertex, next_vertex, end_vertex, f, barrier_width)))
+        intersection_1 = calc_intersection(start_vertex, next_vertex, end_vertex, f, barrier_width)
 
         # second side
         f = -1.0  # Draw all around the barrier equally
         if half_barrier:
             f = -2.0  # Draw only one side of the barrier
-        opposite_side_vertex.append(list(calc_intersection(start_vertex, next_vertex, end_vertex, f, barrier_width)))
+        intersection_2 = calc_intersection(start_vertex, next_vertex, end_vertex, f, barrier_width)
+
+        if intersection_1 is None or intersection_2 is None:
+            continue
+        first_side_vertex.append(list(intersection_1))
+        opposite_side_vertex.append(list(intersection_2))
 
     if loop is False:
         last_vertex_normal = helper.calc_normal(vertex[-2], vertex[-1], barrier_width / 2.0)
