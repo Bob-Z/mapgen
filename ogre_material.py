@@ -5,9 +5,9 @@ texture_qty = 0
 material_str = ""
 
 
-def create_material_swimming_pool(dest_width, dest_length):
-    return create_material(config.data["swimming_pool_tex_name"], config.data["swimming_pool_tex_width"],
-                           config.data["swimming_pool_tex_height"],
+def create_material_hedge(dest_width, dest_length):
+    return create_material(config.data["hedge_tex_name"], config.data["hedge_tex_width"],
+                           config.data["hedge_tex_height"],
                            dest_width, dest_length)
 
 

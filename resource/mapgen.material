@@ -191,7 +191,7 @@ material mapgen_window
     }
  }
 
-material mapgen_swimming_pool
+material mapgen_hedge
  {
     technique
     {
@@ -199,7 +199,7 @@ material mapgen_swimming_pool
         {
           texture_unit
           {
-            texture swimming_pool.jpg
+            texture hedge.jpg
             scale 1.0 1.0
             }
        }

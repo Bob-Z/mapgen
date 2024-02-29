@@ -14,7 +14,8 @@ object_index = 0
 def create_all_object_file(nodes, height=config.data["building_level_height"], z=0.0,
                            wall_texture=config.data["wall_texture"], roof_texture=config.data["roof_texture"],
                            scale=1.0,
-                           is_barrier=False, half_barrier=False, roof_texture_generator=None,
+                           is_barrier=False, half_barrier=False, wall_texture_generator=None,
+                           roof_texture_generator=None,
                            barrier_width=config.data["barrier_width"]):
     global object_index
 
@@ -44,6 +45,8 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
     if wall_vertex_str is None:
         return None
 
+    if wall_texture_generator is not None:
+        wall_texture = wall_texture_generator(width, length)
     if roof_texture_generator is not None:
         roof_texture = roof_texture_generator(width, length)
 

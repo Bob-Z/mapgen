@@ -1,7 +1,6 @@
 import object_3d
 import config
 import osm
-import gen_building
 
 shelter_tag_value = [["amenity", "shelter"], ["building", "roof"], ["shelter", "yes"]]
 shelter_tag = []
@@ -37,7 +36,7 @@ def process(entity, osm_data=None):
 
 
 def build_from_relation(osm_data, rel):
-    height, min_height = gen_building.get_height(rel)
+    height, min_height = osm.get_height(rel)
 
     for member in rel.members:
         way = osm.get_way_by_id(osm_data, member.ref)
@@ -53,7 +52,7 @@ def build_from_way(way, height=None, min_height=None, from_relation=False):
     if len(way.nodes) < 3:
         is_barrier = True
 
-    calc_height, calc_min_height = gen_building.get_height(way)
+    calc_height, calc_min_height = osm.get_height(way)
 
     if calc_height is not None:
         height = calc_height

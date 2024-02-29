@@ -90,10 +90,9 @@ def process(entity, osm_data=None):
             return True
 
     if "surface" in entity.tags:
-        if entity.tags["surface"] == "compacted" and len(entity.tags) == 1: # only one "surface tag
+        if entity.tags["surface"] == "compacted" and len(entity.tags) == 1:  # "surface" is the only tag
             ogre_map_surface.draw_sand_entity(osm_data, entity)
             entity.tags.pop("surface")
             return True
-
 
     return False
