@@ -17,10 +17,10 @@ def init():
     global draw
 
     surf.append(PIL.Image.new(mode="RGB", size=(
-        int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR, int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR),
+        int(gvar.map_size / gvar.map_precision), int(gvar.map_size / gvar.map_precision)),
                               color=(0, 0, 0)))
     surf.append(PIL.Image.new(mode="RGB", size=(
-        int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR, int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR),
+        int(gvar.map_size / gvar.map_precision), int(gvar.map_size / gvar.map_precision)),
                               color=(0, 0, 0)))
 
     draw.append(PIL.ImageDraw.Draw(surf[0]))

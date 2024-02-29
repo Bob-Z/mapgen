@@ -1,5 +1,4 @@
 import config
-import ogre_map_height
 import gvar
 
 MAX_HEIGHT = config.data["ground_line"]  # just managing water depth for now
@@ -10,7 +9,7 @@ def create_file():
         otc_file.write("\
 Pages_X=0 \n\
 Pages_Y=0 \n\
-PageSize=" + str(int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR + 1) + "\n\
+PageSize=" + str(int(gvar.map_size / gvar.map_precision) + 1) + "\n\
 Flat=0 \n\
 WorldSizeX=" + str(int(gvar.map_size)) + "\n\
 WorldSizeZ=" + str(int(gvar.map_size)) + "\n\

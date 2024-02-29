@@ -2,7 +2,7 @@ import math
 import bbox
 import numpy
 from math import atan2, degrees
-import ogre_map_height
+import gvar
 
 EARTH_RADIUS = 6371000
 
@@ -159,8 +159,8 @@ def node_to_map_coord(all_node):
         all_node.pop()
 
     for node in all_node:
-        x = lon_to_x(node.lon) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR
-        y = lat_to_y(node.lat) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR
+        x = lon_to_x(node.lon) / gvar.map_precision
+        y = lat_to_y(node.lat) / gvar.map_precision
 
         all_coord.append(x)
         all_coord.append(y)

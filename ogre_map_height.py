@@ -9,7 +9,6 @@ import ogre_map_helper
 import gvar
 
 MAX_COLOR = 0xff  # Because we use 8 bits PNG
-MAP_HEIGHT_SIZE_FACTOR = 1
 BLUR_RADIUS = 1
 
 im = None
@@ -26,8 +25,8 @@ def init():
     global draw
 
     im = PIL.Image.new(mode="L", size=(
-        int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR,
-        int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR),
+        int(gvar.map_size / gvar.map_precision),
+        int(gvar.map_size / gvar.map_precision)),
                        color=ogre_map_height.MAX_COLOR)  # color=MAX_COLOR fill the map with height defined by WorldSizeY parameter in otc file
 
     draw = PIL.ImageDraw.Draw(im)
@@ -49,6 +48,11 @@ def draw_entity_unblurred(osm_data, entity, outer_height, inner_height=None):
 
 
 def draw_polygon(polygon, color):
+    if gvar.map_precision != 1.0:
+        new_polygon = []
+        for c in polygon:
+            new_polygon.append((c[0] / gvar.map_precision, c[1] / gvar.map_precision))
+        polygon = new_polygon
     ogre_map_helper.draw_polygon(draw, polygon, color)
 
 

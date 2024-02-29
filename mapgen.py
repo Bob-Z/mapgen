@@ -19,22 +19,27 @@ import copy
 import ogre_map_height
 import ogre_map_surface
 
-if len(sys.argv) < 2 or len(sys.argv) > 3:
-    print("\nUsage: " + sys.argv[0] + " <latitude, longitude> <map size>")
+if len(sys.argv) < 2 or len(sys.argv) > 4:
+    print("\nUsage: " + sys.argv[0] + " <latitude, longitude> <map size> <map precision>")
     print("<latitude, longitude> coordinate of the map center")
     print("<map size> Map is always square. This must be a power of 2. Default to 512 meters")
-    print("Eg: " + sys.argv[0] + " 48.87814394530428,2.2821558610475257 1024")
+    print("<map precision> Map precision in meters. (size x precision) must be a power of 2. Can be less than 1.0, but not negative. Default to 1 meter")
+    print("Eg: " + sys.argv[0] + " -15.408407657743856,28.280147286542533 256 0.5")
     print("Default map name is \"mapgen\". This can be modified in config.json file.")
     sys.exit(0)
 
-map_size = 512.0
-if len(sys.argv) == 3:
-    map_size = float(sys.argv[2])
-    if helper.is_power_of_2(map_size) is False:
+if len(sys.argv) >= 3:
+    gvar.map_size = float(sys.argv[2])
+    if helper.is_power_of_2(gvar.map_size) is False:
         print("Map size must be a power of 2")
         sys.exit(0)
 
-gvar.map_size = map_size
+if len(sys.argv) >= 4:
+    gvar.map_precision = float(sys.argv[3])
+    if helper.is_power_of_2(gvar.map_precision) is False:
+        print("Map precision must be a power of 2")
+        sys.exit(0)
+
 
 center_coord = sys.argv[1].split(',')
 center_lat = float(center_coord[0])

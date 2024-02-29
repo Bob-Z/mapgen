@@ -3,7 +3,6 @@ import PIL.ImageDraw
 import PIL.ImageFilter
 import config
 import ror_zip_file
-import ogre_map_height
 import ogre_map_helper
 import gvar
 
@@ -18,8 +17,8 @@ def add_tree_map(osm_data, entity, density):
     global index
 
     surf = PIL.Image.new(mode="L", size=(
-        int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR,
-        int(gvar.map_size) * ogre_map_height.MAP_HEIGHT_SIZE_FACTOR),
+        int(gvar.map_size / gvar.map_precision),
+        int(gvar.map_size / gvar.map_precision)),
                          color=0)
 
     my_draw = PIL.ImageDraw.Draw(surf)
