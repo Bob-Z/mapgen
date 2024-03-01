@@ -20,11 +20,16 @@ ignored_tags = ["access",
                 "old_name",
                 "old_ref",
                 "ref",
-                "source"]
+                "source",
+                ]
 
 ignored_tags_value = [
+    ["layer", "-1"],
+    ["level", "-1"],
+    ["natural", "peninsula"],
+    ["place", "sea"],
     ["railway", "razed"],
-    ["level", "-1"]]
+]
 
 ignored = [
     "admin_level",
@@ -33,7 +38,8 @@ ignored = [
     "disused:boundary",
     "disused:highway",
     "disused:route",
-    "indoor"]
+    "indoor",
+]
 
 entity_total = 0
 entity_empty = ""
