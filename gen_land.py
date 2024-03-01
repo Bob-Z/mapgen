@@ -1,5 +1,7 @@
 import ogre_map_surface
 import ror_tobj_file
+import ogre_map_height
+import config
 
 
 def process(entity, osm_data=None):
@@ -17,13 +19,16 @@ def process(entity, osm_data=None):
             if "surface" in entity.tags and entity.tags["surface"] == "asphalt":
                 ogre_map_surface.draw_asphalt_entity(osm_data, entity)
                 entity.tags.pop("surface")
+            elif "surface" in entity.tags and entity.tags["surface"] == "clay":
+                ogre_map_surface.draw_gravel_entity(osm_data, entity)
+                entity.tags.pop("surface")
             else:
                 ogre_map_surface.draw_grass_entity(osm_data, entity)
             entity.tags.pop("leisure")
             return True
         if entity.tags["leisure"] == "playground":
             if "surface" in entity.tags and entity.tags["surface"] == "compacted":
-                ogre_map_surface.draw_gravel_entity(osm_data, entity)
+                ogre_map_surface.draw_sand_entity(osm_data, entity)
                 entity.tags.pop("surface")
             else:
                 ogre_map_surface.draw_grass_entity(osm_data, entity)
@@ -71,12 +76,12 @@ def process(entity, osm_data=None):
             entity.tags.pop("natural")
             return True
         if entity.tags["natural"] == "wood" or entity.tags["natural"] == "tree_group":
-            ror_tobj_file.add_tree(osm_data, entity, 0.50, 1.40, -10, "tree.mesh", "tree.mesh")
+            ror_tobj_file.add_tree(osm_data, entity, 0.50, 1.40, -20, "tree.mesh", "tree.mesh")
             entity.tags.pop("natural")
             return True
 
         if entity.tags["natural"] == "shingle":
-            ogre_map_surface.draw_gravel_entity(osm_data, entity)
+            ogre_map_surface.draw_sand_entity(osm_data, entity)
             entity.tags.pop("natural")
             return True
 
@@ -87,6 +92,25 @@ def process(entity, osm_data=None):
             if "surface" in entity.tags and entity.tags["surface"] == "asphalt":
                 entity.tags.pop("surface")
             entity.tags.pop("place")
+            return True
+        if entity.tags["place"] == "islet":
+            ogre_map_height.draw_entity(osm_data, entity, config.data["ground_line"], config.data["water_depth"])
+            entity.tags.pop("place")
+            return True
+        # It doesn't seem a good idea to render this:
+        # if entity.tags["place"] == "neighbourhood":
+        #    ogre_map_surface.draw_asphalt_entity(osm_data, entity)
+        #    entity.tags.pop("place")
+        #    return True
+
+    if "tourism" in entity.tags:
+        if entity.tags["tourism"] == "camp_site":
+            ogre_map_surface.draw_grass_entity(osm_data, entity)
+            entity.tags.pop("tourism")
+            return True
+        if entity.tags["tourism"] == "picnic_site":
+            ogre_map_surface.draw_grass_entity(osm_data, entity)
+            entity.tags.pop("tourism")
             return True
 
     if "surface" in entity.tags:
