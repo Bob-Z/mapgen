@@ -41,6 +41,11 @@ def process(entity, osm_data=None):
             ogre_map_height.draw_entity(osm_data, entity, config.data["water_depth"], config.data["ground_line"])
             ogre_map_surface.draw_rock_entity(osm_data, entity)
             entity.tags.pop("natural")
+
+            if "type" in entity.tags:
+                if entity.tags["type"] == "multipolygon":
+                    entity.tags.pop("type")
+
             return True
 
     return False
