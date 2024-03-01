@@ -64,7 +64,7 @@ cloud_layer\n{\nheight 2000\ncoverage 0.1\ncloud_uv_factor 6\n}\n\
 
 def write_default_file():
     all_files = os.listdir(config.data["resource_path"])
-    with ZipFile(EXPORT_PATH + config.data["map_name"] + ".zip", 'w') as zip_object:
+    with ZipFile(EXPORT_PATH + "/mods/" + config.data["map_name"] + ".zip", 'w') as zip_object:
         zip_object.write(otc_file_name, arcname=config.data["map_name"] + ".otc")
         zip_object.write(page_otc_file_name, arcname=config.data["map_name"] + "-page-0-0.otc")
         zip_object.write(os_file_name, arcname=config.data["map_name"] + ".os")
@@ -80,6 +80,6 @@ def add_to_zip_file_list(file_name_to_add):
 
 
 def create_zip_file():
-    with ZipFile(EXPORT_PATH + config.data["map_name"] + ".zip", 'a') as zip_object:
+    with ZipFile(EXPORT_PATH + "/mods/" + config.data["map_name"] + ".zip", 'a') as zip_object:
         for file in file_list:
             zip_object.write(config.data["work_path"] + file, arcname=file)
