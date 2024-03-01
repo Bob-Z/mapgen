@@ -16,15 +16,11 @@ def init():
     global surf
     global draw
 
-    surf.append(PIL.Image.new(mode="RGB", size=(
-        int(gvar.map_size / gvar.map_precision), int(gvar.map_size / gvar.map_precision)),
-                              color=(0, 0, 0)))
-    surf.append(PIL.Image.new(mode="RGB", size=(
-        int(gvar.map_size / gvar.map_precision), int(gvar.map_size / gvar.map_precision)),
-                              color=(0, 0, 0)))
-
-    draw.append(PIL.ImageDraw.Draw(surf[0]))
-    draw.append(PIL.ImageDraw.Draw(surf[1]))
+    for n in range(5):
+        surf.append(PIL.Image.new(mode="RGB", size=(
+            int(gvar.map_size / gvar.map_precision), int(gvar.map_size / gvar.map_precision)),
+                                  color=(0, 0, 0)))
+        draw.append(PIL.ImageDraw.Draw(surf[n]))
 
 
 def draw_asphalt_entity(osm_data, entity):
@@ -32,19 +28,19 @@ def draw_asphalt_entity(osm_data, entity):
 
 
 def draw_rock_entity(osm_data, entity):
-    draw_entity(0, osm_data, entity, (0, 255, 0))
-
-
-def draw_sand_entity(osm_data, entity):
-    draw_entity(0, osm_data, entity, (0, 0, 255))
-
-
-def draw_grass_entity(osm_data, entity):
     draw_entity(1, osm_data, entity, (255, 0, 0))
 
 
+def draw_sand_entity(osm_data, entity):
+    draw_entity(2, osm_data, entity, (255, 0, 0))
+
+
+def draw_grass_entity(osm_data, entity):
+    draw_entity(3, osm_data, entity, (255, 0, 0))
+
+
 def draw_gravel_entity(osm_data, entity):
-    draw_entity(1, osm_data, entity, (0, 255, 0))
+    draw_entity(4, osm_data, entity, (255, 0, 0))
 
 
 def draw_entity(surf_index, osm_data, entity, color):
@@ -69,11 +65,9 @@ def draw_polygon(surf_index, polygon, color):
 
 def create_file():
     global surf
-    blur_im = surf[0].filter(PIL.ImageFilter.GaussianBlur(ogre_map_height.BLUR_RADIUS))
-    blur_im.save(config.data["work_path"] + "surface0.png", "PNG")
 
-    blur_im = surf[1].filter(PIL.ImageFilter.GaussianBlur(ogre_map_height.BLUR_RADIUS))
-    blur_im.save(config.data["work_path"] + "surface1.png", "PNG")
+    for n in range(5):
+        blur_im = surf[n].filter(PIL.ImageFilter.GaussianBlur(ogre_map_height.BLUR_RADIUS))
+        blur_im.save(config.data["work_path"] + "surface" + str(n) + ".png", "PNG")
 
-    ror_zip_file.add_to_zip_file_list("surface0.png")
-    ror_zip_file.add_to_zip_file_list("surface1.png")
+        ror_zip_file.add_to_zip_file_list("surface" + str(n) + ".png")
