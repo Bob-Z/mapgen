@@ -52,28 +52,30 @@ entity_complete = ""
 entity_complete_qty = 0
 entity_not_processed = ""
 entity_not_processed_qty = 0
+entity_used_by_relation = ""
+entity_used_by_relation_qty = 0
 
 
 def filter_ignored(modified_entity):
     for entity in modified_entity:
         if len(entity.tags) == 0:
-            entity.tags["empty"] = True
+            entity.tags["mapgen"] = "empty"
 
         for tag in ignored:
             if tag in entity.tags:
-                entity.tags["ignored"] = True
+                entity.tags["mapgen"] = "ignored_by_tags"
 
         for tag_value in ignored_tags_value:
             if tag_value[0] in entity.tags:
                 if entity.tags[tag_value[0]] == tag_value[1]:
-                    entity.tags["ignored"] = True
+                    entity.tags["mapgen"] = "ignored_by_tag_value"
 
         for tag in ignored_tags:
             if tag in entity.tags:
                 entity.tags.pop(tag)
 
         if len(entity.tags) == 0:
-            entity.tags["ignored"] = True
+            entity.tags["mapgen"] = "no_more_tag_not_ignored"
 
 
 def show_stat(name, original_entity, modified_entity):
@@ -88,8 +90,10 @@ def show_stat(name, original_entity, modified_entity):
     global entity_complete_qty
     global entity_ignored
     global entity_ignored_qty
+    global entity_used_by_relation
+    global entity_used_by_relation_qty
 
-    entity_total = len(modified_entity)
+    entity_total = len(original_entity)
     entity_empty = ""
     entity_empty_qty = 0
     entity_incomplete = ""
@@ -100,6 +104,8 @@ def show_stat(name, original_entity, modified_entity):
     entity_complete_qty = 0
     entity_not_processed = ""
     entity_not_processed_qty = 0
+    entity_used_by_relation = ""
+    entity_used_by_relation_qty = 0
 
     for original, modified in zip(original_entity, modified_entity):
         calculate_stats(original, modified)
@@ -118,18 +124,24 @@ def calculate_stats(original_entity, entity):
     global entity_complete_qty
     global entity_ignored
     global entity_ignored_qty
+    global entity_used_by_relation
+    global entity_used_by_relation_qty
 
     original_without_ignored_tags = original_entity.tags.copy()
     for tag in ignored_tags:
         if tag in original_without_ignored_tags:
             original_without_ignored_tags.pop(tag)
 
-    if "empty" in entity.tags:
-        entity_empty = entity_empty + "{0}\n".format(entity)
-        entity_empty_qty += 1
-    elif "ignored" in entity.tags:
-        entity_ignored = entity_ignored + "{0} {1}\n".format(original_entity.tags, entity)
-        entity_ignored_qty += 1
+    if "mapgen" in entity.tags:
+        if entity.tags["mapgen"] == "empty":
+            entity_empty = entity_empty + "{0}\n".format(entity)
+            entity_empty_qty += 1
+        elif entity.tags["mapgen"] == "ignored_by_tags" or entity.tags["mapgen"] == "ignored_by_tag_value" or entity.tags["mapgen"] == "no_more_tag_not_ignored":
+            entity_ignored = entity_ignored + "{0} {1}\n".format(original_entity.tags, entity)
+            entity_ignored_qty += 1
+        elif entity.tags["mapgen"] == "used_by_relation":
+            entity_used_by_relation = entity_used_by_relation + "{0} {1}\n".format(original_entity.tags, entity)
+            entity_used_by_relation_qty += 1
     elif len(entity.tags) == len(original_without_ignored_tags):
         entity_not_processed = entity_not_processed + "{0} {1}\n".format(original_entity.tags, entity)
         entity_not_processed_qty += 1
@@ -152,11 +164,15 @@ def print_stats(name):
         file.write(entity_not_processed)
     with open(config.data["log_path"] + name + "_complete.txt", "w") as file:
         file.write(entity_complete)
+    with open(config.data["log_path"] + name + "_used_by_relation.txt", "w") as file:
+        file.write(entity_used_by_relation)
+
 
     print("")
     print("Total ", name, " = ", entity_total)
     print("Empty ", name, "  = ", entity_empty_qty)
     print("Ignored ", name, "  = ", entity_ignored_qty)
     print("Complete ", name, "  = ", entity_complete_qty)
+    print("Used by relation ", name, "  = ", entity_used_by_relation_qty)
     print("Incomplete ", name, " = ", entity_incomplete_qty)
     print("Not processed ", name, " = ", entity_not_processed_qty)

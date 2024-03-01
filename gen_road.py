@@ -3,14 +3,60 @@ import config
 import ror_waypoint_file
 import helper
 import math
+import osm
+
+road_data = []
 
 
-def process(way):
-    if "level" in way.tags:
-        if way.tags["level"][0] == '-':  # Skip negative levels
-            return
+def process(entity, osm_data=None):
+    if osm_data is None:
+        process_way(entity)
+    else:
+        process_relation(entity, osm_data)
 
+
+def process_relation(relation, osm_data):
+    global road_data
     road_data = []
+
+    need_waypoint_generation = False
+
+    all_way_nodes = []
+    all_way_tags = {}
+
+    for member in relation.members:
+        way = osm.get_way_by_id(osm_data, member.ref)
+        if way is not None:
+            all_way_nodes = all_way_nodes + way.nodes
+            all_way_tags.update(way.tags)
+            way.tags.clear()
+            way.tags["mapgen"] = "used_by_relation"
+
+    need_waypoint_generation |= generate_road(all_way_nodes, all_way_tags)
+
+    if need_waypoint_generation:
+        ror_waypoint_file.add_waypoint(all_way_nodes, all_way_tags)
+    ror_tobj_file.write_road(road_data)
+
+
+def process_way(way):
+    global road_data
+    road_data = []
+
+    if generate_road_from_way(way) is True:
+        ror_waypoint_file.add_waypoint_from_way(way)
+    ror_tobj_file.write_road(road_data)
+
+
+# Return True if waypoints generation is needed
+def generate_road_from_way(way):
+    return generate_road(way.nodes, way.tags)
+
+
+def generate_road(nodes, tags):
+    if "level" in tags:
+        if tags["level"][0] == '-':  # Skip negative levels
+            return False
 
     # index 0 is the oldest point, index 1 the newest
     x_history = []
@@ -26,87 +72,94 @@ def process(way):
 
     bridge_factor = 0.0
 
+    need_waypoints = False
+
     found = False
 
-    if "highway" in way.tags:
+    if "highway" in tags:
         found = True
-        if (way.tags["highway"] == "footway" or
-                way.tags["highway"] == "pedestrian" or
-                way.tags["highway"] == "path"):
+        if (tags["highway"] == "footway" or
+                tags["highway"] == "pedestrian" or
+                tags["highway"] == "path"):
             road_width = 0.0
             road_height = 0.0
             border_width = config.data["footway_width"]
             border_height = config.data["footway_height"]
-            if "surface" in way.tags:
-                if way.tags["surface"] == "asphalt":
+            if "surface" in tags:
+                if tags["surface"] == "asphalt":
                     road_width = config.data["footway_width"]
                     road_height = config.data["road_height"]
                     border_width = 0.0
                     border_height = 0.0
-                    way.tags.pop("surface")
+                    tags.pop("surface")
 
-        if way.tags["highway"] == "raceway":
-            if "sport" in way.tags:
-                if way.tags["sport"] == "karting":
+        if tags["highway"] == "raceway":
+            need_waypoints = True
+            if "sport" in tags:
+                if tags["sport"] == "karting":
                     road_width = config.data["raceway_karting_width"]
+                    tags.pop("sport")
                 else:
                     road_width = config.data["raceway_width"]
-                if "surface" in way.tags:
-                    if way.tags["surface"] == "asphalt":
-                        way.tags.pop("surface")
-            ror_waypoint_file.add_waypoint(way)
+                if "surface" in tags:
+                    if tags["surface"] == "asphalt":
+                        tags.pop("surface")
 
-        if "bridge" in way.tags and way.tags["bridge"] == "yes":
+        if "bridge" in tags and tags["bridge"] == "yes":
             bridge_factor = 1.0
             road_type = "bridge"
-            way.tags.pop("bridge")
-        if "layer" in way.tags:
-            bridge_factor = float(way.tags["layer"])
-            way.tags.pop("layer")
+            tags.pop("bridge")
+        if "layer" in tags:
+            bridge_factor = float(tags["layer"])
+            tags.pop("layer")
 
-        way.tags.pop("highway")
+        if "surface" in tags:
+            if tags["surface"] == "asphalt":
+                tags.pop("surface")
 
-    if "sidewalk" in way.tags:
-        if way.tags["sidewalk"] == "both":
+        tags.pop("highway")
+
+    if "sidewalk" in tags:
+        if tags["sidewalk"] == "both":
             road_type = "both"
             border_width = config.data["sidewalk_width"]
             border_height = config.data["sidewalk_height"]
-        elif way.tags["sidewalk"] == "left":
+        elif tags["sidewalk"] == "left":
             road_type = "left"
             border_width = config.data["sidewalk_width"]
             border_height = config.data["sidewalk_height"]
-        elif way.tags["sidewalk"] == "right":
+        elif tags["sidewalk"] == "right":
             road_type = "right"
             border_width = config.data["sidewalk_width"]
             border_height = config.data["sidewalk_height"]
 
-        way.tags.pop("sidewalk")
+        tags.pop("sidewalk")
 
-    if "lanes" in way.tags:
-        road_width = int(way.tags["lanes"]) * config.data["lane_width"]
-        way.tags.pop("lanes")
+    if "lanes" in tags:
+        road_width = int(tags["lanes"]) * config.data["lane_width"]
+        tags.pop("lanes")
 
     # aeroways
-    if "aeroway" in way.tags:
-        if way.tags["aeroway"] == "runway":
+    if "aeroway" in tags:
+        if tags["aeroway"] == "runway":
             road_height = config.data["runway_height"]
             road_width = 60.0
             found = True
-            way.tags.pop("aeroway")
-        elif way.tags["aeroway"] == "taxiway":
+            tags.pop("aeroway")
+        elif tags["aeroway"] == "taxiway":
             road_height = config.data["taxiway_height"]
             road_width = 15.0
             found = True
-            way.tags.pop("aeroway")
-        if "width" in way.tags:
-            road_width = way.tags["width"]
-            way.tags.pop("width")
+            tags.pop("aeroway")
+        if "width" in tags:
+            road_width = tags["width"]
+            tags.pop("width")
 
     # Monorail
-    if "railway" in way.tags:
-        if way.tags["railway"] == "monorail":
-            if "bridge" in way.tags:
-                if way.tags["bridge"] == "viaduct":
+    if "railway" in tags:
+        if tags["railway"] == "monorail":
+            if "bridge" in tags:
+                if tags["bridge"] == "viaduct":
                     road_height = config.data["monorail_height"]
                     road_width = 0.90
                     border_width = 0.0
@@ -114,13 +167,13 @@ def process(way):
 
                     road_type = "monorail"
                     found = True
-                    way.tags.pop("bridge")
-                    way.tags.pop("railway")
+                    tags.pop("bridge")
+                    tags.pop("railway")
 
     if found is False:
-        return
+        return False
 
-    for node in way.nodes:
+    for node in nodes:
         x = helper.lon_to_x(node.lon)
         y = helper.lat_to_y(node.lat)
         z = config.data["ground_line"] + road_height
@@ -155,17 +208,17 @@ def process(way):
     # Last road, angle between previous point and last point
     angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
     z = config.data["ground_line"] + road_height
-    add_road(road_data, x_history[1], y_history[1], config.data["ground_line"], 0.0, 0.0, angle, road_width,
+    add_road(road_data, x_history[1], y_history[1], z, 0.0, 0.0, angle, road_width,
              border_width,
              border_height,
              road_type)
 
-    ror_tobj_file.write_road(road_data)
+    return need_waypoints
 
 
-def add_road(road_data, x, y, z, rx, ry, rz, road_width, border_width, border_height, road_type):
+def add_road(all_road_data, x, y, z, rx, ry, rz, road_width, border_width, border_height, road_type):
     # In tobj file rz is just after rx
-    road_data.append(str(x) + ", " + str(z) + ", " + str(y) + ", " + str(rx) + ", " + str(rz) + ", " + str(
+    all_road_data.append(str(x) + ", " + str(z) + ", " + str(y) + ", " + str(rx) + ", " + str(rz) + ", " + str(
         ry) + ", " + str(road_width) + ", " + str(border_width) + ", " + str(border_height) + ", " + road_type + "\n")
 
 

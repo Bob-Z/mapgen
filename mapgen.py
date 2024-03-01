@@ -24,7 +24,8 @@ if len(sys.argv) < 2 or len(sys.argv) > 4:
     print("\nUsage: " + sys.argv[0] + " <latitude, longitude> <map size> <map precision>")
     print("<latitude, longitude> coordinate of the map center")
     print("<map size> Map is always square. This must be a power of 2. Default to 512 meters")
-    print("<map precision> Map precision in meters. (size x precision) must be a power of 2. Can be less than 1.0, but not negative. Default to 1 meter")
+    print(
+        "<map precision> Map precision in meters. (size x precision) must be a power of 2. Can be less than 1.0, but not negative. Default to 1 meter")
     print("Eg: " + sys.argv[0] + " -15.408407657743856,28.280147286542533 256 0.5")
     print("Default map name is \"mapgen\". This can be modified in config.json file.")
     sys.exit(0)
@@ -40,7 +41,6 @@ if len(sys.argv) >= 4:
     if helper.is_power_of_2(gvar.map_precision) is False:
         print("Map precision must be a power of 2")
         sys.exit(0)
-
 
 center_coord = sys.argv[1].split(',')
 center_lat = float(center_coord[0])
@@ -80,14 +80,14 @@ ror_zip_file.write_default_file()
 
 osm.dump_result_to_file(osm_data)
 
-osm_tags.filter_ignored(osm_data.nodes)
-osm_tags.filter_ignored(osm_data.ways)
-osm_tags.filter_ignored(osm_data.relations)
-
 if config.data["generate_statistics"] is True:
     nodes_original = copy.deepcopy(osm_data.nodes)
     ways_original = copy.deepcopy(osm_data.ways)
     relations_original = copy.deepcopy(osm_data.relations)
+
+osm_tags.filter_ignored(osm_data.nodes)
+osm_tags.filter_ignored(osm_data.ways)
+osm_tags.filter_ignored(osm_data.relations)
 
 gen_sea.process(osm_data)
 
@@ -123,6 +123,9 @@ for rel in osm_data.relations:
         continue
     if gen_water.process(rel, osm_data):
         continue
+    if gen_road.process(rel, osm_data):
+        continue
+
 print("relations: ", rel_qty, "/", rel_total)
 
 print("Processing ways...")

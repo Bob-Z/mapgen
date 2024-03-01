@@ -7,11 +7,12 @@ import ror_zip_file
 all_ways = []
 
 
-def add_waypoint(way):
-    # with open(gvar.EXPORT_PATH + "/savegames/waypoints.json", "r") as json_file:
-    #    data = json.load(json_file)
+def add_waypoint_from_way(way):
+    all_ways.append([way.nodes, way.tags])
 
-    all_ways.append(way)
+
+def add_waypoint(nodes, tags):
+    all_ways.append([nodes, tags])
 
 
 def write():
@@ -29,15 +30,16 @@ def write():
 
         index = 0
         for way in all_ways:
-            if "name" in way.tags:
-                name = way.tags["name"]
-                way.tags.pop("name")
-            elif "name:en" in way.tags:
-                name = way.tags["name:en"]
-                way.tags.pop("name:en")
+            if "name" in way[1]:
+                name = way[1]["name"]
+                way[1].pop("name")
+            elif "name:en" in way[1]:
+                name = way[1]["name:en"]
+                way[1].pop("name:en")
             else:
-                name = "waypoints_" + str(index)
-                index += 1
+                name = ("waypoints")
+            name = name + " (" + str(index) + ")"
+            index += 1
 
             waypoint = {
                 "terrain": config.data["map_name"] + ".terrn2",
@@ -47,7 +49,7 @@ def write():
                     ]
             }
 
-            for node in way.nodes:
+            for node in way[0]:
                 x = helper.lon_to_x(node.lon)
                 y = helper.lat_to_y(node.lat)
                 waypoint["waypoints"].append([x, config.data["ground_line"], y])
