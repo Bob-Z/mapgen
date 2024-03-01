@@ -68,13 +68,17 @@ def generate_road(nodes, tags):
     road_height = config.data["road_height"]
     border_width = 0.0
     border_height = 0.0
-    road_type = "both"
+    road_type = None
 
     bridge_factor = 0.0
 
     need_waypoints = False
 
     found = False
+
+    if "lanes" in tags:
+        road_width = int(tags["lanes"]) * config.data["lane_width"]
+        tags.pop("lanes")
 
     if "highway" in tags:
         found = True
@@ -119,6 +123,11 @@ def generate_road(nodes, tags):
 
         tags.pop("highway")
 
+    if "disused:highway" in tags and tags["disused:highway"] == "raceway":
+        need_waypoints = True
+        road_width = config.data["raceway_width"]
+        tags.pop("disused:highway")
+
     if "sidewalk" in tags:
         if tags["sidewalk"] == "both":
             road_type = "both"
@@ -134,10 +143,6 @@ def generate_road(nodes, tags):
             border_height = config.data["sidewalk_height"]
 
         tags.pop("sidewalk")
-
-    if "lanes" in tags:
-        road_width = int(tags["lanes"]) * config.data["lane_width"]
-        tags.pop("lanes")
 
     # aeroways
     if "aeroway" in tags:
@@ -172,6 +177,12 @@ def generate_road(nodes, tags):
 
     if found is False:
         return False
+
+    if road_type is None:
+        if border_width == 0.0 or border_height == 0.0:
+            road_type = "flat"
+        else:
+            road_type = "both"
 
     for node in nodes:
         x = helper.lon_to_x(node.lon)

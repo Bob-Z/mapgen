@@ -26,7 +26,7 @@ def write():
             }
         ]
 
-        print(str(len(all_ways)) + " circuit branches")
+        print(str(len(all_ways)) + " circuits")
 
         index = 0
         for way in all_ways:
