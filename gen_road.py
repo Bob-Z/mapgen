@@ -1,6 +1,6 @@
 import ror_tobj_file
 import config
-import gvar
+import ror_waypoint_file
 import helper
 import math
 
@@ -24,6 +24,8 @@ def process(way):
     border_height = 0.0
     road_type = "both"
 
+    bridge_factor = 0.0
+
     found = False
 
     if "highway" in way.tags:
@@ -44,11 +46,23 @@ def process(way):
                     way.tags.pop("surface")
 
         if way.tags["highway"] == "raceway":
-            road_width = config.data["raceway_width"]
+            if "sport" in way.tags:
+                if way.tags["sport"] == "karting":
+                    road_width = config.data["raceway_karting_width"]
+                else:
+                    road_width = config.data["raceway_width"]
+                if "surface" in way.tags:
+                    if way.tags["surface"] == "asphalt":
+                        way.tags.pop("surface")
+            ror_waypoint_file.add_waypoint(way)
 
         if "bridge" in way.tags and way.tags["bridge"] == "yes":
+            bridge_factor = 1.0
             road_type = "bridge"
             way.tags.pop("bridge")
+        if "layer" in way.tags:
+            bridge_factor = float(way.tags["layer"])
+            way.tags.pop("layer")
 
         way.tags.pop("highway")
 
@@ -106,11 +120,10 @@ def process(way):
     if found is False:
         return
 
-    z = config.data["ground_line"] + road_height
-
     for node in way.nodes:
         x = helper.lon_to_x(node.lon)
         y = helper.lat_to_y(node.lat)
+        z = config.data["ground_line"] + road_height
 
         if len(x_history) == 0:
             x_history.append(x)
@@ -128,6 +141,7 @@ def process(way):
         else:
             # Angle for other road: direction between previous and next point
             angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
+            z += bridge_factor * config.data["bridge_height"]
             add_road(road_data, x_history[1], y_history[1], z, 0.0, 0.0, angle, road_width,
                      border_width,
                      border_height, road_type)
@@ -140,6 +154,7 @@ def process(way):
 
     # Last road, angle between previous point and last point
     angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
+    z = config.data["ground_line"] + road_height
     add_road(road_data, x_history[1], y_history[1], config.data["ground_line"], 0.0, 0.0, angle, road_width,
              border_width,
              border_height,

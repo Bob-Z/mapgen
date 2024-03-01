@@ -24,6 +24,7 @@
 
 "barrier_width": 0.3,
 "barrier_height": 1.0,
+"bridge_height": 2.0,
 "building_level_height": 2.5,
 "footway_width": 1.5,
 "footway_height": 0.1,
@@ -32,6 +33,7 @@
 "monorail_height": 10.0,
 "road_height": 0.05,
 "raceway_width": 12.0,
+"raceway_karting_width": 3.5,
 "runway_height": 0.12,
 "sidewalk_width": 1.5,
 "sidewalk_height": 0.15,
