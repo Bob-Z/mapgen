@@ -59,6 +59,10 @@ def build_coastline(way):
                 all_coastline.append(w.nodes)
                 w.tags.pop("natural")
 
+                if "place" in w.tags:
+                    if w.tags["place"] == "islet":
+                        w.tags.pop("place")
+
     if len(all_coastline) == 0:
         print("No sea")
         return
