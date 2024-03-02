@@ -115,7 +115,7 @@ def generate_road(nodes, tags):
             tags.pop("bridge")
         if "layer" in tags:
             try:
-                bridge_factor = float(tags["layer"])
+                bridge_factor = float(tags["layer"])-1.0
                 tags.pop("layer")
             except ValueError:
                 print("Cannot convert layer: " + tags["layer"])
