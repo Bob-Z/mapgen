@@ -101,6 +101,10 @@ for node in osm_data.nodes:
 
     if len(node.tags) == 0:
         continue
+
+    if osm_tags.is_entity_ignored(node):
+        continue
+
     gen_object.process(node)
 print("nodes: ", node_qty, "/", node_total)
 
@@ -113,6 +117,9 @@ for rel in osm_data.relations:
         print("relations: ", rel_qty, "/", rel_total, "\r", end="")
 
     if len(rel.tags) == 0:
+        continue
+
+    if osm_tags.is_entity_ignored(rel):
         continue
 
     if gen_building.process(rel, osm_data):
@@ -139,7 +146,7 @@ for way in osm_data.ways:
     if len(way.tags) == 0:
         continue
 
-    if "mapgen" in way.tags and way.tags["mapgen"] == "used_by_relation":
+    if osm_tags.is_entity_ignored(way):
         continue
 
     if gen_building.process(way):

@@ -23,15 +23,17 @@ ignored_tags = ["access",
                 "source",
                 ]
 
-ignored_tags_value = [
+ignored_entity_by_tag_value = [
     ["layer", "-1"],
+    ["layer", "-2"],
     ["level", "-1"],
+    ["level", "-2"],
     ["natural", "peninsula"],
     ["place", "sea"],
     ["railway", "razed"],
 ]
 
-ignored = [
+ignored_entity = [
     "admin_level",
     "boundary",
     "disused:admin_level",
@@ -56,26 +58,37 @@ entity_used_by_relation = ""
 entity_used_by_relation_qty = 0
 
 
+def is_entity_ignored(entity):
+    if "mapgen" in entity.tags and (entity.tags["mapgen"] == "ignored_entity_by_tags" or entity.tags[
+        "mapgen"] == "ignored_entity_by_tag_value" or entity.tags["mapgen"] == "ignored_entity_all_tags_filtered" or
+                                    entity.tags["mapgen"] == "used_by_relation"):
+        return True
+    return False
+
+
 def filter_ignored(modified_entity):
     for entity in modified_entity:
         if len(entity.tags) == 0:
             entity.tags["mapgen"] = "empty"
+            continue
 
-        for tag in ignored:
+        for tag in ignored_entity:
             if tag in entity.tags:
-                entity.tags["mapgen"] = "ignored_by_tags"
+                entity.tags["mapgen"] = "ignored_entity_by_tags"
+                continue
 
-        for tag_value in ignored_tags_value:
+        for tag_value in ignored_entity_by_tag_value:
             if tag_value[0] in entity.tags:
                 if entity.tags[tag_value[0]] == tag_value[1]:
-                    entity.tags["mapgen"] = "ignored_by_tag_value"
+                    entity.tags["mapgen"] = "ignored_entity_by_tag_value"
+                    continue
 
         for tag in ignored_tags:
             if tag in entity.tags:
                 entity.tags.pop(tag)
 
         if len(entity.tags) == 0:
-            entity.tags["mapgen"] = "no_more_tag_not_ignored"
+            entity.tags["mapgen"] = "ignored_entity_all_tags_filtered"
 
 
 def show_stat(name, original_entity, modified_entity):
@@ -136,7 +149,8 @@ def calculate_stats(original_entity, entity):
         if entity.tags["mapgen"] == "empty":
             entity_empty = entity_empty + "{0}\n".format(entity)
             entity_empty_qty += 1
-        elif entity.tags["mapgen"] == "ignored_by_tags" or entity.tags["mapgen"] == "ignored_by_tag_value" or entity.tags["mapgen"] == "no_more_tag_not_ignored":
+        elif entity.tags["mapgen"] == "ignored_entity_by_tags" or entity.tags[
+            "mapgen"] == "ignored_entity_by_tag_value" or entity.tags["mapgen"] == "ignored_entity_all_tags_filtered":
             entity_ignored = entity_ignored + "{0} {1}\n".format(original_entity.tags, entity)
             entity_ignored_qty += 1
         elif entity.tags["mapgen"] == "used_by_relation":
@@ -166,7 +180,6 @@ def print_stats(name):
         file.write(entity_complete)
     with open(config.data["log_path"] + name + "_used_by_relation.txt", "w") as file:
         file.write(entity_used_by_relation)
-
 
     print("")
     print("Total ", name, " = ", entity_total)
