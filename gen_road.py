@@ -30,22 +30,24 @@ def process_relation(relation, osm_data):
             all_way_nodes = all_way_nodes + way.nodes
             all_way_tags.update(way.tags)
 
-    if "name" in relation.tags:
-        all_way_tags.update({"name": relation.tags["name"]})
-        relation.tags.pop("name")
-    if "name:en" in relation.tags:
-        all_way_tags.update({"name:en": relation.tags["name:en"]})
-        relation.tags.pop("name:en")
+    if ("highway" in all_way_tags and all_way_tags["highway"] == "raceway") or (
+            "disused:highway" in all_way_tags and all_way_tags["disused:highway"] == "raceway"): # For Melbourne F1 circuit
+        if "name" in relation.tags:
+            all_way_tags.update({"name": relation.tags["name"]})
+            relation.tags.pop("name")
+        if "name:en" in relation.tags:
+            all_way_tags.update({"name:en": relation.tags["name:en"]})
+            relation.tags.pop("name:en")
 
-    road_generated |= generate_road(all_way_nodes, all_way_tags)
+        road_generated |= generate_road(all_way_nodes, all_way_tags)
 
-    if road_generated:
-        ror_waypoint_file.add_waypoint(all_way_nodes, all_way_tags)
+        if road_generated:
+            ror_waypoint_file.add_waypoint(all_way_nodes, all_way_tags)
 
-        for member in relation.members:
-            way = osm.get_way_by_id(osm_data, member.ref)
-            if way is not None:
-                way.tags["mapgen"] = "used_by_relation"
+            for member in relation.members:
+                way = osm.get_way_by_id(osm_data, member.ref)
+                if way is not None:
+                    way.tags["mapgen"] = "used_by_relation"
 
     ror_tobj_file.write_road(road_data)
 
@@ -126,7 +128,7 @@ def generate_road(nodes, tags):
             tags.pop("bridge")
         if "layer" in tags:
             try:
-                bridge_factor = float(tags["layer"])-1.0
+                bridge_factor = float(tags["layer"]) - 1.0
                 tags.pop("layer")
             except ValueError:
                 print("Cannot convert layer: " + tags["layer"])
