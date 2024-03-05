@@ -139,6 +139,9 @@ for way in osm_data.ways:
     if len(way.tags) == 0:
         continue
 
+    if "mapgen" in way.tags and way.tags["mapgen"] == "used_by_relation":
+        continue
+
     if gen_building.process(way):
         continue
     if gen_shelter.process(way):

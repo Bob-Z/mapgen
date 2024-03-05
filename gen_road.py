@@ -19,7 +19,7 @@ def process_relation(relation, osm_data):
     global road_data
     road_data = []
 
-    need_waypoint_generation = False
+    road_generated = False
 
     all_way_nodes = []
     all_way_tags = {}
@@ -29,13 +29,24 @@ def process_relation(relation, osm_data):
         if way is not None:
             all_way_nodes = all_way_nodes + way.nodes
             all_way_tags.update(way.tags)
-            way.tags.clear()
-            way.tags["mapgen"] = "used_by_relation"
 
-    need_waypoint_generation |= generate_road(all_way_nodes, all_way_tags)
+    if "name" in relation.tags:
+        all_way_tags.update({"name": relation.tags["name"]})
+        relation.tags.pop("name")
+    if "name:en" in relation.tags:
+        all_way_tags.update({"name:en": relation.tags["name:en"]})
+        relation.tags.pop("name:en")
 
-    if need_waypoint_generation:
+    road_generated |= generate_road(all_way_nodes, all_way_tags)
+
+    if road_generated:
         ror_waypoint_file.add_waypoint(all_way_nodes, all_way_tags)
+
+        for member in relation.members:
+            way = osm.get_way_by_id(osm_data, member.ref)
+            if way is not None:
+                way.tags["mapgen"] = "used_by_relation"
+
     ror_tobj_file.write_road(road_data)
 
 

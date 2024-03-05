@@ -30,12 +30,12 @@ def write():
 
         index = 0
         for way in all_ways:
-            if "name" in way[1]:
-                name = way[1]["name"]
-                way[1].pop("name")
-            elif "name:en" in way[1]:
+            if "name:en" in way[1]:
                 name = way[1]["name:en"]
                 way[1].pop("name:en")
+            elif "name" in way[1]:
+                name = way[1]["name"]
+                way[1].pop("name")
             else:
                 name = ("waypoints")
             name = name + " (" + str(index) + ")"
