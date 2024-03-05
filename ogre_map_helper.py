@@ -10,13 +10,18 @@ def draw_entity(draw, osm_data, entity, outer_height, inner_height=None):
 
     if hasattr(entity, "members"):
         for member in entity.members:
-            way = osm.get_way_by_id(osm_data, member.ref)
-            if way is not None:
-                coord = helper.node_to_map_coord(way.nodes)
-                if member.role == "outer":
+            if member.role == "outer":
+                way = osm.get_way_by_id(osm_data, member.ref)
+                if way is not None:
+                    coord = helper.node_to_map_coord(way.nodes)
                     draw.polygon(coord, fill=outer_color, outline=None, width=1)
-                elif member.role == "inner":
+        for member in entity.members:
+            if member.role == "inner":
+                way = osm.get_way_by_id(osm_data, member.ref)
+                if way is not None:
+                    coord = helper.node_to_map_coord(way.nodes)
                     draw.polygon(coord, fill=inner_color, outline=None, width=1)
+
     else:
         coord = helper.node_to_map_coord(entity.nodes)
         draw.polygon(coord, fill=outer_color, outline=None, width=1)

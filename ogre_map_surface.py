@@ -47,13 +47,18 @@ def draw_entity(surf_index, osm_data, entity, color):
     global draw
     if hasattr(entity, "members"):
         for member in entity.members:
-            way = osm.get_way_by_id(osm_data, member.ref)
-            if way is not None:
-                coord = helper.node_to_map_coord(way.nodes)
-                if member.role == "outer":
+            if member.role == "outer":
+                way = osm.get_way_by_id(osm_data, member.ref)
+                if way is not None:
+                    coord = helper.node_to_map_coord(way.nodes)
                     draw[surf_index].polygon(coord, fill=color, outline=None, width=1)
-                elif member.role == "inner":
+        for member in entity.members:
+            if member.role == "inner":
+                way = osm.get_way_by_id(osm_data, member.ref)
+                if way is not None:
+                    coord = helper.node_to_map_coord(way.nodes)
                     draw[surf_index].polygon(coord, fill=(0, 0, 0), outline=None, width=1)
+
     else:
         coord = helper.node_to_map_coord(entity.nodes)
         draw[surf_index].polygon(coord, fill=color, outline=None, width=1)
