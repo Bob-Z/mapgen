@@ -16,6 +16,9 @@ def create_material(tex_name, tex_width, tex_length, dest_width, dest_length):
     global texture_qty
     global material_str
 
+    if dest_width == 0.0 or dest_length == 0.0:
+        print("Warning create_material invalid destination dimension: width=", dest_width, ",length=", dest_length)
+        return config.data["wall_texture"]
     name = "mapgen_generated_" + str(texture_qty)
     material_str += "material " + name + "\n"
     material_str += "{\n"
