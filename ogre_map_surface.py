@@ -40,7 +40,9 @@ def draw_grass_entity(osm_data, entity):
 
 
 def draw_gravel_entity(osm_data, entity):
-    draw_entity(4, osm_data, entity, (255, 0, 0))
+    # RoR currently ignore the last blendmap when shadows are activated. So we fall back to another surface (4 -> 2)
+    #draw_entity(4, osm_data, entity, (255, 0, 0))
+    draw_entity(2, osm_data, entity, (255, 0, 0))
 
 
 def draw_entity(surf_index, osm_data, entity, color):
