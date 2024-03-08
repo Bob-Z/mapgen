@@ -171,6 +171,7 @@ ogre_material.create_file()
 ogre_map_height.create_file()
 ogre_map_surface.create_file()
 
+gen_road.write_all_roads()
 ror_waypoint_file.write()
 
 ror_zip_file.create_zip_file()
