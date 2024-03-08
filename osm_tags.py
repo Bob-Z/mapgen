@@ -31,6 +31,7 @@ ignored_entity_by_tag_value = [
     ["natural", "peninsula"],
     ["place", "sea"],
     ["railway", "razed"],
+    ["type", "associatedStreet"],
 ]
 
 ignored_entity = [
