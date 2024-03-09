@@ -52,7 +52,7 @@ def build_from_relation(osm_data, rel):
     for member in rel.members:
         way = osm.get_way_by_id(osm_data, member.ref)
         if way is not None:
-            if member.role == "outer":
+            if member.role == "outer" or member.role == "outline" or member.role == "part":
                 build_from_way(way, height, min_height)
             # FIXME: How to manager inner ?
             # elif member.role == "inner":
