@@ -21,7 +21,6 @@ def process_relation(relation, osm_data):
         way = osm.get_way_by_id(osm_data, member.ref)
         if way is not None:
             if "type" in relation.tags and relation.tags["type"] == "circuit":
-                circuit_name = None
                 if "name:en" in relation.tags:
                     circuit_name = relation.tags["name:en"]
                 elif "name" in relation.tags:
@@ -31,40 +30,16 @@ def process_relation(relation, osm_data):
                     circuit_name = "circuit " + str(index)
                     index += 1
 
-                # Add relation name to way
-                old_name = None
-                if "name" in way.tags:
-                    old_name = way.tags["name"]
+                old_tag = way.tags
                 way.tags["name"] = circuit_name
-
-                old_name_en = None
-                if "name:en" in way.tags:
-                    old_name = way.tags["name:en"]
                 way.tags["name:en"] = circuit_name
-
-                old_highway = None
-                if "highway" in way.tags:
-                    old_highway = way.tags["highway"]
                 way.tags["highway"] = "raceway"
 
                 if append_road(way) is True:
                     way.tags["mapgen"] = "used_by_relation"
                     relation.tags["mapgen"] = "used_by_relation"
 
-                if old_name is None:
-                    way.tags.pop("name")
-                else:
-                    way.tags["name"] = old_name
-
-                if old_name_en is None:
-                    way.tags.pop("name:en")
-                else:
-                    way.tags["name:en"] = old_name_en
-
-                if old_highway is None and "highway" in way.tags:
-                    way.tags.pop("highway")
-                else:
-                    way.tags["highway"] = old_highway
+                way.tags = old_tag
 
 
 def process_way(way):
