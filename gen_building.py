@@ -19,6 +19,9 @@ else:
 
 
 def process(entity, osm_data=None):
+    if "mapgen" in entity.tags and entity.tags["mapgen"] == "ignored_entity_all_tags_filtered":
+        return False
+
     for tag_value in build_tag_value:
         if tag_value[0] in entity.tags:
             if entity.tags[tag_value[0]] == tag_value[1]:

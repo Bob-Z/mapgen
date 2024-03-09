@@ -157,7 +157,6 @@ for way in osm_data.ways:
         continue
     if gen_water.process(way):
         continue
-
     if gen_barrier.process(way):
         continue
     if gen_road.process(way):

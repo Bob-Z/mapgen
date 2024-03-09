@@ -6,6 +6,7 @@ import math
 import osm
 
 all_road_data = []
+index = 1
 
 
 def process(entity, osm_data=None):
@@ -16,52 +17,86 @@ def process(entity, osm_data=None):
 
 
 def process_relation(relation, osm_data):
-    all_way_nodes = []
-    all_way_tags = {}
-
     for member in relation.members:
         way = osm.get_way_by_id(osm_data, member.ref)
         if way is not None:
-            all_way_nodes = all_way_nodes + way.nodes
-            all_way_tags.update(way.tags)
+            if "type" in relation.tags and relation.tags["type"] == "circuit":
+                circuit_name = None
+                if "name:en" in relation.tags:
+                    circuit_name = relation.tags["name:en"]
+                elif "name" in relation.tags:
+                    circuit_name = relation.tags["name"]
+                else:
+                    global index
+                    circuit_name = "circuit " + str(index)
+                    index += 1
 
-    all_way_tags.update(relation.tags)
+                # Add relation name to way
+                old_name = None
+                if "name" in way.tags:
+                    old_name = way.tags["name"]
+                way.tags["name"] = circuit_name
 
-    if append_road(all_way_tags, all_way_nodes) is True:
-        for member in relation.members:
-            way = osm.get_way_by_id(osm_data, member.ref)
-            if way is not None:
-                way.tags["mapgen"] = "used_by_relation"
+                old_name_en = None
+                if "name:en" in way.tags:
+                    old_name = way.tags["name:en"]
+                way.tags["name:en"] = circuit_name
+
+                old_highway = None
+                if "highway" in way.tags:
+                    old_highway = way.tags["highway"]
+                way.tags["highway"] = "raceway"
+
+                if append_road(way) is True:
+                    way.tags["mapgen"] = "used_by_relation"
+                    relation.tags["mapgen"] = "used_by_relation"
+
+                if old_name is None:
+                    way.tags.pop("name")
+                else:
+                    way.tags["name"] = old_name
+
+                if old_name_en is None:
+                    way.tags.pop("name:en")
+                else:
+                    way.tags["name:en"] = old_name_en
+
+                if old_highway is None and "highway" in way.tags:
+                    way.tags.pop("highway")
+                else:
+                    way.tags["highway"] = old_highway
 
 
 def process_way(way):
-    append_road(way.tags, way.nodes)
+    if "mapgen" in way.tags and way.tags["mapgen"] == "used_by_relation":
+        return
+    append_road(way)
 
 
 # Return True if a road has been appended
-def append_road(tags, nodes):
-    road_config = generate_road_config(tags)
+def append_road(way):
+    road_config = generate_road_config(way.tags)
     if road_config is None:
         return False
     else:
         name = ""
-        if "name:en" in tags:
-            name = tags["name:en"]
-        elif "name" in tags:
-            name = tags["name"]
+        if "name:en" in way.tags:
+            name = way.tags["name:en"]
+        elif "name" in way.tags:
+            name = way.tags["name"]
 
         if name != "":
             # append roads with the same name
             already_exist = False
             for my_road_data in all_road_data:
                 if my_road_data["name"] == name:
-                    my_road_data["nodes"].append(nodes)
+                    my_road_data["nodes"].append(way.nodes)
                     already_exist = True
                     break
             if already_exist is False:
-                all_road_data.append({"name": name, "road_config": road_config, "tags": tags, "nodes": [nodes]})
+                all_road_data.append({"name": name, "road_config": road_config, "tags": way.tags, "nodes": [way.nodes]})
         else:
-            all_road_data.append({"name": name, "road_config": road_config, "tags": tags, "nodes": [nodes]})
+            all_road_data.append({"name": name, "road_config": road_config, "tags": way.tags, "nodes": [way.nodes]})
 
         return True
 
@@ -150,7 +185,7 @@ def generate_road_config(tags):
 
         found = True
 
-    #if "sidewalk" in tags:
+    # if "sidewalk" in tags:
     #    if tags["sidewalk"] == "both":
     #        road_config["road_type"] = "both"
     #        road_config["border_width"] = config.data["sidewalk_width"]
@@ -338,6 +373,6 @@ def write_all_roads():
         road_data = generate_road_from_config(my_road_data["road_config"], ready_nodes)
 
         if my_road_data["road_config"]["need_waypoints"]:
-            ror_waypoint_file.add_waypoint(ready_nodes, my_road_data["tags"])
+            ror_waypoint_file.add_waypoint(ready_nodes, my_road_data["name"])
 
         ror_tobj_file.write_road(road_data)

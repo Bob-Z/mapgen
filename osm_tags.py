@@ -16,7 +16,6 @@ ignored_tags = ["access",
                 "description:fr",
                 "fixme",
                 "intermittent",
-                "name",
                 "old_name",
                 "old_ref",
                 "ref",
@@ -60,9 +59,10 @@ entity_used_by_relation_qty = 0
 
 
 def is_entity_ignored(entity):
-    if "mapgen" in entity.tags and (entity.tags["mapgen"] == "ignored_entity_by_tags" or entity.tags[
-        "mapgen"] == "ignored_entity_by_tag_value" or entity.tags["mapgen"] == "ignored_entity_all_tags_filtered" or
-                                    entity.tags["mapgen"] == "used_by_relation"):
+    if ("mapgen" in entity.tags and
+            (entity.tags["mapgen"] == "ignored_entity_by_tags" or
+             entity.tags["mapgen"] == "ignored_entity_by_tag_value" or
+             entity.tags["mapgen"] == "ignored_entity_all_tags_filtered")):
         return True
     return False
 

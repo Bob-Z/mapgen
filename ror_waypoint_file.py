@@ -2,21 +2,16 @@ import json
 import config
 import helper
 import gvar
-import ror_zip_file
 
-all_ways = []
-
-
-def add_waypoint_from_way(way):
-    all_ways.append([way.nodes, way.tags])
+all_roads = []
 
 
-def add_waypoint(nodes, tags):
-    all_ways.append([nodes, tags])
+def add_waypoint(nodes, name):
+    all_roads.append([nodes, name])
 
 
 def write():
-    if len(all_ways) > 0:
+    if len(all_roads) > 0:
         data = [
             {
                 "terrains":
@@ -26,17 +21,12 @@ def write():
             }
         ]
 
-        print(str(len(all_ways)) + " circuits")
+        print(str(len(all_roads)) + " waypoints circuits")
 
         index = 0
-        for way in all_ways:
-            if "name:en" in way[1]:
-                name = way[1]["name:en"]
-                way[1].pop("name:en")
-            elif "name" in way[1]:
-                name = way[1]["name"]
-                way[1].pop("name")
-            else:
+        for road in all_roads:
+            name = road[1]
+            if name is None or name == "":
                 name = ("waypoints")
             name = name + " (" + str(index) + ")"
             index += 1
@@ -49,7 +39,7 @@ def write():
                     ]
             }
 
-            for node in way[0]:
+            for node in road[0]:
                 x = helper.lon_to_x(node.lon)
                 y = helper.lat_to_y(node.lat)
                 waypoint["waypoints"].append([x, config.data["ground_line"], y])
