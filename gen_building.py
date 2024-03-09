@@ -25,11 +25,6 @@ negative_tag_value = [
     ["landuse", None],
 ]
 
-if config.data["hide_wiki"] is True:
-    negative_tag = ["wikipedia", "wikidata"]
-else:
-    negative_tag = []
-
 
 def process(entity, osm_data=None, pass_index=0):
     for tag_value in build_tag_value[pass_index]:
@@ -113,10 +108,6 @@ def is_allowed(entity):
                     return False
             else:
                 return None
-
-    for tag in negative_tag:
-        if tag in entity.tags:
-            return False
 
     if "level" in entity.tags:
         if entity.tags["level"][0] == '-':  # Skip negative levels
