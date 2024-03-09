@@ -1,5 +1,6 @@
 import object_3d
 import config
+import ogre_material
 import osm
 
 build_tag_value = [
@@ -79,9 +80,24 @@ def build_from_way(way, height=None, min_height=None):
     if calc_min_height is not None:
         min_height = calc_min_height
 
+    wall_texture = None
+    roof_texture = None
+
+    if "colour" in way.tags:
+        wall_texture = ogre_material.create_material_color(way.tags["colour"])
+    if "building:colour" in way.tags:
+        wall_texture = ogre_material.create_material_color(way.tags["building:colour"])
+    if "roof:colour" in way.tags:
+        roof_texture = ogre_material.create_material_color(way.tags["roof:colour"])
+
+    if wall_texture is None:
+        wall_texture = config.data["wall_texture"]
+    if roof_texture is None:
+        roof_texture = config.data["roof_texture"]
+
     object_3d.create_all_object_file(way.nodes, height, z=min_height,
-                                     wall_texture=config.data["wall_texture"],
-                                     roof_texture=config.data["roof_texture"],
+                                     wall_texture=wall_texture,
+                                     roof_texture=roof_texture,
                                      is_barrier=is_barrier)
 
 
