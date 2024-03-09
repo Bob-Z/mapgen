@@ -114,7 +114,7 @@ rel_qty = 0
 for rel in osm_data.relations:
     rel_qty += 1
     if rel_qty % 10 == 0:
-        print("relations: ", rel_qty, "/", rel_total, "\r", end="")
+        print("first pass relations: ", rel_qty, "/", rel_total, "\r", end="")
 
     if len(rel.tags) == 0:
         continue
@@ -122,7 +122,7 @@ for rel in osm_data.relations:
     if osm_tags.is_entity_ignored(rel):
         continue
 
-    if gen_building.process(rel, osm_data):
+    if gen_building.process(rel, osm_data, pass_index=0):
         continue
     if gen_shelter.process(rel, osm_data):
         continue
@@ -133,15 +133,33 @@ for rel in osm_data.relations:
     if gen_road.process(rel, osm_data):
         continue
 
+# Second pass
+rel_total = len(osm_data.relations)
+rel_qty = 0
+for rel in osm_data.relations:
+    rel_qty += 1
+    if rel_qty % 10 == 0:
+        print("second pass relations: ", rel_qty, "/", rel_total, "\r", end="")
+
+    if len(rel.tags) == 0:
+        continue
+
+    if osm_tags.is_entity_ignored(rel):
+        continue
+
+    if gen_building.process(rel, osm_data, pass_index=1):
+        continue
+
 print("relations: ", rel_qty, "/", rel_total)
 
 print("Processing ways...")
+# First pass
 way_total = len(osm_data.ways)
 way_qty = 0
 for way in osm_data.ways:
     way_qty += 1
     if way_qty % 10 == 0:
-        print("ways: ", way_qty, "/", way_total, "\r", end="")
+        print("first pass ways: ", way_qty, "/", way_total, "\r", end="")
 
     if len(way.tags) == 0:
         continue
@@ -149,7 +167,7 @@ for way in osm_data.ways:
     if osm_tags.is_entity_ignored(way):
         continue
 
-    if gen_building.process(way):
+    if gen_building.process(way, pass_index=0):
         continue
     if gen_shelter.process(way):
         continue
@@ -161,6 +179,24 @@ for way in osm_data.ways:
         continue
     if gen_road.process(way):
         continue
+
+# second pass
+way_total = len(osm_data.ways)
+way_qty = 0
+for way in osm_data.ways:
+    way_qty += 1
+    if way_qty % 10 == 0:
+        print("second pass ways: ", way_qty, "/", way_total, "\r", end="")
+
+    if len(way.tags) == 0:
+        continue
+
+    if osm_tags.is_entity_ignored(way):
+        continue
+
+    if gen_building.process(way, pass_index=1):
+        continue
+
 print("ways: ", way_qty, "/", way_total)
 
 ror_zip_file.add_to_zip_file_list(config.data["map_name"] + ".tobj")

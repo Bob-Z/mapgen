@@ -4,47 +4,45 @@ import ogre_material
 import osm
 
 build_tag_value = [
-    ["type", "building"],
-    ['man_made', 'street_cabinet'],
-    ['man_made', 'reservoir_covered'],
-    ['man_made', 'pumping_station'],
-    ['man_made', 'wastewater_plant']
+    # first pass
+    [
+        ["building:part", "yes"],
+    ],
+    # second pass
+    [
+        ["building", None],
+        ["type", "building"],
+        ['man_made', 'street_cabinet'],
+        ['man_made', 'reservoir_covered'],
+        ['man_made', 'pumping_station'],
+        ['man_made', 'wastewater_plant']
+    ]
 ]
 
-build_tag = ["building:part", "building"]
-negative_tag_value = [["amenity", "shelter"], ["building", "roof"]]
+negative_tag_value = [
+    ["amenity", "shelter"],
+    ["building", "roof"],
+    ["landuse", None],
+]
+
 if config.data["hide_wiki"] is True:
     negative_tag = ["wikipedia", "wikidata"]
 else:
     negative_tag = []
 
 
-def process(entity, osm_data=None):
-    if "mapgen" in entity.tags and entity.tags["mapgen"] == "ignored_entity_all_tags_filtered":
-        return False
-
-    for tag_value in build_tag_value:
+def process(entity, osm_data=None, pass_index=0):
+    for tag_value in build_tag_value[pass_index]:
         if tag_value[0] in entity.tags:
-            if entity.tags[tag_value[0]] == tag_value[1]:
-                if is_allowed(entity):
-                    if osm_data is None:
-                        build_from_way(entity)
-                    else:
-                        build_from_relation(osm_data, entity)
-                    entity.tags.pop(tag_value[0])
-                    if "type" in entity.tags:
-                        if entity.tags["type"] == "multipolygon":
-                            entity.tags.pop("type")
-                    return True
-
-    for tag in build_tag:
-        if tag in entity.tags:
+            if tag_value[1] is not None:
+                if entity.tags[tag_value[0]] != tag_value[1]:
+                    continue
             if is_allowed(entity):
                 if osm_data is None:
                     build_from_way(entity)
                 else:
                     build_from_relation(osm_data, entity)
-                entity.tags.pop(tag)
+                entity.tags.pop(tag_value[0])
                 if "type" in entity.tags:
                     if entity.tags["type"] == "multipolygon":
                         entity.tags.pop("type")
@@ -68,6 +66,9 @@ def build_from_relation(osm_data, rel):
 
 
 def build_from_way(way, height=None, min_height=None):
+    if "mapgen" in way.tags and way.tags["mapgen"] == "used_by_relation":
+        return
+
     is_barrier = False
     if len(way.nodes) < 3:
         is_barrier = True
@@ -85,10 +86,13 @@ def build_from_way(way, height=None, min_height=None):
 
     if "colour" in way.tags:
         wall_texture = ogre_material.create_material_color(way.tags["colour"])
+        way.tags.pop("colour")
     if "building:colour" in way.tags:
         wall_texture = ogre_material.create_material_color(way.tags["building:colour"])
+        way.tags.pop("building:colour")
     if "roof:colour" in way.tags:
         roof_texture = ogre_material.create_material_color(way.tags["roof:colour"])
+        way.tags.pop("roof:colour")
 
     if wall_texture is None:
         wall_texture = config.data["wall_texture"]
@@ -104,8 +108,11 @@ def build_from_way(way, height=None, min_height=None):
 def is_allowed(entity):
     for tag_value in negative_tag_value:
         if tag_value[0] in entity.tags:
-            if entity.tags[tag_value[0]] == tag_value[1]:
-                return False
+            if tag_value[1] is not None:
+                if entity.tags[tag_value[0]] == tag_value[1]:
+                    return False
+            else:
+                return None
 
     for tag in negative_tag:
         if tag in entity.tags:

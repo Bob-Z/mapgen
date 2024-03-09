@@ -1,8 +1,6 @@
 {
 "generate_statistics": false,
 
-"hide_wiki": false,
-
 "map_name": "mapgen",
 "work_path": "./work/",
 "log_path": "./log/",
@@ -24,7 +22,7 @@
 
 "barrier_width": 0.3,
 "barrier_height": 1.0,
-"bridge_height": 2.0,
+"bridge_height": 4.0,
 "building_level_height": 2.5,
 "footway_width": 1.5,
 "footway_height": 0.1,

@@ -1,26 +1,27 @@
 import config
 
 # https://wiki.openstreetmap.org/wiki/Main_Page
-ignored_tags = ["access",
-                "addr:city",
-                "addr:hamlet",
-                "addr:housenumber",
-                "addr:postcode",
-                "addr:state",
-                "addr:street",
-                "check_date",
-                "check_date:shelter",
-                "description",
-                "description:en",
-                "description:de",
-                "description:fr",
-                "fixme",
-                "intermittent",
-                "old_name",
-                "old_ref",
-                "ref",
-                "source",
-                ]
+ignored_tags = [
+    "access",
+    "addr:city",
+    "addr:hamlet",
+    "addr:housenumber",
+    "addr:postcode",
+    "addr:state",
+    "addr:street",
+    "check_date",
+    "check_date:shelter",
+    "description",
+    "description:de",
+    "description:en",
+    "description:fr",
+    "fixme",
+    "intermittent",
+    "old_name",
+    "old_ref",
+    "ref",
+    "source",
+]
 
 ignored_entity_by_tag_value = [
     ["layer", "-1"],
@@ -41,6 +42,7 @@ ignored_entity = [
     "disused:highway",
     "disused:route",
     "indoor",
+    "note:building:part",  # For London Eye, Big Ben...
 ]
 
 entity_total = 0
