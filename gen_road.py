@@ -35,7 +35,7 @@ def process_relation(relation, osm_data):
                 way.tags["name:en"] = circuit_name
                 way.tags["highway"] = "raceway"
 
-                if append_road(way) is True:
+                if append_road(way, link_road=True) is True:
                     way.tags["mapgen"] = "used_by_relation"
                     relation.tags["mapgen"] = "used_by_relation"
 
@@ -49,7 +49,7 @@ def process_way(way):
 
 
 # Return True if a road has been appended
-def append_road(way):
+def append_road(way, link_road=False):
     road_config = generate_road_config(way.tags)
     if road_config is None:
         return False
@@ -60,7 +60,7 @@ def append_road(way):
         elif "name" in way.tags:
             name = way.tags["name"]
 
-        if name != "":
+        if (link_road is True or road_config["need_waypoints"] is True) and name != "":
             # append roads with the same name
             already_exist = False
             for my_road_data in all_road_data:
