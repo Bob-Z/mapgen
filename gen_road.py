@@ -21,25 +21,26 @@ def process_relation(relation, osm_data):
         way = osm.get_way_by_id(osm_data, member.ref)
         if way is not None:
             if "type" in relation.tags and relation.tags["type"] == "circuit":
-                if "name:en" in relation.tags:
-                    circuit_name = relation.tags["name:en"]
-                elif "name" in relation.tags:
-                    circuit_name = relation.tags["name"]
-                else:
-                    global index
-                    circuit_name = "circuit " + str(index)
-                    index += 1
+                if member.role != "pit_lane":
+                    if "name:en" in relation.tags:
+                        circuit_name = relation.tags["name:en"]
+                    elif "name" in relation.tags:
+                        circuit_name = relation.tags["name"]
+                    else:
+                        global index
+                        circuit_name = "circuit " + str(index)
+                        index += 1
 
-                old_tag = way.tags
-                way.tags["name"] = circuit_name
-                way.tags["name:en"] = circuit_name
-                way.tags["highway"] = "raceway"
+                    old_tag = way.tags
+                    way.tags["name"] = circuit_name
+                    way.tags["name:en"] = circuit_name
+                    way.tags["highway"] = "raceway"
 
-                if append_road(way, link_road=True) is True:
-                    way.tags["mapgen"] = "used_by_relation"
-                    relation.tags["mapgen"] = "used_by_relation"
+                    if append_road(way, link_road=True) is True:
+                        way.tags["mapgen"] = "used_by_relation"
+                        relation.tags["mapgen"] = "used_by_relation"
 
-                way.tags = old_tag
+                    way.tags = old_tag
 
 
 def process_way(way):
@@ -123,15 +124,14 @@ def generate_road_config(tags):
 
         if tags["highway"] == "raceway":
             road_config["need_waypoints"] = True
+            road_config["road_width"] = config.data["raceway_width"]
             if "sport" in tags:
                 if tags["sport"] == "karting":
                     road_config["road_width"] = config.data["raceway_karting_width"]
                     tags.pop("sport")
-                else:
-                    road_config["road_width"] = config.data["raceway_width"]
-                if "surface" in tags:
-                    if tags["surface"] == "asphalt":
-                        tags.pop("surface")
+            if "surface" in tags:
+                if tags["surface"] == "asphalt":
+                    tags.pop("surface")
 
         if "bridge" in tags and tags["bridge"] == "yes":
             road_config["bridge_factor"] = 1.0
