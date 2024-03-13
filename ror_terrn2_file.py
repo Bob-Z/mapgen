@@ -22,4 +22,11 @@ GUID = 0\n\
 terrain = mapgen\n\
 [Objects]\n" +
                           config.data["map_name"] + ".tobj=\n" +
-                          config.data["map_name"] + "_vegetation.tobj=")
+                          config.data["map_name"] + "_vegetation.tobj=\n")
+
+
+def add_waypoints():
+    with open(config.data["work_path"] + config.data["map_name"] + ".terrn2", "a") as terrn2_file:
+        terrn2_file.write("\
+[AI Presets]\n\
+waypoints.json=\n")

@@ -1,7 +1,8 @@
 import json
 import config
 import helper
-import gvar
+import ror_zip_file
+import ror_terrn2_file
 
 all_roads = []
 
@@ -46,5 +47,8 @@ def write():
 
             data.append(waypoint)
 
-        with open(gvar.EXPORT_PATH + "/savegames/waypoints.json", "w", encoding='utf8') as json_file:
+        with open(config.data["work_path"] + "waypoints.json", "w") as json_file:
             json.dump(data, json_file, ensure_ascii=False)
+
+        ror_terrn2_file.add_waypoints()
+        ror_zip_file.add_to_zip_file_list("waypoints.json")

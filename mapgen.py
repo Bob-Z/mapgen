@@ -19,6 +19,7 @@ import osm_tags
 import copy
 import ogre_map_height
 import ogre_map_surface
+import ror_terrn2_file
 
 if len(sys.argv) < 2 or len(sys.argv) > 4:
     print("\nUsage: " + sys.argv[0] + " <latitude, longitude> <map size> <map precision>")
@@ -76,7 +77,6 @@ print("Export path: ", gvar.EXPORT_PATH)
 osm_data = osm.get_data()
 
 ror_zip_file.create_default_file()
-ror_zip_file.write_default_file()
 
 osm.dump_result_to_file(osm_data)
 
@@ -199,6 +199,8 @@ for way in osm_data.ways:
 
 print("ways: ", way_qty, "/", way_total)
 
+ror_terrn2_file.create_file()
+
 ror_zip_file.add_to_zip_file_list(config.data["map_name"] + ".tobj")
 ror_zip_file.add_to_zip_file_list(config.data["map_name"] + "_vegetation.tobj")
 
@@ -209,6 +211,7 @@ ogre_map_surface.create_file()
 gen_road.write_all_roads()
 ror_waypoint_file.write()
 
+ror_zip_file.write_default_file()
 ror_zip_file.create_zip_file()
 
 if config.data["generate_statistics"] is True:
