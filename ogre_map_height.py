@@ -38,9 +38,10 @@ def set_map_height(height):
 
 
 def draw_entity(osm_data, entity, outer_height, inner_height=None, draw_object=None):
+    global draw
     if draw_object is None:
         draw_object = draw
-    ogre_map_helper.draw_entity(draw_object, osm_data, entity, outer_height, inner_height)
+    ogre_map_helper.draw_entity(draw_object, osm_data, entity, outer_height=outer_height, inner_height=inner_height)
 
 
 def draw_entity_unblurred(osm_data, entity, outer_height, inner_height=None):

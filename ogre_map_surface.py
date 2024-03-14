@@ -4,6 +4,7 @@ import PIL.ImageFilter
 import config
 import ror_zip_file
 import ogre_map_height
+import ogre_map_helper
 import osm
 import helper
 import gvar
@@ -41,29 +42,12 @@ def draw_grass_entity(osm_data, entity):
 
 def draw_gravel_entity(osm_data, entity):
     # RoR currently ignore the last blendmap when shadows are activated. So we fall back to another surface (4 -> 2)
-    #draw_entity(4, osm_data, entity, (255, 0, 0))
+    # draw_entity(4, osm_data, entity, (255, 0, 0))
     draw_entity(2, osm_data, entity, (255, 0, 0))
 
 
 def draw_entity(surf_index, osm_data, entity, color):
-    global draw
-    if hasattr(entity, "members"):
-        for member in entity.members:
-            if member.role == "outer":
-                way = osm.get_way_by_id(osm_data, member.ref)
-                if way is not None:
-                    coord = helper.node_to_map_coord(way.nodes)
-                    draw[surf_index].polygon(coord, fill=color, outline=None, width=1)
-        for member in entity.members:
-            if member.role == "inner":
-                way = osm.get_way_by_id(osm_data, member.ref)
-                if way is not None:
-                    coord = helper.node_to_map_coord(way.nodes)
-                    draw[surf_index].polygon(coord, fill=(0, 0, 0), outline=None, width=1)
-
-    else:
-        coord = helper.node_to_map_coord(entity.nodes)
-        draw[surf_index].polygon(coord, fill=color, outline=None, width=1)
+    ogre_map_helper.draw_entity(draw[surf_index], osm_data, entity, outer_color=color, inner_color=(0, 0, 0))
 
 
 def draw_polygon(surf_index, polygon, color):

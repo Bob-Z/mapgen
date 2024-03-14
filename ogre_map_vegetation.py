@@ -23,7 +23,7 @@ def add_tree_map(osm_data, entity, density):
 
     my_draw = PIL.ImageDraw.Draw(surf)
 
-    ogre_map_helper.draw_entity(my_draw, osm_data, entity, density, inner_height=0)
+    ogre_map_helper.draw_entity(my_draw, osm_data, entity, outer_height=density, inner_height=0)
 
     file_name = "vegetation" + str(index) + ".png"
     surf.save(config.data["work_path"] + file_name, "PNG")
