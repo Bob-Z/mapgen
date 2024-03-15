@@ -3,6 +3,7 @@ import helper
 import ror_waypoint_file
 import ror_zip_file
 import osm
+#import open_elevation
 import bbox
 import sys
 import ogre_material
@@ -75,6 +76,7 @@ if "export_path" in config.data:
 print("Export path: ", gvar.EXPORT_PATH)
 
 osm_data = osm.get_data()
+#open_elevation.get_data()
 
 ror_zip_file.create_default_file()
 
