@@ -301,49 +301,9 @@ def add_traffic_signals(node, road_x, road_y, angle, road_width):
 
 def write_all_roads():
     for my_road_data in all_road_data:
-        ready_nodes = my_road_data["nodes"].pop()
 
         # Link roads with the same name
-        while len(my_road_data["nodes"]) > 0:
-            index = 0
-            selected_index = 0
-            distance = 999999.0
-            for node in my_road_data["nodes"]:
-                existing_first_point = [ready_nodes[0].lon, ready_nodes[0].lat]
-                existing_last_point = [ready_nodes[-1].lon, ready_nodes[-1].lat]
-                new_first_point = [node[0].lon, node[0].lat]
-                new_last_point = [node[-1].lon, node[-1].lat]
-
-                first_to_first_dist = math.dist(existing_first_point, new_first_point)
-                first_to_last_dist = math.dist(existing_first_point, new_last_point)
-                last_to_first_dist = math.dist(existing_last_point, new_first_point)
-                last_to_last_dist = math.dist(existing_last_point, new_last_point)
-
-                # Reverse node list if needed, depending on first and last vertices of each road
-                if first_to_first_dist < first_to_last_dist and first_to_first_dist < last_to_first_dist and first_to_first_dist < last_to_last_dist:
-                    if first_to_first_dist < distance:
-                        selected_index = index
-                        distance = first_to_first_dist
-                        ready_nodes.reverse()
-                elif first_to_last_dist < first_to_first_dist and first_to_last_dist < last_to_first_dist and first_to_last_dist < last_to_last_dist:
-                    if first_to_last_dist < distance:
-                        selected_index = index
-                        distance = first_to_last_dist
-                        ready_nodes.reverse()
-                        node.reverse()
-                elif last_to_first_dist < first_to_first_dist and last_to_first_dist < first_to_last_dist and last_to_first_dist < last_to_last_dist:
-                    if last_to_first_dist < distance:
-                        selected_index = index
-                        distance = last_to_first_dist
-                elif last_to_last_dist < first_to_first_dist and last_to_last_dist < first_to_last_dist and last_to_last_dist < last_to_first_dist:
-                    if last_to_last_dist < distance:
-                        selected_index = index
-                        distance = last_to_last_dist
-                        node.reverse()
-
-                index += 1
-
-            ready_nodes = ready_nodes + my_road_data["nodes"].pop(selected_index)
+        ready_nodes = osm.concat_way_by_distance(my_road_data["nodes"])
 
         road_data = generate_road_from_config(my_road_data["road_config"], ready_nodes)
 

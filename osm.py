@@ -1,5 +1,4 @@
 import overpy
-
 import gvar
 import sys
 import bbox
@@ -7,6 +6,7 @@ import time
 import os
 import pickle
 import config
+import math
 
 
 def get_data():
@@ -158,3 +158,52 @@ def convert_height_to_meter(height):
         print("Cannot convert height: " + height)
 
     return height_in_meter
+
+
+# all_way is a list of ways. This function returns a single way which is the concatenation of all way sorted by distance between input ways
+def concat_way_by_distance(all_way):
+    ready_nodes = all_way.pop()
+
+    # Link roads with the same name
+    while len(all_way) > 0:
+        index = 0
+        selected_index = 0
+        distance = 999999.0
+        for node in all_way:
+            existing_first_point = [ready_nodes[0].lon, ready_nodes[0].lat]
+            existing_last_point = [ready_nodes[-1].lon, ready_nodes[-1].lat]
+            new_first_point = [node[0].lon, node[0].lat]
+            new_last_point = [node[-1].lon, node[-1].lat]
+
+            first_to_first_dist = math.dist(existing_first_point, new_first_point)
+            first_to_last_dist = math.dist(existing_first_point, new_last_point)
+            last_to_first_dist = math.dist(existing_last_point, new_first_point)
+            last_to_last_dist = math.dist(existing_last_point, new_last_point)
+
+            # Reverse node list if needed, depending on first and last vertices of each road
+            if first_to_first_dist < first_to_last_dist and first_to_first_dist < last_to_first_dist and first_to_first_dist < last_to_last_dist:
+                if first_to_first_dist < distance:
+                    selected_index = index
+                    distance = first_to_first_dist
+                    ready_nodes.reverse()
+            elif first_to_last_dist < first_to_first_dist and first_to_last_dist < last_to_first_dist and first_to_last_dist < last_to_last_dist:
+                if first_to_last_dist < distance:
+                    selected_index = index
+                    distance = first_to_last_dist
+                    ready_nodes.reverse()
+                    node.reverse()
+            elif last_to_first_dist < first_to_first_dist and last_to_first_dist < first_to_last_dist and last_to_first_dist < last_to_last_dist:
+                if last_to_first_dist < distance:
+                    selected_index = index
+                    distance = last_to_first_dist
+            elif last_to_last_dist < first_to_first_dist and last_to_last_dist < first_to_last_dist and last_to_last_dist < last_to_first_dist:
+                if last_to_last_dist < distance:
+                    selected_index = index
+                    distance = last_to_last_dist
+                    node.reverse()
+
+            index += 1
+
+        ready_nodes = ready_nodes + all_way.pop(selected_index)
+
+    return ready_nodes

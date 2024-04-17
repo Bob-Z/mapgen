@@ -15,17 +15,19 @@ def draw_entity(draw, osm_data, entity, outer_height=None, inner_height=None, ou
             my_inner_color = ogre_map_height.height_to_color(config.data["ground_line"])
 
     if hasattr(entity, "members"):
-        all_coord = []
+        outer_coord = []
+
         # draw None or outer first
         for member in entity.members:
             if member.role == "inner":
                 continue
             way = osm.get_way_by_id(osm_data, member.ref)
             if way is not None:
-                coord = helper.node_to_map_coord(way.nodes)
-                all_coord = all_coord + coord
+                outer_coord.append(way.nodes)
 
-        if len(all_coord) > 0:
+        if len(outer_coord) > 0:
+            all_coord = helper.node_to_map_coord(osm.concat_way_by_distance(outer_coord))
+
             draw.polygon(all_coord, fill=my_outer_color, outline=None, width=1)
 
         # then draw inner
