@@ -16,7 +16,8 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
                            scale=1.0,
                            is_barrier=False, half_barrier=False, wall_texture_generator=None,
                            roof_texture_generator=None,
-                           barrier_width=config.data["barrier_width"]):
+                           barrier_width=config.data["barrier_width"],
+                           display_name=None):
     global object_index
 
     if height is None:
@@ -72,7 +73,7 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
              {"vertex_index": roof_vertex_index, "face_qty": roof_face_qty, "vertex_str": roof_vertex_str,
               "face_str": roof_face_str, "texture": roof_texture}], obj_name)
 
-    ror_tobj_file.add_object(center_x, center_y, z, 0.0, 0.0, 0.0, obj_name)
+    ror_tobj_file.add_object(center_x, center_y, z, 0.0, 0.0, 0.0, obj_name, display_name)
     ror_odef_file.create_file(obj_name, collision=True)
 
 

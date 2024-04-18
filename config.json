@@ -1,6 +1,10 @@
 {
 "generate_statistics": false,
 
+"display_name_comment": "Make sure 'decluter' is off in graphics parameters",
+"display_name": true,
+"display_name_debug": false,
+
 "map_name": "mapgen",
 "work_path": "./work/",
 "log_path": "./log/",

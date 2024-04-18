@@ -5,7 +5,6 @@ import osm
 from wikidata.client import Client
 from pyWikiCommons import pyWikiCommons
 
-
 wikidata_client = Client()
 
 build_tag_value = [
@@ -54,7 +53,7 @@ def process(entity, osm_data=None, pass_index=0):
 def build_from_relation(osm_data, rel):
     height, min_height = osm.get_height(rel)
 
-    #if build_from_wikidata(rel, osm_data) is True:
+    # if build_from_wikidata(rel, osm_data) is True:
     #    return
 
     for member in rel.members:
@@ -72,7 +71,7 @@ def build_from_way(way, height=None, min_height=None):
     if "mapgen" in way.tags and way.tags["mapgen"] == "used_by_relation":
         return
 
-    #if build_from_wikidata(way) is True:
+    # if build_from_wikidata(way) is True:
     #    return
 
     is_barrier = False
@@ -99,6 +98,12 @@ def build_from_way(way, height=None, min_height=None):
     if "roof:colour" in way.tags:
         roof_texture = ogre_material.create_material_color(way.tags["roof:colour"])
         way.tags.pop("roof:colour")
+    display_name = None
+    if "name:en" in way.tags:
+        display_name = way.tags["name:en"]
+    else:
+        if "name" in way.tags:
+            display_name = way.tags["name"]
 
     if wall_texture is None:
         wall_texture = config.data["wall_texture"]
@@ -108,7 +113,8 @@ def build_from_way(way, height=None, min_height=None):
     object_3d.create_all_object_file(way.nodes, height, z=min_height,
                                      wall_texture=wall_texture,
                                      roof_texture=roof_texture,
-                                     is_barrier=is_barrier)
+                                     is_barrier=is_barrier,
+                                     display_name=display_name)
 
 
 # Return True if the building has been build
@@ -119,7 +125,7 @@ def build_from_wikidata(entity, osm_data=None):
         wiki = wikidata_client.get(entity.tags["wikidata"], load=True)
         if "P4896" in wiki.attributes["claims"]:
             name = wiki.attributes["claims"]["P4896"][0]["mainsnak"]["datavalue"]["value"]
-            #pyWikiCommons.download_commons_image(name, config.data["work_path"])
+            # pyWikiCommons.download_commons_image(name, config.data["work_path"])
             print("P4896 available for entity", entity, name)
             found = True
 
@@ -139,7 +145,7 @@ def build_from_wikidata(entity, osm_data=None):
                 if osm_data.ways[index].id == member.ref:
                     osm_data.way_ids.pop(index)
                     osm_data.ways.pop(index)
-                    print("remove",osm_data.ways[index])
+                    print("remove", osm_data.ways[index])
                     break
                 index += 1
 

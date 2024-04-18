@@ -2,11 +2,24 @@ import config
 import gvar
 import ogre_map_vegetation
 
+display_name_debug_index = 0
 
-def add_object(x, y, z, rx, ry, rz, name):
+
+def add_object(x, y, z, rx, ry, rz, name, display_name=None):
+    global display_name_debug_index
+    icon_str = ""
+    if config.data["display_name_debug"] is True:
+        icon_str = " station " + str(display_name_debug_index)
+    else:
+        if config.data["display_name"] is True and display_name is not None:
+            display_name = display_name.replace(' ', '_')
+            icon_str = " station " + display_name
+
     new_line = str(x) + ", " + str(z + config.data["ground_line"]) + ", " + str(y) + ", " + str(rx) + ", " + str(
         rz) + ", " + str(
-        ry) + ", " + name + "\n"
+        ry) + ", " + name + icon_str + " \n"
+
+    display_name_debug_index += 1
 
     with open(config.data["work_path"] + config.data["map_name"] + ".tobj", "a") as tobj_file:
         tobj_file.write(new_line)
