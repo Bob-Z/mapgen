@@ -65,7 +65,7 @@ def build_from_relation(osm_data, rel):
             # FIXME: How to manager inner ?
             # elif member.role == "inner":
 
-                way.tags["mapgen"] = "used_by_relation"
+            way.tags["mapgen"] = "used_by_relation"
 
 
 def build_from_way(way, height=None, min_height=None):
