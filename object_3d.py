@@ -24,6 +24,11 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
     if z is None:
         z = 0.0
 
+    # Make object on the ground super high to avoid them to "float" when they are near a water coast
+    if z == 0.0:
+        height += config.data["ground_line"]
+        z = -config.data["ground_line"]
+
     object_index = object_index + 1
 
     obj_name = "obj" + str(object_index)
