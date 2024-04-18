@@ -105,8 +105,6 @@ def generate_road_config(tags):
         tags.pop("lanes")
 
     if "highway" in tags:
-        if tags["highway"] == "path":
-            return None
         if (tags["highway"] == "footway" or
                 tags["highway"] == "pedestrian" or
                 tags["highway"] == "path"):
