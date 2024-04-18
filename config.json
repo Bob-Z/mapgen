@@ -1,5 +1,5 @@
 {
-"generate_statistics": true,
+"generate_statistics": false,
 
 "map_name": "mapgen",
 "work_path": "./work/",
