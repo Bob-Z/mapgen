@@ -21,7 +21,7 @@ def process_relation(relation, osm_data):
         way = osm.get_way_by_id(osm_data, member.ref)
         if way is not None:
             if "type" in relation.tags and relation.tags["type"] == "circuit":
-                if member.role != "pit_lane":
+                if member.role != "pit_lane" and member.role != "pitlane":
                     if "name:en" in relation.tags:
                         circuit_name = relation.tags["name:en"]
                     elif "name" in relation.tags:
