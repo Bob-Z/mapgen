@@ -1,7 +1,12 @@
+import ogre_material
 import object_3d
 import config
-import ogre_material
 import osm
+from wikidata.client import Client
+from pyWikiCommons import pyWikiCommons
+
+
+wikidata_client = Client()
 
 build_tag_value = [
     # first pass
@@ -49,6 +54,9 @@ def process(entity, osm_data=None, pass_index=0):
 def build_from_relation(osm_data, rel):
     height, min_height = osm.get_height(rel)
 
+    #if build_from_wikidata(rel, osm_data) is True:
+    #    return
+
     for member in rel.members:
         way = osm.get_way_by_id(osm_data, member.ref)
         if way is not None:
@@ -57,12 +65,15 @@ def build_from_relation(osm_data, rel):
             # FIXME: How to manager inner ?
             # elif member.role == "inner":
 
-            way.tags["mapgen"] = "used_by_relation"
+                way.tags["mapgen"] = "used_by_relation"
 
 
 def build_from_way(way, height=None, min_height=None):
     if "mapgen" in way.tags and way.tags["mapgen"] == "used_by_relation":
         return
+
+    #if build_from_wikidata(way) is True:
+    #    return
 
     is_barrier = False
     if len(way.nodes) < 3:
@@ -98,6 +109,41 @@ def build_from_way(way, height=None, min_height=None):
                                      wall_texture=wall_texture,
                                      roof_texture=roof_texture,
                                      is_barrier=is_barrier)
+
+
+# Return True if the building has been build
+def build_from_wikidata(entity, osm_data=None):
+    found = False
+
+    if "wikidata" in entity.tags:
+        wiki = wikidata_client.get(entity.tags["wikidata"], load=True)
+        if "P4896" in wiki.attributes["claims"]:
+            name = wiki.attributes["claims"]["P4896"][0]["mainsnak"]["datavalue"]["value"]
+            #pyWikiCommons.download_commons_image(name, config.data["work_path"])
+            print("P4896 available for entity", entity, name)
+            found = True
+
+    if found is False and osm_data is not None:
+        for member in entity.members:
+            way = osm.get_way_by_id(osm_data, member.ref)
+            if way is not None:
+                if build_from_wikidata(way) is True:
+                    found = True
+                    break
+
+    # Remove all ways of the relation
+    if found is True and osm_data is not None:
+        for member in entity.members:
+            index = 0
+            while index < len(osm_data.ways):
+                if osm_data.ways[index].id == member.ref:
+                    osm_data.way_ids.pop(index)
+                    osm_data.ways.pop(index)
+                    print("remove",osm_data.ways[index])
+                    break
+                index += 1
+
+    return found
 
 
 def is_allowed(entity):
