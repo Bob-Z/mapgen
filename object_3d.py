@@ -218,7 +218,7 @@ def generate_ceiling_for_barrier(vertex2d, height, vertex_index):
 def is_roof_shape_supported(shape):
     if shape is None:
         return False
-    if shape == "pyramidal":
+    if shape == "pyramidal" or shape == "flat":
         return True
     else:
         print("Unsupported roof shape", shape)
@@ -227,6 +227,8 @@ def is_roof_shape_supported(shape):
 def generate_roof(shape, vertex2d, height, roof_height, vertex_index):
     if shape == "pyramidal":
         return generate_roof_pyramidal(vertex2d, height, roof_height, vertex_index)
+    if shape == "flat":
+        return generate_ceiling(vertex2d, height, roof_height, vertex_index, is_barrier=False)
 
 
 def generate_roof_pyramidal(vertex2d, height, roof_height, vertex_index):
