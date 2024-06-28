@@ -10,6 +10,10 @@ VERTEX_PER_WALL = 4
 
 object_index = 0
 
+unsupported_roof_shape = {}
+warn_gabled_roof = True
+warn_hipped_roof = True
+
 
 def create_all_object_file(nodes, height=config.data["building_level_height"], z=0.0,
                            wall_texture=config.data["wall_texture"], top_texture=config.data["top_texture"],
@@ -216,11 +220,14 @@ def generate_ceiling_for_barrier(vertex2d, height, vertex_index):
 
 
 def is_roof_shape_supported(shape):
+    if shape in unsupported_roof_shape:
+        return False
     if shape is None:
         return False
     if shape == "pyramidal" or shape == "flat" or shape == "gabled" or shape == "hipped":
         return True
     else:
+        unsupported_roof_shape[shape] = True
         print("Unsupported roof shape", shape)
 
 
@@ -288,7 +295,10 @@ def generate_roof_pyramidal(vertex2d, height, roof_height, vertex_index):
 def generate_roof_gabled(vertex2d, height, roof_height, vertex_index):
     if len(vertex2d) != 4:
         # FIXME
-        print("Generating gabled roof for something else than 4 vertices is not implemented")
+        global warn_gabled_roof
+        if warn_gabled_roof:
+            print("Generating gabled roof for something else than 4 vertices is not implemented")
+            warn_gabled_roof = False
         return generate_ceiling(vertex2d, height, vertex_index, is_barrier=False)
 
     face_qty = 0
@@ -296,6 +306,21 @@ def generate_roof_gabled(vertex2d, height, roof_height, vertex_index):
     face_str = ""
     index = 0
 
+    # Always use the smallest edge
+    dist1 = ((vertex2d[1][0] - vertex2d[0][0]) * (vertex2d[1][0] - vertex2d[0][0])) + (
+            (vertex2d[1][1] - vertex2d[0][1]) * (vertex2d[1][1] - vertex2d[0][1]))
+    dist2 = ((vertex2d[2][0] - vertex2d[1][0]) * (vertex2d[2][0] - vertex2d[1][0])) + (
+            (vertex2d[2][1] - vertex2d[1][1]) * (vertex2d[2][1] - vertex2d[1][1]))
+
+    new_vertex2d = []
+    if dist1 > dist2:
+        for i in range(1, len(vertex2d)):
+            new_vertex2d.append(vertex2d[i - 1])
+        new_vertex2d.insert(0, vertex2d[-1])
+
+        vertex2d = list(new_vertex2d)
+
+    # Calculate top vertices
     top1 = [(vertex2d[0][0] + vertex2d[1][0]) / 2, (vertex2d[0][1] + vertex2d[1][1]) / 2, height + roof_height]
     top2 = [(vertex2d[2][0] + vertex2d[3][0]) / 2, (vertex2d[2][1] + vertex2d[3][1]) / 2, height + roof_height]
 
@@ -369,13 +394,30 @@ def generate_roof_gabled(vertex2d, height, roof_height, vertex_index):
 
 def generate_roof_hipped(vertex2d, height, roof_height, vertex_index):
     if len(vertex2d) != 4:
-        print("Generating hipped roof for something else than 4 vertices is not implemented")
+        global warn_hipped_roof
+        if warn_hipped_roof:
+            print("Generating hipped roof for something else than 4 vertices is not implemented")
+            warn_hipped_roof = False
         return generate_ceiling(vertex2d, height, vertex_index, is_barrier=False)
 
     face_qty = 0
     vertex_str = ""
     face_str = ""
     index = 0
+
+    # Always use the smallest edge
+    dist1 = ((vertex2d[1][0] - vertex2d[0][0]) * (vertex2d[1][0] - vertex2d[0][0])) + (
+            (vertex2d[1][1] - vertex2d[0][1]) * (vertex2d[1][1] - vertex2d[0][1]))
+    dist2 = ((vertex2d[2][0] - vertex2d[1][0]) * (vertex2d[2][0] - vertex2d[1][0])) + (
+            (vertex2d[2][1] - vertex2d[1][1]) * (vertex2d[2][1] - vertex2d[1][1]))
+
+    new_vertex2d = []
+    if dist1 > dist2:
+        for i in range(1, len(vertex2d)):
+            new_vertex2d.append(vertex2d[i - 1])
+        new_vertex2d.insert(0, vertex2d[-1])
+
+        vertex2d = list(new_vertex2d)
 
     top1 = [(vertex2d[0][0] + vertex2d[1][0]) / 2, (vertex2d[0][1] + vertex2d[1][1]) / 2, height + roof_height]
     top2 = [(vertex2d[2][0] + vertex2d[3][0]) / 2, (vertex2d[2][1] + vertex2d[3][1]) / 2, height + roof_height]
