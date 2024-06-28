@@ -35,7 +35,7 @@ if len(sys.argv) < 2 or len(sys.argv) > 4:
 if len(sys.argv) >= 3:
     gvar.map_size = float(sys.argv[2])
     if helper.is_power_of_2(gvar.map_size) is False:
-        print("Map size must be a power of 2")
+        print("Given map size is " + str(gvar.map_size) + ", but map size must be a power of 2")
         sys.exit(0)
 
 if len(sys.argv) >= 4:
