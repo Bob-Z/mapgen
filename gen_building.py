@@ -118,7 +118,7 @@ def build_from_way(way, height=None, min_height=None, roof_height=None):
         roof_shape = way.tags["roof:shape"]
         way.tags.pop("roof:shape")
 
-        if object_3d.is_roof_shape_supported(roof_shape) and roof_height is not None and roof_shape != "flat":
+        if top_texture is None and object_3d.is_roof_shape_supported(roof_shape) and roof_height is not None and roof_shape != "flat":
             top_texture = config.data["roof_texture"]
 
     object_3d.create_all_object_file(way.nodes, height, z=min_height,
