@@ -249,7 +249,7 @@ def generate_roof_pyramidal(vertex2d, height, roof_height, vertex_index):
         if v[1] < y_low:
             y_low = v[1]
 
-    # calculate center
+    # calculate top coordinates
     top_x = (x_high + x_low) / 2
     top_y = (y_high + y_low) / 2
 
@@ -258,14 +258,16 @@ def generate_roof_pyramidal(vertex2d, height, roof_height, vertex_index):
     index = 0
 
     for v in vertex2d:
-        # 2 faces per first half vertex
         v1 = vertex2d[index]
         v2 = vertex2d[(index + 1) % len(vertex2d)]
         v1.append(height)
         v2.append(height)
-        vertex_str += create_vertex_with_normal_str(v1, [0.0, 0.0, 1.0], 1.0, 0.0)
-        vertex_str += create_vertex_with_normal_str(v2, [0.0, 0.0, 1.0], 0.0, 0.0)
-        vertex_str += create_vertex_with_normal_str(top_vertex, [0.0, 0.0, 1.0], 0.0, 1.0)
+
+        norm = helper.calc_norm([v1, v2, top_vertex])
+
+        vertex_str += create_vertex_with_normal_str(v1, [norm[0], norm[1], norm[2]], 0.0, 0.0)
+        vertex_str += create_vertex_with_normal_str(v2, [norm[0], norm[1], norm[2]], 0.0, 1.0)
+        vertex_str += create_vertex_with_normal_str(top_vertex, [norm[0], norm[1], norm[2]], 1.0, 0.0)
 
         face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
