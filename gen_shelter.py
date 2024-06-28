@@ -36,7 +36,7 @@ def process(entity, osm_data=None):
 
 
 def build_from_relation(osm_data, rel):
-    height, min_height = osm.get_height(rel)
+    height, min_height, roof_height = osm.get_height(rel)
 
     for member in rel.members:
         way = osm.get_way_by_id(osm_data, member.ref)
