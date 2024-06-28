@@ -218,7 +218,7 @@ def generate_ceiling_for_barrier(vertex2d, height, vertex_index):
 def is_roof_shape_supported(shape):
     if shape is None:
         return False
-    if shape == "pyramidal" or shape == "flat":
+    if shape == "pyramidal" or shape == "flat" or shape == "gabled" or shape == "hipped":
         return True
     else:
         print("Unsupported roof shape", shape)
@@ -228,7 +228,11 @@ def generate_roof(shape, vertex2d, height, roof_height, vertex_index):
     if shape == "pyramidal":
         return generate_roof_pyramidal(vertex2d, height, roof_height, vertex_index)
     if shape == "flat":
-        return generate_ceiling(vertex2d, height, roof_height, vertex_index, is_barrier=False)
+        return generate_ceiling(vertex2d, height, vertex_index, is_barrier=False)
+    if shape == "gabled":
+        return generate_roof_gabled(vertex2d, height, roof_height, vertex_index)
+    if shape == "hipped":
+        return generate_roof_hipped(vertex2d, height, roof_height, vertex_index)
 
 
 def generate_roof_pyramidal(vertex2d, height, roof_height, vertex_index):
@@ -277,6 +281,212 @@ def generate_roof_pyramidal(vertex2d, height, roof_height, vertex_index):
         face_qty += 1
 
         index += 1
+
+    return vertex_index, face_qty, vertex_str, face_str
+
+
+def generate_roof_gabled(vertex2d, height, roof_height, vertex_index):
+    if len(vertex2d) != 4:
+        # FIXME
+        print("Generating gabled roof for something else than 4 vertices is not implemented")
+        return generate_ceiling(vertex2d, height, vertex_index, is_barrier=False)
+
+    face_qty = 0
+    vertex_str = ""
+    face_str = ""
+    index = 0
+
+    top1 = [(vertex2d[0][0] + vertex2d[1][0]) / 2, (vertex2d[0][1] + vertex2d[1][1]) / 2, height + roof_height]
+    top2 = [(vertex2d[2][0] + vertex2d[3][0]) / 2, (vertex2d[2][1] + vertex2d[3][1]) / 2, height + roof_height]
+
+    v3d = []
+    for v in vertex2d:
+        v.append(height)
+        v3d.append(v)
+
+    # first face
+    v = [v3d[0], top1, v3d[3]]
+    norm = helper.calc_norm(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+
+    face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+
+    vertex_index += 3
+    face_qty += 1
+
+    index += 1
+
+    # second face
+    v = [v3d[1], v3d[2], top1]
+    norm = helper.calc_norm(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+
+    face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+
+    vertex_index += 3
+    face_qty += 1
+
+    index += 1
+
+    # third face
+    v = [v3d[2], top2, top1]
+    norm = helper.calc_norm(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+
+    face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+
+    vertex_index += 3
+    face_qty += 1
+
+    index += 1
+
+    # fourth face
+    v = [top2, v3d[3], top1]
+    norm = helper.calc_norm(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+
+    face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+
+    vertex_index += 3
+    face_qty += 1
+
+    index += 1
+
+    return vertex_index, face_qty, vertex_str, face_str
+
+
+def generate_roof_hipped(vertex2d, height, roof_height, vertex_index):
+    if len(vertex2d) != 4:
+        print("Generating hipped roof for something else than 4 vertices is not implemented")
+        return generate_ceiling(vertex2d, height, vertex_index, is_barrier=False)
+
+    face_qty = 0
+    vertex_str = ""
+    face_str = ""
+    index = 0
+
+    top1 = [(vertex2d[0][0] + vertex2d[1][0]) / 2, (vertex2d[0][1] + vertex2d[1][1]) / 2, height + roof_height]
+    top2 = [(vertex2d[2][0] + vertex2d[3][0]) / 2, (vertex2d[2][1] + vertex2d[3][1]) / 2, height + roof_height]
+
+    top_dist_x = top1[0] - top2[0]
+    top_dist_y = top1[1] - top2[1]
+
+    new_top1_x = top2[0] + (float(config.data["roof_hipped_percentage"]) * top_dist_x)
+    new_top2_x = top1[0] - (float(config.data["roof_hipped_percentage"]) * top_dist_x)
+    new_top1_y = top2[1] + (float(config.data["roof_hipped_percentage"]) * top_dist_y)
+    new_top2_y = top1[1] - (float(config.data["roof_hipped_percentage"]) * top_dist_y)
+
+    top1[0] = new_top1_x
+    top1[1] = new_top1_y
+    top2[0] = new_top2_x
+    top2[1] = new_top2_y
+
+    v3d = []
+    for v in vertex2d:
+        v.append(height)
+        v3d.append(v)
+
+    # first face
+    v = [v3d[0], top1, v3d[3]]
+    norm = helper.calc_norm(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+
+    face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+
+    vertex_index += 3
+    face_qty += 1
+
+    index += 1
+
+    # second face
+    v = [v3d[1], v3d[2], top1]
+    norm = helper.calc_norm(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+
+    face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+
+    vertex_index += 3
+    face_qty += 1
+
+    index += 1
+
+    # third face
+    v = [v3d[2], top2, top1]
+    norm = helper.calc_norm(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+
+    face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+
+    vertex_index += 3
+    face_qty += 1
+
+    index += 1
+
+    # fourth face
+    v = [top2, v3d[3], top1]
+    norm = helper.calc_norm(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+
+    face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+
+    vertex_index += 3
+    face_qty += 1
+
+    index += 1
+
+    # hipped face 1
+    v = [v3d[0], v3d[1], top1]
+    norm = helper.calc_norm(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+
+    face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+
+    vertex_index += 3
+    face_qty += 1
+
+    index += 1
+
+    # hipped face 2
+    v = [v3d[2], v3d[3], top2]
+    norm = helper.calc_norm(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+
+    face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+
+    vertex_index += 3
+    face_qty += 1
+
+    index += 1
 
     return vertex_index, face_qty, vertex_str, face_str
 
