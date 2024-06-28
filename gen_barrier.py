@@ -17,13 +17,13 @@ def process(way):
     for tag_value in barrier_tag_value:
         if tag_value[0] in way.tags:
             if way.tags[tag_value[0]] == tag_value[1]:
-                height, min_height = osm.get_height(way)
+                height, min_height, roof_height = osm.get_height(way)
                 if height is None:
                     height = config.data["barrier_height"]
                 object_3d.create_all_object_file(way.nodes, height=height,
-                                                 wall_texture=tag_value[3], ceiling_texture=tag_value[5],
+                                                 wall_texture=tag_value[3], top_texture=tag_value[5],
                                                  wall_texture_generator=tag_value[2],
-                                                 ceiling_texture_generator=tag_value[4],
+                                                 top_texture_generator=tag_value[4],
                                                  is_barrier=True, barrier_width=tag_value[6])
                 way.tags.pop(tag_value[0])
                 return True
@@ -34,7 +34,7 @@ def process(way):
             if height is None:
                 height = config.data["barrier_height"]
             object_3d.create_all_object_file(way.nodes, height=height,
-                                             wall_texture="mapgen_dark_grey", ceiling_texture="mapgen_dark_grey",
+                                             wall_texture="mapgen_dark_grey", top_texture="mapgen_dark_grey",
                                              is_barrier=True)
             way.tags.pop(tag)
             return True

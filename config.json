@@ -43,7 +43,7 @@
 "taxiway_height": 0.1,
 
 "wall_texture": "mapgen_beige",
-"ceiling_texture": "mapgen_grey",
+"top_texture": "mapgen_grey",
 "ground_texture": "mapgen_dust"
 
 }

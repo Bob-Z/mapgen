@@ -97,17 +97,22 @@ def get_height(entity):
         except ValueError:
             print("Cannot convert building:levels : " + entity.tags["building:levels"])
 
-    h = None
     if "height" in entity.tags:
         h = convert_height_to_meter(entity.tags["height"])
         if h is not None:
             height = h
             entity.tags.pop("height")
 
-    if h is None and "est_roof:height" in entity.tags:
+    roof_height = None
+    if "roof:height" in entity.tags:
+        h = convert_height_to_meter(entity.tags["roof:height"])
+        if h is not None:
+            roof_height = h
+            entity.tags.pop("roof:height")
+    if roof_height is None and "est_roof:height" in entity.tags:
         h = convert_height_to_meter(entity.tags["est_roof:height"])
         if h is not None:
-            height = h
+            roof_height = h
             entity.tags.pop("est_roof:height")
 
     min_height = None
@@ -127,7 +132,8 @@ def get_height(entity):
         if min_height is not None:
             entity.tags.pop("building:min_level")
 
-    return height, min_height
+    # height = facade height + roof_height
+    return height, min_height, roof_height
 
 
 def get_min_height(height, min_height):

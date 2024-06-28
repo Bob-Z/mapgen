@@ -51,7 +51,7 @@ def process(entity, osm_data=None, pass_index=0):
 
 
 def build_from_relation(osm_data, rel):
-    height, min_height = osm.get_height(rel)
+    height, min_height, roof_height = osm.get_height(rel)
 
     # if build_from_wikidata(rel, osm_data) is True:
     #    return
@@ -60,14 +60,14 @@ def build_from_relation(osm_data, rel):
         way = osm.get_way_by_id(osm_data, member.ref)
         if way is not None:
             if member.role == "outer" or member.role == "part":  # Don't draw outline, it breaks Paris Eiffel Tower
-                build_from_way(way, height, min_height)
+                build_from_way(way, height, min_height, roof_height)
             # FIXME: How to manager inner ?
             # elif member.role == "inner":
 
             way.tags["mapgen"] = "used_by_relation"
 
 
-def build_from_way(way, height=None, min_height=None):
+def build_from_way(way, height=None, min_height=None, roof_height=None):
     if "mapgen" in way.tags and way.tags["mapgen"] == "used_by_relation":
         return
 
@@ -78,7 +78,7 @@ def build_from_way(way, height=None, min_height=None):
     if len(way.nodes) < 3:
         is_barrier = True
 
-    calc_height, calc_min_height = osm.get_height(way)
+    calc_height, calc_min_height, calc_roof_height = osm.get_height(way)
 
     if calc_height is not None:
         height = calc_height
@@ -86,8 +86,11 @@ def build_from_way(way, height=None, min_height=None):
     if calc_min_height is not None:
         min_height = calc_min_height
 
+    if calc_roof_height is not None:
+        roof_height = calc_roof_height
+
     wall_texture = None
-    ceiling_texture = None
+    top_texture = None
 
     if "colour" in way.tags:
         wall_texture = ogre_material.create_material_color(way.tags["colour"])
@@ -96,7 +99,7 @@ def build_from_way(way, height=None, min_height=None):
         wall_texture = ogre_material.create_material_color(way.tags["building:colour"])
         way.tags.pop("building:colour")
     if "roof:colour" in way.tags:
-        ceiling_texture = ogre_material.create_material_color(way.tags["roof:colour"])
+        top_texture = ogre_material.create_material_color(way.tags["roof:colour"])
         way.tags.pop("roof:colour")
     display_name = None
     if "name:en" in way.tags:
@@ -107,13 +110,20 @@ def build_from_way(way, height=None, min_height=None):
 
     if wall_texture is None:
         wall_texture = config.data["wall_texture"]
-    if ceiling_texture is None:
-        ceiling_texture = config.data["ceiling_texture"]
+    if top_texture is None:
+        top_texture = config.data["top_texture"]
+
+    roof_shape = None
+    if "roof:shape" in way.tags:
+        roof_shape = way.tags["roof:shape"]
+        way.tags.pop("roof:shape")
 
     object_3d.create_all_object_file(way.nodes, height, z=min_height,
                                      wall_texture=wall_texture,
-                                     ceiling_texture=ceiling_texture,
+                                     top_texture=top_texture,
                                      is_barrier=is_barrier,
+                                     roof_shape=roof_shape,
+                                     roof_height=roof_height,
                                      display_name=display_name)
 
 

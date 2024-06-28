@@ -25,13 +25,13 @@ def process(entity, osm_data=None):
                                                  height=config.data["ground_line"] + config.data[
                                                      "swimming_pool_height"],
                                                  z=-config.data["ground_line"],
-                                                 wall_texture="mapgen_dark_grey", ceiling_texture="mapgen_dark_grey",
+                                                 wall_texture="mapgen_dark_grey", top_texture="mapgen_dark_grey",
                                                  is_barrier=True, half_barrier=True, barrier_width=2.25)
                 # pool bottom
                 object_3d.create_all_object_file(entity.nodes,
                                                  height=config.data["ground_line"] - config.data["swimming_pool_depth"],
                                                  z=-config.data["ground_line"],
-                                                 wall_texture="mapgen_dark_grey", ceiling_texture="mapgen_dark_grey")
+                                                 wall_texture="mapgen_dark_grey", top_texture="mapgen_dark_grey")
 
                 entity.tags.pop("leisure")
             return True

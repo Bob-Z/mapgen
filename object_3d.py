@@ -12,10 +12,12 @@ object_index = 0
 
 
 def create_all_object_file(nodes, height=config.data["building_level_height"], z=0.0,
-                           wall_texture=config.data["wall_texture"], ceiling_texture=config.data["ceiling_texture"],
+                           wall_texture=config.data["wall_texture"], top_texture=config.data["top_texture"],
                            scale=1.0,
                            is_barrier=False, half_barrier=False, wall_texture_generator=None,
-                           ceiling_texture_generator=None,
+                           top_texture_generator=None,
+                           roof_shape=None,
+                           roof_height=None,
                            barrier_width=config.data["barrier_width"],
                            display_name=None):
     global object_index
@@ -29,6 +31,11 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
     if z == 0.0:
         height += config.data["ground_line"]
         z = -config.data["ground_line"]
+
+    need_roof = False
+    if is_roof_shape_supported(roof_shape) and roof_height is not None:
+        height -= roof_height
+        need_roof = True
 
     object_index = object_index + 1
 
@@ -53,25 +60,35 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
 
     if wall_texture_generator is not None:
         wall_texture = wall_texture_generator(width, length)
-    if ceiling_texture_generator is not None:
-        ceiling_texture = ceiling_texture_generator(width, length)
+    if top_texture_generator is not None:
+        top_texture = top_texture_generator(width, length)
 
-    # no submeshes with the same texture is allowed
-    if wall_texture == ceiling_texture:
-        ceiling_vertex_index, ceiling_face_qty, ceiling_vertex_str, ceiling_face_str = generate_ceiling(vertex, height,
-                                                                                         wall_vertex_index,
-                                                                                         is_barrier)
+    if wall_texture == top_texture:  # no submeshes with the same texture is allowed, so concatenate wall and top meshes
+        if need_roof:
+            top_vertex_index, top_face_qty, top_vertex_str, top_face_str = generate_roof(roof_shape, vertex, height,
+                                                                                         roof_height,
+                                                                                         wall_vertex_index)
+        else:
+            top_vertex_index, top_face_qty, top_vertex_str, top_face_str = generate_ceiling(vertex, height,
+                                                                                            wall_vertex_index,
+                                                                                            is_barrier)
         generate_mesh_file(
-            [{"vertex_index": ceiling_vertex_index, "face_qty": wall_face_qty + ceiling_face_qty,
-              "vertex_str": wall_vertex_str + ceiling_vertex_str,
-              "face_str": wall_face_str + ceiling_face_str, "texture": wall_texture}], obj_name)
+            [{"vertex_index": top_vertex_index, "face_qty": wall_face_qty + top_face_qty,
+              "vertex_str": wall_vertex_str + top_vertex_str,
+              "face_str": wall_face_str + top_face_str, "texture": wall_texture}], obj_name)
     else:
-        ceiling_vertex_index, ceiling_face_qty, ceiling_vertex_str, ceiling_face_str = generate_ceiling(vertex, height, 0, is_barrier)
+        if need_roof:
+            top_vertex_index, top_face_qty, top_vertex_str, top_face_str = generate_roof(roof_shape, vertex, height,
+                                                                                         roof_height,
+                                                                                         0)
+        else:
+            top_vertex_index, top_face_qty, top_vertex_str, top_face_str = generate_ceiling(vertex, height,
+                                                                                            0, is_barrier)
         generate_mesh_file(
             [{"vertex_index": wall_vertex_index, "face_qty": wall_face_qty, "vertex_str": wall_vertex_str,
               "face_str": wall_face_str, "texture": wall_texture},
-             {"vertex_index": ceiling_vertex_index, "face_qty": ceiling_face_qty, "vertex_str": ceiling_vertex_str,
-              "face_str": ceiling_face_str, "texture": ceiling_texture}], obj_name)
+             {"vertex_index": top_vertex_index, "face_qty": top_face_qty, "vertex_str": top_vertex_str,
+              "face_str": top_face_str, "texture": top_texture}], obj_name)
 
     ror_tobj_file.add_object(center_x, center_y, z, 0.0, 0.0, 0.0, obj_name, display_name)
     ror_odef_file.create_file(obj_name, collision=True)
@@ -194,6 +211,68 @@ def generate_ceiling_for_barrier(vertex2d, height, vertex_index):
         index += 1
         if index >= (vlen / 2) - 1:
             break
+
+    return vertex_index, face_qty, vertex_str, face_str
+
+
+def is_roof_shape_supported(shape):
+    if shape is None:
+        return False
+    if shape == "pyramidal":
+        return True
+    else:
+        print("Unsupported roof shape", shape)
+
+
+def generate_roof(shape, vertex2d, height, roof_height, vertex_index):
+    if shape == "pyramidal":
+        return generate_roof_pyramidal(vertex2d, height, roof_height, vertex_index)
+
+
+def generate_roof_pyramidal(vertex2d, height, roof_height, vertex_index):
+    face_qty = 0
+    vertex_str = ""
+    face_str = ""
+
+    # find highest and lowest x and y
+    x_high = vertex2d[0][0]
+    x_low = vertex2d[0][0]
+    y_high = vertex2d[0][1]
+    y_low = vertex2d[0][1]
+    for v in vertex2d:
+        if v[0] > x_high:
+            x_high = v[0]
+        if v[0] < x_low:
+            x_low = v[0]
+        if v[1] > y_high:
+            y_high = v[1]
+        if v[1] < y_low:
+            y_low = v[1]
+
+    # calculate center
+    top_x = (x_high + x_low) / 2
+    top_y = (y_high + y_low) / 2
+
+    top_vertex = [top_x, top_y, height + roof_height]
+
+    index = 0
+
+    for v in vertex2d:
+        # 2 faces per first half vertex
+        v1 = vertex2d[index]
+        v2 = vertex2d[(index + 1) % len(vertex2d)]
+        v1.append(height)
+        v2.append(height)
+        vertex_str += create_vertex_with_normal_str(v1, [0.0, 0.0, 1.0], 1.0, 0.0)
+        vertex_str += create_vertex_with_normal_str(v2, [0.0, 0.0, 1.0], 0.0, 0.0)
+        vertex_str += create_vertex_with_normal_str(top_vertex, [0.0, 0.0, 1.0], 0.0, 1.0)
+
+        face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
+
+        vertex_index += 3
+        face_qty += 1
+
+        index += 1
 
     return vertex_index, face_qty, vertex_str, face_str
 
