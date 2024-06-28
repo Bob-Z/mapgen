@@ -52,7 +52,7 @@ def build_from_way(way, height=None, min_height=None, from_relation=False):
     if len(way.nodes) < 3:
         is_barrier = True
 
-    calc_height, calc_min_height = osm.get_height(way)
+    calc_height, calc_min_height, calc_roof_height = osm.get_height(way)
 
     if calc_height is not None:
         height = calc_height
@@ -60,14 +60,17 @@ def build_from_way(way, height=None, min_height=None, from_relation=False):
     if calc_min_height is not None:
         min_height = calc_min_height
 
+    if calc_roof_height is not None:
+        roof_height = calc_roof_height
+
     build_shelter(way, height, min_height, is_barrier)
 
 
 def build_shelter(way, height, min_height, is_barrier):
     if height is None:
-        height = config.data["building_level_height"] - config.data["shelter_roof_height"]
+        height = config.data["building_level_height"] - config.data["shelter_ceiling"]
     else:
-        height = height - config.data["shelter_roof_height"]
+        height = height - config.data["shelter_ceiling"]
 
     if min_height is None:
         min_height = 0.0
@@ -76,10 +79,10 @@ def build_shelter(way, height, min_height, is_barrier):
     for node in way.nodes:
         object_3d.create_all_object_file([node], height, z=min_height,
                                          wall_texture=config.data["wall_texture"],
-                                         roof_texture=config.data["roof_texture"],
+                                         top_texture=config.data["top_texture"],
                                          is_barrier=is_barrier)
         # Roof
         # Z is pillars' height
-    object_3d.create_all_object_file(way.nodes, config.data["shelter_roof_height"], z=height + min_height,
+    object_3d.create_all_object_file(way.nodes, config.data["shelter_ceiling"], z=height + min_height,
                                      wall_texture=config.data["wall_texture"],
-                                     roof_texture=config.data["roof_texture"], is_barrier=is_barrier)
+                                     top_texture=config.data["top_texture"], is_barrier=is_barrier)
