@@ -21,9 +21,9 @@ def process(way):
                 if height is None:
                     height = config.data["barrier_height"]
                 object_3d.create_all_object_file(way.nodes, height=height,
-                                                 wall_texture=tag_value[3], roof_texture=tag_value[5],
+                                                 wall_texture=tag_value[3], ceiling_texture=tag_value[5],
                                                  wall_texture_generator=tag_value[2],
-                                                 roof_texture_generator=tag_value[4],
+                                                 ceiling_texture_generator=tag_value[4],
                                                  is_barrier=True, barrier_width=tag_value[6])
                 way.tags.pop(tag_value[0])
                 return True
@@ -34,7 +34,7 @@ def process(way):
             if height is None:
                 height = config.data["barrier_height"]
             object_3d.create_all_object_file(way.nodes, height=height,
-                                             wall_texture="mapgen_dark_grey", roof_texture="mapgen_dark_grey",
+                                             wall_texture="mapgen_dark_grey", ceiling_texture="mapgen_dark_grey",
                                              is_barrier=True)
             way.tags.pop(tag)
             return True

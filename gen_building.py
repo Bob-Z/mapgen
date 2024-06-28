@@ -87,7 +87,7 @@ def build_from_way(way, height=None, min_height=None):
         min_height = calc_min_height
 
     wall_texture = None
-    roof_texture = None
+    ceiling_texture = None
 
     if "colour" in way.tags:
         wall_texture = ogre_material.create_material_color(way.tags["colour"])
@@ -96,7 +96,7 @@ def build_from_way(way, height=None, min_height=None):
         wall_texture = ogre_material.create_material_color(way.tags["building:colour"])
         way.tags.pop("building:colour")
     if "roof:colour" in way.tags:
-        roof_texture = ogre_material.create_material_color(way.tags["roof:colour"])
+        ceiling_texture = ogre_material.create_material_color(way.tags["roof:colour"])
         way.tags.pop("roof:colour")
     display_name = None
     if "name:en" in way.tags:
@@ -107,12 +107,12 @@ def build_from_way(way, height=None, min_height=None):
 
     if wall_texture is None:
         wall_texture = config.data["wall_texture"]
-    if roof_texture is None:
-        roof_texture = config.data["roof_texture"]
+    if ceiling_texture is None:
+        ceiling_texture = config.data["ceiling_texture"]
 
     object_3d.create_all_object_file(way.nodes, height, z=min_height,
                                      wall_texture=wall_texture,
-                                     roof_texture=roof_texture,
+                                     ceiling_texture=ceiling_texture,
                                      is_barrier=is_barrier,
                                      display_name=display_name)
 

@@ -12,10 +12,10 @@ object_index = 0
 
 
 def create_all_object_file(nodes, height=config.data["building_level_height"], z=0.0,
-                           wall_texture=config.data["wall_texture"], roof_texture=config.data["roof_texture"],
+                           wall_texture=config.data["wall_texture"], ceiling_texture=config.data["ceiling_texture"],
                            scale=1.0,
                            is_barrier=False, half_barrier=False, wall_texture_generator=None,
-                           roof_texture_generator=None,
+                           ceiling_texture_generator=None,
                            barrier_width=config.data["barrier_width"],
                            display_name=None):
     global object_index
@@ -53,25 +53,25 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
 
     if wall_texture_generator is not None:
         wall_texture = wall_texture_generator(width, length)
-    if roof_texture_generator is not None:
-        roof_texture = roof_texture_generator(width, length)
+    if ceiling_texture_generator is not None:
+        ceiling_texture = ceiling_texture_generator(width, length)
 
     # no submeshes with the same texture is allowed
-    if wall_texture == roof_texture:
-        roof_vertex_index, roof_face_qty, roof_vertex_str, roof_face_str = generate_roof(vertex, height,
+    if wall_texture == ceiling_texture:
+        ceiling_vertex_index, ceiling_face_qty, ceiling_vertex_str, ceiling_face_str = generate_ceiling(vertex, height,
                                                                                          wall_vertex_index,
                                                                                          is_barrier)
         generate_mesh_file(
-            [{"vertex_index": roof_vertex_index, "face_qty": wall_face_qty + roof_face_qty,
-              "vertex_str": wall_vertex_str + roof_vertex_str,
-              "face_str": wall_face_str + roof_face_str, "texture": wall_texture}], obj_name)
+            [{"vertex_index": ceiling_vertex_index, "face_qty": wall_face_qty + ceiling_face_qty,
+              "vertex_str": wall_vertex_str + ceiling_vertex_str,
+              "face_str": wall_face_str + ceiling_face_str, "texture": wall_texture}], obj_name)
     else:
-        roof_vertex_index, roof_face_qty, roof_vertex_str, roof_face_str = generate_roof(vertex, height, 0, is_barrier)
+        ceiling_vertex_index, ceiling_face_qty, ceiling_vertex_str, ceiling_face_str = generate_ceiling(vertex, height, 0, is_barrier)
         generate_mesh_file(
             [{"vertex_index": wall_vertex_index, "face_qty": wall_face_qty, "vertex_str": wall_vertex_str,
               "face_str": wall_face_str, "texture": wall_texture},
-             {"vertex_index": roof_vertex_index, "face_qty": roof_face_qty, "vertex_str": roof_vertex_str,
-              "face_str": roof_face_str, "texture": roof_texture}], obj_name)
+             {"vertex_index": ceiling_vertex_index, "face_qty": ceiling_face_qty, "vertex_str": ceiling_vertex_str,
+              "face_str": ceiling_face_str, "texture": ceiling_texture}], obj_name)
 
     ror_tobj_file.add_object(center_x, center_y, z, 0.0, 0.0, 0.0, obj_name, display_name)
     ror_odef_file.create_file(obj_name, collision=True)
@@ -114,14 +114,14 @@ def generate_wall(vertex, height):
     return vertex_index, face_qty, vertex_str, face_str
 
 
-def generate_roof(vertex, height, vertex_index, is_barrier):
+def generate_ceiling(vertex, height, vertex_index, is_barrier):
     if is_barrier is False:
-        return generate_roof_for_building(vertex, height, vertex_index)
+        return generate_ceiling_for_building(vertex, height, vertex_index)
     else:
-        return generate_roof_for_barrier(vertex, height, vertex_index)
+        return generate_ceiling_for_barrier(vertex, height, vertex_index)
 
 
-def generate_roof_for_building(vertex2d, height, vertex_index):
+def generate_ceiling_for_building(vertex2d, height, vertex_index):
     face_qty = 0
     vertex_str = ""
     face_str = ""
@@ -151,7 +151,7 @@ def generate_roof_for_building(vertex2d, height, vertex_index):
     return vertex_index, face_qty, vertex_str, face_str
 
 
-def generate_roof_for_barrier(vertex2d, height, vertex_index):
+def generate_ceiling_for_barrier(vertex2d, height, vertex_index):
     face_qty = 0
     vertex_str = ""
     face_str = ""
