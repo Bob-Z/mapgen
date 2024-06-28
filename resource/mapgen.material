@@ -205,3 +205,19 @@ material mapgen_hedge
        }
     }
  }
+
+ material mapgen_roof : RoR/Managed_Mats/Base
+{
+	technique BaseTechnique
+	{
+		pass BaseRender
+		{
+			cull_hardware none
+			cull_software none
+			texture_unit Diffuse_Map
+			{
+				texture roof.png
+			}
+		}
+	}
+}

@@ -37,6 +37,7 @@
 "raceway_width": 12.0,
 "raceway_karting_width": 3.5,
 "runway_height": 0.12,
+"roof_height": 2.5,
 "sidewalk_width": 1.5,
 "sidewalk_height": 0.15,
 "shelter_ceiling": 0.15,
@@ -44,6 +45,7 @@
 
 "wall_texture": "mapgen_beige",
 "top_texture": "mapgen_grey",
+"roof_texture": "mapgen_roof",
 "ground_texture": "mapgen_dust"
 
 }
