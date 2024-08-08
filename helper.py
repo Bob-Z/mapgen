@@ -105,7 +105,7 @@ def intersect_line(line1, line2):
         return a[0] * b[1] - a[1] * b[0]
 
     div = det(xdiff, ydiff)
-    if div == 0: # Parallel
+    if div == 0:  # Parallel
         return None
 
     d = (det(*line1), det(*line2))
@@ -145,6 +145,10 @@ def intersect_between_all_direction(p1, p2):
 def is_inside_map(p1):
     x, y = p1
     return bbox.coordXY["west"] < x < bbox.coordXY["east"] and bbox.coordXY["north"] < y < bbox.coordXY["south"]
+
+
+def is_inside_lon_lat(lon, lat):
+    return bbox.coord["west"] < lon < bbox.coord["east"] and bbox.coord["south"] < lat < bbox.coord["north"]
 
 
 def is_power_of_2(n):

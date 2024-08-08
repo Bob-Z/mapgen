@@ -1,6 +1,7 @@
 import helper
 import os
 import ror_zip_file
+import topography
 import triangulate
 import config
 import ror_tobj_file
@@ -28,13 +29,24 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
 
     if height is None:
         height = config.data["building_level_height"]
+
+    # Find the highest z for all nodes of the object
+    base_z = config.data["ground_line"]
+    if topography.is_enabled():
+        base_z = 0.0
+        for node in nodes:
+            node_z = topography.get_z(node.lon, node.lat)
+            if node_z > base_z:
+                base_z = node_z
+
     if z is None:
         z = 0.0
 
     # Make object on the ground super high to avoid them to "float" when they are near a water coast
     if z == 0.0:
-        height += config.data["ground_line"]
-        z = -config.data["ground_line"]
+        height += base_z
+    else:
+        z += base_z
 
     need_roof = False
     if is_roof_shape_supported(roof_shape) and roof_height is not None:

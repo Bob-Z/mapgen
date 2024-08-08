@@ -1,6 +1,7 @@
 import config
 import gvar
 import ogre_map_vegetation
+import topography
 
 display_name_debug_index = 0
 
@@ -15,7 +16,7 @@ def add_object(x, y, z, rx, ry, rz, name, display_name=None):
             display_name = display_name.replace(' ', '_')
             icon_str = " station " + display_name
 
-    new_line = str(x) + ", " + str(z + config.data["ground_line"]) + ", " + str(y) + ", " + str(rx) + ", " + str(
+    new_line = str(x) + ", " + str(z) + ", " + str(y) + ", " + str(rx) + ", " + str(
         rz) + ", " + str(
         ry) + ", " + name + icon_str + " \n"
 

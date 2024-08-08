@@ -3,7 +3,7 @@ import helper
 import ror_waypoint_file
 import ror_zip_file
 import osm
-#import open_elevation
+import topography
 import bbox
 import sys
 import ogre_material
@@ -22,8 +22,8 @@ import ogre_map_height
 import ogre_map_surface
 import ror_terrn2_file
 
-if len(sys.argv) < 2 or len(sys.argv) > 4:
-    print("\nUsage: " + sys.argv[0] + " <latitude, longitude> <map size> <map precision>")
+if len(sys.argv) < 2 or len(sys.argv) > 5:
+    print("\nUsage: " + sys.argv[0] + " <latitude, longitude> <map size> <map precision> [OpenTopography API key]")
     print("<latitude, longitude> coordinate of the map center")
     print("<map size> Map is always square. This must be a power of 2. Default to 512 meters")
     print(
@@ -43,6 +43,10 @@ if len(sys.argv) >= 4:
     if helper.is_power_of_2(gvar.map_precision) is False:
         print("Map precision must be a power of 2")
         sys.exit(0)
+
+api_key = None
+if len(sys.argv) >= 5:
+    api_key = sys.argv[4]
 
 center_coord = sys.argv[1].split(',')
 center_lat = float(center_coord[0])
@@ -74,6 +78,8 @@ print("Work path:", config.data["work_path"])
 if "export_path" in config.data:
     gvar.EXPORT_PATH = config.data["export_path"]
 print("Export path: ", gvar.EXPORT_PATH)
+
+topography.get(api_key)
 
 osm_data = osm.get_data()
 #open_elevation.get_data()

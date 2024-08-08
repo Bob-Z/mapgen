@@ -1,7 +1,13 @@
 import config
 import gvar
+import topography
 
-MAX_HEIGHT = config.data["ground_line"]  # just managing water depth for now
+
+def get_height():
+    if topography.is_enabled():
+        return topography.get_total_height()
+    else:
+        return config.data["ground_line"]  # just managing water depth for now
 
 
 def create_file():
@@ -13,7 +19,7 @@ PageSize=" + str(int(gvar.map_size / gvar.map_precision) + 1) + "\n\
 Flat=0 \n\
 WorldSizeX=" + str(int(gvar.map_size)) + "\n\
 WorldSizeZ=" + str(int(gvar.map_size)) + "\n\
-WorldSizeY=" + str(int(MAX_HEIGHT)) + "\n\
+WorldSizeY=" + str(int(get_height())) + "\n\
 PageFileFormat=" + config.data["map_name"] + "-page-{X}-{Z}.otc" + "\n\
 LayerBlendMapSize=1024\n\
 disableCaching=1\n\

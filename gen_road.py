@@ -4,6 +4,7 @@ import ror_waypoint_file
 import helper
 import math
 import osm
+import topography
 
 all_road_data = []
 index = 1
@@ -229,44 +230,51 @@ def generate_road_from_config(road_config, nodes):
 
     x_history = []
     y_history = []
+    z_history = []
     x = 0.0
     y = 0.0
 
     for node in nodes:
         x = helper.lon_to_x(node.lon)
         y = helper.lat_to_y(node.lat)
-        z = config.data["ground_line"] + road_config["road_height"]
+        z = topography.get_z(node.lon, node.lat)
+        z += road_config["road_height"]
 
         if len(x_history) == 0:
             x_history.append(x)
             y_history.append(y)
+            z_history.append(z)
             continue
         elif len(x_history) == 1:
             # Angle for first road: direction of first two points
             angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
-            add_road(road_data, x_history[0], y_history[0], z, 0.0, 0.0, angle, road_config["road_width"],
+            add_road(road_data, x_history[0], y_history[0], z_history[0], 0.0, 0.0, angle, road_config["road_width"],
                      road_config["border_width"],
                      road_config["border_height"], road_config["road_type"])
             x_history.append(x)
             y_history.append(y)
+            z_history.append(z)
             continue
         else:
             # Angle for other road: direction between previous and next point
             angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
             z += road_config["bridge_factor"] * config.data["bridge_height"]
-            add_road(road_data, x_history[1], y_history[1], z, 0.0, 0.0, angle, road_config["road_width"],
+            add_road(road_data, x_history[1], y_history[1], z_history[1], 0.0, 0.0, angle, road_config["road_width"],
                      road_config["border_width"],
                      road_config["border_height"], road_config["road_type"])
             add_traffic_signals(node, x_history[1], y_history[1], angle, road_config["road_width"])
 
             x_history[0] = x_history[1]
             y_history[0] = y_history[1]
+            z_history[0] = z_history[1]
             x_history[1] = x
             y_history[1] = y
+            z_history[1] = z
 
     # Last road, angle between previous point and last point
     angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
-    z = config.data["ground_line"] + road_config["road_height"]
+    z = topography.get_z(nodes[-1].lon, nodes[-1].lat)
+    z += road_config["road_height"]
     add_road(road_data, x_history[1], y_history[1], z, 0.0, 0.0, angle, road_config["road_width"],
              road_config["border_width"],
              road_config["border_height"],
@@ -294,7 +302,7 @@ def add_traffic_signals(node, road_x, road_y, angle, road_width):
             signal_x = road_x + (math.cos(math.radians(angle)) * road_width / 2.0)
             signal_y = road_y - (math.sin(math.radians(angle)) * road_width / 2.0)
 
-            ror_tobj_file.add_object(signal_x, signal_y, 0.0, 0.0, 0.0, angle, "trafficlightsequence1")
+            ror_tobj_file.add_object(signal_x, signal_y, topography.get_z(node.lon, node.lat), 0.0, 0.0, angle, "trafficlightsequence1")
 
 
 def write_all_roads():

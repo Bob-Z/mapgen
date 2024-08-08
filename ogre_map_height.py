@@ -7,6 +7,7 @@ import ogre_otc_file
 import ogre_map_height
 import ogre_map_helper
 import gvar
+import topography
 
 MAX_COLOR = 0xff  # Because we use 8 bits PNG
 BLUR_RADIUS = 1
@@ -17,7 +18,7 @@ unblurred_entity = []
 
 
 def height_to_color(height):
-    return int(MAX_COLOR * height / ogre_otc_file.MAX_HEIGHT)
+    return int(MAX_COLOR * height / ogre_otc_file.get_height())
 
 
 def init():
@@ -31,29 +32,37 @@ def init():
 
     draw = PIL.ImageDraw.Draw(im)
 
+    if topography.is_enabled():
+        topography.fill_map_height(draw)
+
 
 def set_map_height(height):
-    global im
-    im.paste(ogre_map_height.height_to_color(height), (0, 0, im.size[0], im.size[1]))
+    if topography.is_enabled() is False:
+        global im
+        im.paste(ogre_map_height.height_to_color(height), (0, 0, im.size[0], im.size[1]))
 
 
-def draw_entity(osm_data, entity, outer_height, inner_height=None, draw_object=None):
-    global draw
-    if draw_object is None:
-        draw_object = draw
-    ogre_map_helper.draw_entity(draw_object, osm_data, entity, outer_height=outer_height, inner_height=inner_height)
+def draw_entity(osm_data, entity, outer_height, inner_height=None, draw_object=None, force=False):
+    if topography.is_enabled() is False or force is True:
+        global draw
+        if draw_object is None:
+            draw_object = draw
+        ogre_map_helper.draw_entity(draw_object, osm_data, entity, outer_height=outer_height, inner_height=inner_height)
+
 
 def draw_entity_unblurred(osm_data, entity, outer_height, inner_height=None):
-    unblurred_entity.append((osm_data, entity, outer_height, inner_height))
+    if topography.is_enabled() is False:
+        unblurred_entity.append((osm_data, entity, outer_height, inner_height))
 
 
 def draw_polygon(polygon, color):
-    if gvar.map_precision != 1.0:
-        new_polygon = []
-        for c in polygon:
-            new_polygon.append((c[0] / gvar.map_precision, c[1] / gvar.map_precision))
-        polygon = new_polygon
-    ogre_map_helper.draw_polygon(draw, polygon, color)
+    if topography.is_enabled() is False:
+        if gvar.map_precision != 1.0:
+            new_polygon = []
+            for c in polygon:
+                new_polygon.append((c[0] / gvar.map_precision, c[1] / gvar.map_precision))
+            polygon = new_polygon
+        ogre_map_helper.draw_polygon(draw, polygon, color)
 
 
 def create_file():

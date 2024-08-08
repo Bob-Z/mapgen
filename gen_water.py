@@ -38,7 +38,7 @@ def process(entity, osm_data=None):
 
     if "natural" in entity.tags:
         if entity.tags["natural"] == "water":
-            ogre_map_height.draw_entity(osm_data, entity, config.data["water_depth"], config.data["ground_line"])
+            ogre_map_height.draw_entity(osm_data, entity, config.data["water_depth"], config.data["ground_line"], force=True)
             ogre_map_surface.draw_rock_entity(osm_data, entity)
             entity.tags.pop("natural")
 
