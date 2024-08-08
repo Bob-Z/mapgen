@@ -21,34 +21,40 @@ import copy
 import ogre_map_height
 import ogre_map_surface
 import ror_terrn2_file
+import json
 
-if len(sys.argv) < 2 or len(sys.argv) > 5:
-    print("\nUsage: " + sys.argv[0] + " <latitude, longitude> <map size> <map precision> [OpenTopography API key]")
-    print("<latitude, longitude> coordinate of the map center")
-    print("<map size> Map is always square. This must be a power of 2. Default to 512 meters")
-    print(
-        "<map precision> Map precision in meters. (size x precision) must be a power of 2. Can be less than 1.0, but not negative. Default to 1 meter")
-    print("Eg: " + sys.argv[0] + " -15.408407657743856,28.280147286542533 256 0.5")
-    print("Default map name is \"mapgen\". This can be modified in config.json file.")
+skip_first = True
+for arg in sys.argv:
+    if skip_first:
+        skip_first = False
+        continue
+    param = arg.split('=')
+    if param[0] not in config.data:
+        print("Unknown parameter:", param[0])
+        sys.exit(0)
+    print("Parameter", param[0], "set to", param[1])
+    config.data[param[0]] = param[1]
+print("")
+
+center_coord = config.data["coord"].split(',')
+print("Coordinates:", center_coord)
+
+gvar.map_size = int(config.data["map_size"])
+if helper.is_power_of_2(gvar.map_size) is False:
+    print("Given map size is " + str(gvar.map_size) + ", but map size must be a power of 2")
     sys.exit(0)
+print("Map size:", gvar.map_size, "meters")
 
-if len(sys.argv) >= 3:
-    gvar.map_size = float(sys.argv[2])
-    if helper.is_power_of_2(gvar.map_size) is False:
-        print("Given map size is " + str(gvar.map_size) + ", but map size must be a power of 2")
-        sys.exit(0)
+gvar.map_precision = int(config.data["map_precision"])
+if helper.is_power_of_2(gvar.map_precision) is False:
+    print("Map precision must be a power of 2")
+    sys.exit(0)
+print("Map precision:", gvar.map_precision, "meters")
 
-if len(sys.argv) >= 4:
-    gvar.map_precision = float(sys.argv[3])
-    if helper.is_power_of_2(gvar.map_precision) is False:
-        print("Map precision must be a power of 2")
-        sys.exit(0)
+api_key = config.data["api_key"]
+# Avoid record API key in config.json
+config.data["api_key"] = ""
 
-api_key = None
-if len(sys.argv) >= 5:
-    api_key = sys.argv[4]
-
-center_coord = sys.argv[1].split(',')
 center_lat = float(center_coord[0])
 center_lon = float(center_coord[1])
 meter_by_decimal_latitude = helper.lat_lon_to_distance(center_lat, center_lat + 0.1, center_lon, center_lon)
@@ -71,20 +77,22 @@ if west > east:
 bbox.coord = {"north": north, "south": south, "west": west, "east": east}
 bbox.coordXY = {"north": helper.lat_to_y(north), "south": helper.lat_to_y(south), "west": helper.lon_to_x(west),
                 "east": helper.lon_to_x(east)}
-print("Bounding box:", bbox.coord, bbox.coordXY)
+#print("Bounding box:", bbox.coord, bbox.coordXY)
 
 print("Work path:", config.data["work_path"])
-
-if "export_path" in config.data:
-    gvar.EXPORT_PATH = config.data["export_path"]
-print("Export path: ", gvar.EXPORT_PATH)
+print("Export path:", config.data["export_path"])
+print("")
 
 topography.get(api_key)
 
 osm_data = osm.get_data()
-#open_elevation.get_data()
 
 ror_zip_file.create_default_file()
+
+json_string = json.dumps(config.data, indent=2)
+with open(config.data["work_path"] + "config.json", "w") as json_file:
+    json_file.write(json_string)
+ror_zip_file.add_to_zip_file_list("config.json")
 
 osm.dump_result_to_file(osm_data)
 

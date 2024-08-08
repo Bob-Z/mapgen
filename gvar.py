@@ -2,8 +2,6 @@ import os
 
 import config
 
-EXPORT_PATH = os.getenv("HOME") + "/.rigsofrods/"
-
 is_water_map = False
 
 map_size = 512.0

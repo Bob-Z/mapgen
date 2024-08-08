@@ -2,7 +2,6 @@ import bbox
 import ogre_map_height
 import ogre_map_surface
 import ogre_map_vegetation
-from gvar import EXPORT_PATH
 import os
 from zipfile import ZipFile
 import shutil
@@ -22,8 +21,6 @@ file_list = []
 
 
 def create_default_file():
-    print("Map size: ", gvar.map_size, "x", gvar.map_size)
-
     shutil.rmtree(config.data["work_path"], ignore_errors=True)
     os.makedirs(config.data["work_path"], exist_ok=True)
     shutil.rmtree(config.data["log_path"], ignore_errors=True)
@@ -64,7 +61,7 @@ cloud_layer\n{\nheight 2000\ncoverage 0.1\ncloud_uv_factor 6\n}\n\
 
 def write_default_file():
     all_files = os.listdir(config.data["resource_path"])
-    with ZipFile(EXPORT_PATH + "/mods/" + config.data["map_name"] + ".zip", 'w') as zip_object:
+    with ZipFile(config.data["export_path"] + config.data["map_name"] + ".zip", 'w') as zip_object:
         zip_object.write(otc_file_name, arcname=config.data["map_name"] + ".otc")
         zip_object.write(page_otc_file_name, arcname=config.data["map_name"] + "-page-0-0.otc")
         zip_object.write(os_file_name, arcname=config.data["map_name"] + ".os")
@@ -80,6 +77,6 @@ def add_to_zip_file_list(file_name_to_add):
 
 
 def create_zip_file():
-    with ZipFile(EXPORT_PATH + "/mods/" + config.data["map_name"] + ".zip", 'a') as zip_object:
+    with ZipFile(config.data["export_path"] + config.data["map_name"] + ".zip", 'a') as zip_object:
         for file in file_list:
             zip_object.write(config.data["work_path"] + file, arcname=file)

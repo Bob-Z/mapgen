@@ -1,4 +1,9 @@
 {
+"coord": "0.0,90.0",
+"map_size": "512",
+"map_precision": "1",
+"api_key": "",
+
 "generate_statistics": false,
 
 "display_name_comment": "Make sure 'decluter' is off in graphics parameters",
@@ -6,6 +11,7 @@
 "display_name_debug": false,
 
 "map_name": "mapgen",
+"export_path": "./",
 "work_path": "./work/",
 "log_path": "./log/",
 "resource_path": "./resource/",
