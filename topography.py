@@ -17,7 +17,7 @@ def is_enabled():
 
 
 def get(api_key):
-    if api_key is not None:
+    if api_key is not None and api_key != "":
         print("Fetch topography, please wait\n")
 
         params = Topography.DEFAULT.copy()
