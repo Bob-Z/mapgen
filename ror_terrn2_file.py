@@ -9,7 +9,7 @@ def create_file():
 Name = " + config.data["map_name"] + " generated terrain\n\
 GeometryConfig = " + config.data["map_name"] + ".otc" + "\n\
 CaelumConfigFile = " + config.data["map_name"] + ".os" + "\n\
-Water = 1\n \
+Water = 1\n\
 WaterLine = " + str(config.data["water_line"]) + "\n\
 AmbientColor = 1, 1, 1\n\
 StartPosition = " + str(gvar.map_size / 2) + " " + str(config.data["ground_line"]) + " " + str(gvar.map_size / 2) + "\n\

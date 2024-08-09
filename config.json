@@ -17,7 +17,7 @@
 "resource_path": "./resource/",
 "cache_path": "./cache",
 
-"world_ground_comment": "Available ground name: dirt, snow",
+"world_ground_comment": "Available ground name: dirt, snow, red_dirt",
 "world_ground": "dirt",
 
 

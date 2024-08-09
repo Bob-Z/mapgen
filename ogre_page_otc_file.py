@@ -8,6 +8,9 @@ def create_file():
     elif config.data["world_ground"] == "snow":
         world_ground = "10, snow_diffusespecular.dds, snow_normalheight.dds\\n"
         print("World ground: snow")
+    elif config.data["world_ground"] == "red_dirt":
+        world_ground = "10, red_dirt_diffusespecular.dds, red_dirt_normalheight.dds\\n"
+        print("World ground: red dirt")
     else:
         print("Unknown world ground", config.data["world_ground"], "defaulting to dirt")
 
