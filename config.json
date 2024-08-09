@@ -17,6 +17,8 @@
 "resource_path": "./resource/",
 "cache_path": "./cache",
 
+"generate_road": true,
+
 "ground_line": 8.0,
 "water_line": 7.5,
 "water_depth": 4.0,

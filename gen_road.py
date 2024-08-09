@@ -11,10 +11,11 @@ index = 1
 
 
 def process(entity, osm_data=None):
-    if osm_data is None:
-        process_way(entity)
-    else:
-        process_relation(entity, osm_data)
+    if bool(config.data["generate_road"]):
+        if osm_data is None:
+            process_way(entity)
+        else:
+            process_relation(entity, osm_data)
 
 
 def process_relation(relation, osm_data):
