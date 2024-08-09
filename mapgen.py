@@ -33,6 +33,16 @@ for arg in sys.argv:
         print("Unknown parameter:", param[0])
         sys.exit(0)
     print("Parameter", param[0], "set to", param[1])
+    if type(config.data[param[0]]) is bool:
+        if param[1].lower() in ['true', '1', 't', 'y', 'yes']:
+            param[1] = True
+        else:
+            param[1] = False
+    elif type(config.data[param[0]]) is float:
+        param[1] = float(param[1])
+    elif type(config.data[param[0]]) is int:
+        param[1] = int(param[1])
+
     config.data[param[0]] = param[1]
 print("")
 
@@ -77,7 +87,7 @@ if west > east:
 bbox.coord = {"north": north, "south": south, "west": west, "east": east}
 bbox.coordXY = {"north": helper.lat_to_y(north), "south": helper.lat_to_y(south), "west": helper.lon_to_x(west),
                 "east": helper.lon_to_x(east)}
-#print("Bounding box:", bbox.coord, bbox.coordXY)
+# print("Bounding box:", bbox.coord, bbox.coordXY)
 
 print("Work path:", config.data["work_path"])
 print("Export path:", config.data["export_path"])
