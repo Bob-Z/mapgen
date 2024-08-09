@@ -17,6 +17,10 @@
 "resource_path": "./resource/",
 "cache_path": "./cache",
 
+"world_ground_comment": "Available ground name: dirt, snow",
+"world_ground": "dirt",
+
+
 "generate_road": true,
 
 "ground_line": 8.0,
