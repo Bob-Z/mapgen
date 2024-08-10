@@ -276,6 +276,7 @@ def is_roof_shape_supported(shape):
     else:
         unsupported_roof_shape[shape] = True
         print("Unsupported roof shape", shape)
+        return False
 
 
 def generate_roof(shape, vertex2d, height, roof_height, vertex_index):

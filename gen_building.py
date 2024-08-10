@@ -109,18 +109,19 @@ def build_from_way(way, height=None, min_height=None, roof_height=None):
         if "name" in way.tags:
             display_name = way.tags["name"]
 
-    if wall_texture is None:
-        wall_texture = config.data["wall_texture"]
-    if top_texture is None:
-        top_texture = config.data["top_texture"]
-
     roof_shape = None
     if "roof:shape" in way.tags:
         roof_shape = way.tags["roof:shape"]
         way.tags.pop("roof:shape")
 
-        if top_texture is None and object_3d.is_roof_shape_supported(roof_shape) and roof_height is not None and roof_shape != "flat":
+        if top_texture is None and object_3d.is_roof_shape_supported(
+                roof_shape) and roof_height is not None and roof_shape != "flat":
             top_texture = config.data["roof_texture"]
+
+    if wall_texture is None:
+        wall_texture = config.data["wall_texture"]
+    if top_texture is None:
+        top_texture = config.data["top_texture"]
 
     object_3d.create_all_object_file(way.nodes, height, z=min_height,
                                      wall_texture=wall_texture,
