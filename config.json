@@ -54,6 +54,7 @@
 "sidewalk_width": 1.5,
 "sidewalk_height": 0.15,
 "shelter_ceiling": 0.15,
+"shelter_floor": 0.15,
 "taxiway_height": 0.1,
 
 "wall_texture": "mapgen_beige",

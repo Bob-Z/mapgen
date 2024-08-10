@@ -115,11 +115,7 @@ def get_height(entity):
             roof_height = h
             entity.tags.pop("est_roof:height")
     if roof_height is None and "roof:levels" in entity.tags:
-        roof_height = config.data["roof_height"]
-        roof_level = entity.tags["roof:levels"]
-        if int(roof_level) > 1:
-            roof_height = int(roof_level) * config.data["roof_height"]
-
+        roof_height = float(entity.tags["roof:levels"]) * config.data["roof_height"]
         entity.tags.pop("roof:levels")
 
     min_height = None
