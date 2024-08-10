@@ -58,6 +58,7 @@ def fill_map_height(draw):
     for w in range(image_width):
         # longitude = bbox.coord["west"] + (((bbox.coord["east"] - bbox.coord["west"]) / width) * w)
         width_percent = w / image_width
+        print(w/image_width*100.0, end='\r', flush=True)
         for h in range(image_height):
             # latitude = bbox.coord["south"] + (((bbox.coord["north"] - bbox.coord["south"]) / height) * h)
             height_percent = h / image_height
