@@ -36,11 +36,20 @@ def write_road(road_data):
 
 
 def add_tree(osm_data, entity, scaleFrom, scaleTo, density, mesh_name, collision_mesh_name):
-    map_file_name = ogre_map_vegetation.add_tree_map(osm_data, entity, 0xff)
+    map_file_name = ogre_map_vegetation.add_vegetation_map(osm_data, entity, 0xff)
     # trees yawFrom, yawTo, scaleFrom, scaleTo, highDensity, distance1, distance2, meshName colormap densitymap gridspacing collmesh
     new_line = "trees 0, 360, " + str(scaleFrom) + ", " + str(scaleTo) + ", 1.0, 250, " + str(
         gvar.map_size) + "," + mesh_name + " none " + map_file_name + " " + str(
         density) + "  " + collision_mesh_name + "\n"
+
+    with open(config.data["work_path"] + config.data["map_name"] + "_vegetation.tobj", "a") as tobj_file:
+        tobj_file.write(new_line)
+
+
+def add_grass(osm_data, entity, grass_name):
+    map_file_name = ogre_map_vegetation.add_vegetation_map(osm_data, entity, 0xff)
+    # format: grass range, SwaySpeed, SwayLength, SwayDistribution, Density, minx, miny, maxx, maxy, fadetype, minY, maxY, material colormap densitymap
+    new_line = "grass 200, 0.5, 0.05, 10, 0.3, 0.2, 0.2, 1, 1, 1, 0, 0, " + grass_name + " grass_diffusespecular.dds " + map_file_name + "\n"
 
     with open(config.data["work_path"] + config.data["map_name"] + "_vegetation.tobj", "a") as tobj_file:
         tobj_file.write(new_line)

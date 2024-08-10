@@ -13,6 +13,7 @@ def process(entity, osm_data=None):
     if "leisure" in entity.tags:
         if entity.tags["leisure"] == "park":
             ogre_map_surface.draw_grass_entity(osm_data, entity)
+            ror_tobj_file.add_grass(osm_data, entity, "grass2")
             entity.tags.pop("leisure")
             return True
         if entity.tags["leisure"] == "pitch":
@@ -50,6 +51,7 @@ def process(entity, osm_data=None):
     if "landuse" in entity.tags:
         if entity.tags["landuse"] == "grass" or entity.tags["landuse"] == "recreation_ground":
             ogre_map_surface.draw_grass_entity(osm_data, entity)
+            ror_tobj_file.add_grass(osm_data, entity, "grass3")
             entity.tags.pop("landuse")
             return True
         if entity.tags["landuse"] == "construction" or entity.tags["landuse"] == "industrial" or entity.tags[
@@ -59,6 +61,7 @@ def process(entity, osm_data=None):
             return True
         if entity.tags["landuse"] == "forest":
             ror_tobj_file.add_tree(osm_data, entity, 0.50, 1.40, -10, "tree.mesh", "tree.mesh")
+            ror_tobj_file.add_grass(osm_data, entity, "grass1")
             entity.tags.pop("landuse")
             return True
         if entity.tags["landuse"] == "orchard":
@@ -73,6 +76,7 @@ def process(entity, osm_data=None):
             return True
         if entity.tags["natural"] == "grassland" or entity.tags["natural"] == "scrub":
             ogre_map_surface.draw_grass_entity(osm_data, entity)
+            ror_tobj_file.add_grass(osm_data, entity, "grass4")
             entity.tags.pop("natural")
             return True
         if entity.tags["natural"] == "wood" or entity.tags["natural"] == "tree_group":

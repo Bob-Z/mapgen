@@ -13,7 +13,7 @@ def init():
     pass
 
 
-def add_tree_map(osm_data, entity, density):
+def add_vegetation_map(osm_data, entity, density):
     global index
 
     surf = PIL.Image.new(mode="L", size=(

@@ -2,6 +2,7 @@ import config
 import ogre_map_surface
 import ogre_map_height
 import object_3d
+import ror_tobj_file
 
 
 def process(entity, osm_data=None):
@@ -40,6 +41,7 @@ def process(entity, osm_data=None):
         if entity.tags["natural"] == "water":
             ogre_map_height.draw_entity(osm_data, entity, config.data["water_depth"], config.data["ground_line"], force=True)
             ogre_map_surface.draw_rock_entity(osm_data, entity)
+            ror_tobj_file.add_grass(osm_data, entity, "seaweed")
             entity.tags.pop("natural")
 
             if "type" in entity.tags:
