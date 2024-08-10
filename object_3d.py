@@ -24,7 +24,8 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
                            roof_shape=None,
                            roof_height=None,
                            barrier_width=config.data["barrier_width"],
-                           display_name=None):
+                           display_name=None,
+                           group_z=None):
     global object_index
 
     if height is None:
@@ -43,10 +44,14 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
         z = 0.0
 
     # Make object on the ground super high to avoid them to "float" when they are near a water coast
-    if z == 0.0:
+    if z <= 0.0:
         height += base_z
     else:
         z += base_z
+
+    # Make sure objects from a bigger object use the same z
+    if group_z is not None:
+        z += (group_z - base_z)
 
     need_roof = False
     if is_roof_shape_supported(roof_shape) and roof_height is not None:

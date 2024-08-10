@@ -27,6 +27,7 @@ negative_tag_value = [
     ["amenity", "shelter"],
     ["building", "roof"],
     ["landuse", None],
+    ["shelter_type", "public_transport"],
 ]
 
 

@@ -1,6 +1,7 @@
 import object_3d
 import config
 import osm
+import topography
 
 shelter_tag_value = [["amenity", "shelter"], ["building", "roof"], ["shelter", "yes"]]
 shelter_tag = []
@@ -75,12 +76,19 @@ def build_shelter(way, height, min_height, is_barrier):
     if min_height is None:
         min_height = 0.0
 
-        # Pillars
+    # Pillars
+    for node in way.nodes:
+        group_z = 0.0
+        z = topography.get_z(node.lon, node.lat)
+        if z > group_z:
+            group_z = z
+
     for node in way.nodes:
         object_3d.create_all_object_file([node], height, z=min_height,
                                          wall_texture=config.data["wall_texture"],
                                          top_texture=config.data["top_texture"],
-                                         is_barrier=is_barrier)
+                                         is_barrier=is_barrier,
+                                         group_z=group_z)
         # Roof
         # Z is pillars' height
     object_3d.create_all_object_file(way.nodes, config.data["shelter_ceiling"], z=height + min_height,
