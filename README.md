@@ -10,7 +10,7 @@ pip install overpy
 
 *bmi-topography*: https://bmi-topography.readthedocs.io/en/latest/
 
-pip install topography
+pip install bmi-topography
 
 *OgreXMLConverter* executable must be in the user's PATH environment variable
 
@@ -33,7 +33,7 @@ The most useful parameters are:
  - export_path: Where to write the resulting zip file.
  - api_key: If provided, the map use height map. Get your API key here: https://opentopography.org/.
  
-### Eg:
+### Examples:
 Paris:
     python3 mapgen.py map_name=mapgen_paris coord=48.858550270756076,2.294099690364275 map_size=1024 map_precision=1
 
