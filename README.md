@@ -22,7 +22,7 @@ or
     mapgen.py [config.json parameters overload]
 
 Without parameters, mapgen use parameters in config.json file.
-Every parameters in this file can be overloaded on the command line with "parameter>=<value"
+Every parameters in this file can be overloaded on the command line with "parameter=value"
 
 The most useful parameters are:
 
