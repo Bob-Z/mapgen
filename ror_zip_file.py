@@ -12,6 +12,7 @@ import config
 
 file_list = []
 
+
 def create_default_file():
     shutil.rmtree(config.data["work_path"], ignore_errors=True)
     os.makedirs(config.data["work_path"], exist_ok=True)
@@ -31,7 +32,8 @@ def create_default_file():
         tobj_file.write("\n")
 
     with open(config.data["work_path"] + config.data["map_name"] + "_vegetation.tobj", "w") as tobj_file:
-        tobj_file.write("//trees yawFrom, yawTo, scaleFrom, scaleTo, highDensity, distance1, distance2, meshName colormap densitymap gridspacing collmesh\n")
+        tobj_file.write(
+            "//trees yawFrom, yawTo, scaleFrom, scaleTo, highDensity, distance1, distance2, meshName colormap densitymap gridspacing collmesh\n")
 
     with open(config.data["work_path"] + config.data["map_name"] + ".os", "w") as file:
         file.write("caelum_sky_system " + config.data[
@@ -53,15 +55,21 @@ cloud_layer\n{\nheight 2000\ncoverage 0.1\ncloud_uv_factor 6\n}\n\
 
 def write_default_file():
     all_files = os.listdir(config.data["resource_path"])
-    with ZipFile(config.data["export_path"] + config.data["map_name"] + ".zip", 'w') as zip_object:
-        zip_object.write(config.data["work_path"] + config.data["map_name"] + ".otc", arcname=config.data["map_name"] + ".otc")
-        zip_object.write(config.data["work_path"] + config.data["map_name"] + "-page-0-0.otc", arcname=config.data["map_name"] + "-page-0-0.otc")
-        zip_object.write(config.data["work_path"] + config.data["map_name"] + ".os", arcname=config.data["map_name"] + ".os")
+    file_name = config.data["export_path"] + config.data["map_name"] + ".zip"
+    with ZipFile(file_name, 'w') as zip_object:
+        zip_object.write(config.data["work_path"] + config.data["map_name"] + ".otc",
+                         arcname=config.data["map_name"] + ".otc")
+        zip_object.write(config.data["work_path"] + config.data["map_name"] + "-page-0-0.otc",
+                         arcname=config.data["map_name"] + "-page-0-0.otc")
+        zip_object.write(config.data["work_path"] + config.data["map_name"] + ".os",
+                         arcname=config.data["map_name"] + ".os")
         zip_object.write(config.data["work_path"] + config.data["map_name"] + ".terrn2",
                          arcname=config.data["map_name"] + ".terrn2")
         for file in all_files:
             zip_object.write(config.data["resource_path"] + file,
                              arcname=file)
+
+        print(file_name, "written")
 
 
 def add_to_zip_file_list(file_name_to_add):
