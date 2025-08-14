@@ -4,13 +4,9 @@ This has been tested on Linux only. Feedbacks for other systems are welcome.
 
 # Dependencies:
 
-## *Overpy*: https://pypi.org/project/overpy/
-
-pip install overpy
-
-## *bmi-topography*: https://bmi-topography.readthedocs.io/en/latest/
-
-pip install bmi-topography
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
 ## *OgreXMLConverter* executable must be in the user's PATH environment variable
 
