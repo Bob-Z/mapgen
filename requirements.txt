@@ -1,0 +1,10 @@
+numpy
+pillow
+bmi-topography
+overpy
+wikidata
+pyWikiCommons
+#torch
+#diffusers
+#transformers
+#accelerate
