@@ -5,7 +5,9 @@ This has been tested on Linux only. Feedbacks for other systems are welcome.
 # Dependencies:
 
 python3 -m venv .venv
+
 source .venv/bin/activate
+
 pip install -r requirements.txt
 
 ## *OgreXMLConverter* executable must be in the user's PATH environment variable
