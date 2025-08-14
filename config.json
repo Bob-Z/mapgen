@@ -16,12 +16,15 @@
 "log_path": "./log/",
 "resource_path": "./resource/",
 "cache_path": "./cache",
+"OgreAssimp_path": "./bin/linux/",
 
 "world_ground_comment": "Available ground name: dirt, snow, red_dirt",
 "world_ground": "dirt",
 
-
 "generate_road": true,
+
+"use_wikidata_comment": "Fetch 3D models from wikidata when available",
+"use_wikidata": false,
 
 "ground_line": 8.0,
 "water_line": 7.5,

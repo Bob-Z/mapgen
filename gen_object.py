@@ -1,10 +1,7 @@
 import ror_tobj_file
 import random
 import helper
-from wikidata.client import Client
 import topography
-
-wikidata_client = Client()
 
 
 def process(node):

@@ -15,7 +15,7 @@ def get_data():
 
     cache_file_path = config.data["cache_path"] + "/" + bounding_box
     if os.path.isfile(cache_file_path):
-        print("Reading OpenStreetMap cache file " + cache_file_path + "rm \n")
+        print("Reading OpenStreetMap cache file " + cache_file_path + "\n")
         with open(cache_file_path, 'rb') as file:
             result = pickle.load(file)
     else:

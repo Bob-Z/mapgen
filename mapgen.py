@@ -22,6 +22,7 @@ import ogre_map_height
 import ogre_map_surface
 import ror_terrn2_file
 import json
+import wiki
 
 skip_first = True
 for arg in sys.argv:
@@ -92,6 +93,8 @@ bbox.coordXY = {"north": helper.lat_to_y(north), "south": helper.lat_to_y(south)
 print("Work path:", config.data["work_path"])
 print("Export path:", config.data["export_path"])
 print("")
+
+wiki.init()
 
 topography.get(api_key)
 
