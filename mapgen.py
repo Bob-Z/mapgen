@@ -23,6 +23,18 @@ import ogre_map_surface
 import ror_terrn2_file
 import json
 import wiki
+import os
+
+try:
+    os.mkdir(config.data["cache_path"])
+except OSError as e:
+    if e.errno != 17:
+        raise e
+try:
+    os.mkdir(config.data["work_path"])
+except OSError as e:
+    if e.errno != 17:
+        raise e
 
 skip_first = True
 for arg in sys.argv:
