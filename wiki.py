@@ -42,7 +42,8 @@ def get_data(entity, osm_data=None):
         try:
             wiki = wikidata_client.get(entity.tags["wikidata"], load=True)
         except urllib.error.HTTPError as e:
-            print("Cannot download wikidata page ", entity.tags["wikidata"], ":", e, ". Try to update wikidata package.")
+            print("Cannot download wikidata page ", entity.tags["wikidata"], ":", e,
+                  ". Try to update wikidata package.")
             return False
 
         if "P4896" in wiki.attributes["claims"]:
@@ -110,9 +111,8 @@ def get_data(entity, osm_data=None):
             way = osm.get_way_by_id(osm_data, member.ref)
             way.tags['mapgen'] = "ignored_entity_wikidata"
 
-
-
     return found
+
 
 # this give an angle between the largest edge of the given way and the largest edge of the given mesh
 # This is highly empirical, but it seems to work
