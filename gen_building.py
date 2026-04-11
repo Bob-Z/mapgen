@@ -8,7 +8,7 @@ import wiki
 build_tag_value = [
     # first pass
     [
-        ["building:part", "yes"],
+        ["building:part", None],
     ],
     # second pass
     [
