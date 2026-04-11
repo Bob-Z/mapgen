@@ -132,6 +132,15 @@ osm_tags.filter_ignored(osm_data.relations)
 
 gen_sea.process(osm_data)
 
+if config.data["use_wikidata"] is True:
+    print("Searching for 3D model in OSM data...")
+    for rel in osm_data.relations:
+        wiki.get_data(rel, osm_data)
+    for way in osm_data.ways:
+        wiki.get_data(way, osm_data)
+    wiki.print_data()
+    print("")
+
 print("Processing nodes...")
 node_total = len(osm_data.nodes)
 node_qty = 0
@@ -239,8 +248,6 @@ for way in osm_data.ways:
         continue
 
 print("ways: ", way_qty, "/", way_total)
-
-wiki.print_data()
 
 ror_terrn2_file.create_file()
 

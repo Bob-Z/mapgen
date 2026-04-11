@@ -28,7 +28,7 @@ negative_tag_value = [
     ["shelter_type", "public_transport"],
 ]
 
-
+# Return True if entity as been processed successfully
 def process(entity, osm_data=None, pass_index=0):
     for tag_value in build_tag_value[pass_index]:
         if tag_value[0] in entity.tags:
@@ -52,9 +52,6 @@ def process(entity, osm_data=None, pass_index=0):
 def build_from_relation(osm_data, rel):
     height, min_height, roof_height = osm.get_height(rel)
 
-    if wiki.get_data(rel, osm_data) is True:
-        return
-
     for member in rel.members:
         way = osm.get_way_by_id(osm_data, member.ref)
         if way is not None:
@@ -68,9 +65,6 @@ def build_from_relation(osm_data, rel):
 
 def build_from_way(way, height=None, min_height=None, roof_height=None):
     if "mapgen" in way.tags and way.tags["mapgen"] == "used_by_relation":
-        return
-
-    if wiki.get_data(way) is True:
         return
 
     is_barrier = False

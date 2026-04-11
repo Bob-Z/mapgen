@@ -20,6 +20,8 @@ wikidata_client = Client()
 wikidata_found = 0
 wikidata_downloaded = 0
 wikidata_read_from_cache = 0
+wikidata_with_3d = 0
+
 
 def init():
     if config.data["use_wikidata"] is True:
@@ -37,9 +39,6 @@ def init():
 
 # Return True if successfully got data
 def get_data(entity, osm_data=None):
-    if config.data["use_wikidata"] is False:
-        return False
-
     found = False
 
     if "wikidata" in entity.tags:
@@ -70,10 +69,10 @@ def get_data(entity, osm_data=None):
             cache_stl_file_path = config.data["cache_path"] + "/" + name
             work_stl_file_path = config.data["work_path"] + "/" + name
             if os.path.isfile(cache_stl_file_path):
-                print("Reading cached 3D model file " + cache_stl_file_path + " \n")
+                print("Reading cached 3D model file " + cache_stl_file_path)
                 shutil.copyfile(cache_stl_file_path, work_stl_file_path)
             else:
-                print("Download 3D model file " + cache_stl_file_path + " \n")
+                print("Download 3D model file " + cache_stl_file_path)
                 pyWikiCommons.download_commons_image(wiki_name, config.data["work_path"])
                 shutil.move(config.data["work_path"] + "/File:" + wiki_name, config.data["work_path"] + name)
                 shutil.copyfile(work_stl_file_path, cache_stl_file_path)
@@ -110,23 +109,20 @@ def get_data(entity, osm_data=None):
                                      ry=0,
                                      rz=rotation, name=short_name)
 
+            global wikidata_with_3d
+            wikidata_with_3d += 1
             config.data["use_wikidata"] = False
             found = True
 
     # If entity is a relation, try to find wikidata in each ways
     if found is False and osm_data is not None:
-        for member in entity.members:
-            way = osm.get_way_by_id(osm_data, member.ref)
-            if way is not None:
-                if get_data(way) is True:
-                    found = True
-                    break
-
-    # Remove all ways of the relation
-    if found is True and osm_data is not None:
-        for member in entity.members:
-            way = osm.get_way_by_id(osm_data, member.ref)
-            way.tags['mapgen'] = "ignored_entity_wikidata"
+        if hasattr(entity, 'members'):
+            for member in entity.members:
+                way = osm.get_way_by_id(osm_data, member.ref)
+                if way is not None:
+                    if get_data(way) is True:
+                        found = True
+                        break
 
     return found
 
@@ -166,11 +162,14 @@ def calculate_rotation_angle(entity, xml_file_path):
 
     return helper.angle_between(entity_v1, entity_v2, moved_mesh_v1)
 
+
 def print_data():
     global wikidata_found
     global wikidata_downloaded
     global wikidata_read_from_cache
+    global wikidata_with_3d
 
     print("wikidata tags found:", wikidata_found)
     print("wikidata data downloaded:", wikidata_downloaded)
     print("wikidata data read from cache:", wikidata_read_from_cache)
+    print("wikidata data with 3D model:", wikidata_with_3d)
