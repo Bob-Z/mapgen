@@ -1,13 +1,18 @@
+import math
 import config
 from wikidata.client import Client
 from pyWikiCommons import pyWikiCommons
 import os
 import shutil
 import subprocess
+import topography
+import helper
 import ror_odef_file
 import ror_tobj_file
 import ror_zip_file
 import osm
+import mesh
+import urllib
 
 wikidata_client = Client()
 
@@ -26,7 +31,7 @@ def init():
             print("OgreAssimpConverter found, wikidata's 3D model download enabled")
 
 
-# Return True if got successfully
+# Return True if successfully got data
 def get_data(entity, osm_data=None):
     if config.data["use_wikidata"] is False:
         return False
@@ -34,35 +39,63 @@ def get_data(entity, osm_data=None):
     found = False
 
     if "wikidata" in entity.tags:
-        wiki = wikidata_client.get(entity.tags["wikidata"], load=True)
+        try:
+            wiki = wikidata_client.get(entity.tags["wikidata"], load=True)
+        except urllib.error.HTTPError as e:
+            print("Cannot download wikidata page ", entity.tags["wikidata"], ":", e, ". Try to update wikidata package.")
+            return False
+
         if "P4896" in wiki.attributes["claims"]:
             wiki_name = wiki.attributes["claims"]["P4896"][0]["mainsnak"]["datavalue"]["value"]
 
             name = wiki_name.replace(' ', '_')
-            cache_stl_file_path = config.data["cache_path"] + name
-            work_stl_file_path = config.data["work_path"] + name
+            cache_stl_file_path = config.data["cache_path"] + "/" + name
+            work_stl_file_path = config.data["work_path"] + "/" + name
             if os.path.isfile(cache_stl_file_path):
                 print("Reading cached 3D model file " + cache_stl_file_path + " \n")
                 shutil.copyfile(cache_stl_file_path, work_stl_file_path)
             else:
+                print("Download 3D model file " + cache_stl_file_path + " \n")
                 pyWikiCommons.download_commons_image(wiki_name, config.data["work_path"])
                 shutil.move(config.data["work_path"] + "/File:" + wiki_name, config.data["work_path"] + name)
                 shutil.copyfile(work_stl_file_path, cache_stl_file_path)
-                print("P4896 available for entity", entity, name)
 
-            subprocess.Popen([config.data["OgreAssimp_path"] + "OgreAssimpConverter", work_stl_file_path],
-                             stdout=subprocess.DEVNULL,
-                             stderr=subprocess.STDOUT
-                             )
+            process = subprocess.Popen([config.data["OgreAssimp_path"] + "OgreAssimpConverter", work_stl_file_path],
+                                       stdout=subprocess.DEVNULL,
+                                       stderr=subprocess.STDOUT
+                                       )
+            process.wait()
 
             short_name = name.removesuffix(".stl")
             ror_zip_file.add_to_zip_file_list(short_name + ".mesh")
             ror_zip_file.add_to_zip_file_list(short_name + ".material")
-            ror_odef_file.create_file(short_name)
-            ror_tobj_file.add_object(0, 0, 0, 0, 0, 0, short_name)
+
+            # convert bin mesh to XML mesh
+            process = subprocess.Popen(["OgreXMLConverter", config.data["work_path"] + short_name + ".mesh"],
+                                       stdout=subprocess.DEVNULL,
+                                       stderr=subprocess.STDOUT
+                                       )
+            process.wait()
+
+            xml_file_path = config.data["work_path"] + short_name + ".mesh.xml"
+            mesh_height = mesh.get_height(xml_file_path)
+            entity_height = osm.get_height(entity)[0]
+
+            factor = entity_height / mesh_height
+
+            ror_odef_file.create_file(short_name, size_x=factor, size_y=factor, size_z=factor)
+
+            lon, lat = osm.get_pseudo_center_lon_lat(entity)
+            rotation = calculate_rotation_angle(entity, xml_file_path)
+
+            ror_tobj_file.add_object(x=helper.lon_to_x(lon), y=helper.lat_to_y(lat), z=topography.get_z(lon, lat), rx=0,
+                                     ry=0,
+                                     rz=rotation, name=short_name)
+
             config.data["use_wikidata"] = False
             found = True
 
+    # If entity is a relation, try to find wikidata in each ways
     if found is False and osm_data is not None:
         for member in entity.members:
             way = osm.get_way_by_id(osm_data, member.ref)
@@ -74,13 +107,44 @@ def get_data(entity, osm_data=None):
     # Remove all ways of the relation
     if found is True and osm_data is not None:
         for member in entity.members:
-            index = 0
-            while index < len(osm_data.ways):
-                if osm_data.ways[index].id == member.ref:
-                    osm_data.way_ids.pop(index)
-                    osm_data.ways.pop(index)
-                    print("remove", osm_data.ways[index])
-                    break
-                index += 1
+            way = osm.get_way_by_id(osm_data, member.ref)
+            way.tags['mapgen'] = "ignored_entity_wikidata"
+
+
 
     return found
+
+# this give an angle between the largest edge of the given way and the largest edge of the given mesh
+# This is highly empirical, but it seems to work
+def calculate_rotation_angle(entity, xml_file_path):
+    entity_xy = osm.get_extreme_x_y(entity)
+    mesh_xy = mesh.get_extreme_x_y(xml_file_path)
+
+    # get longest entity segment
+    entity_max_size = 0
+    entity_max_size_index = 0
+    entity_segment_size = [0, 0, 0, 0]
+    mesh_max_size = 0
+    mesh_max_size_index = 0
+    mesh_segment_size = [0, 0, 0, 0]
+    for i in range(4):
+        entity_segment_size[i] = math.sqrt(
+            (entity_xy[i][0] - entity_xy[(i + 1) % 4][0]) * (entity_xy[i][0] - entity_xy[(i + 1) % 4][0])
+            + (entity_xy[i][1] - entity_xy[(i + 1) % 4][1]) * (entity_xy[i][1] - entity_xy[(i + 1) % 4][1]))
+        if entity_segment_size[i] > entity_max_size:
+            entity_max_size = entity_segment_size[i]
+            entity_max_size_index = i
+
+        mesh_segment_size[i] = math.sqrt(
+            (mesh_xy[i][0] - mesh_xy[(i + 1) % 4][0]) * (mesh_xy[i][0] - mesh_xy[(i + 1) % 4][0])
+            + (mesh_xy[i][1] - mesh_xy[(i + 1) % 4][1]) * (mesh_xy[i][1] - mesh_xy[(i + 1) % 4][1]))
+        if mesh_segment_size[i] > mesh_max_size:
+            mesh_max_size = mesh_segment_size[i]
+            mesh_max_size_index = i
+
+    entity_v1 = (entity_xy[entity_max_size_index])
+    entity_v2 = (entity_xy[(entity_max_size_index - 1) % 4])
+    moved_mesh_v1 = (mesh_xy[(mesh_max_size_index - 1) % 4][0] + (entity_v2[0] - mesh_xy[mesh_max_size_index][0]),
+                     mesh_xy[(mesh_max_size_index - 1) % 4][1] + (entity_v2[1] - mesh_xy[mesh_max_size_index][1]))
+
+    return helper.angle_between(entity_v1, entity_v2, moved_mesh_v1)

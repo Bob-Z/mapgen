@@ -24,7 +24,7 @@
 "generate_road": true,
 
 "use_wikidata_comment": "Fetch 3D models from wikidata when available",
-"use_wikidata": false,
+"use_wikidata": true,
 
 "ground_line": 8.0,
 "water_line": 7.5,
