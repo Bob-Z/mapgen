@@ -22,6 +22,8 @@ wikidata_downloaded = 0
 wikidata_read_from_cache = 0
 wikidata_with_3d = 0
 
+wikidata_id_found = []
+
 
 def init():
     if config.data["use_wikidata"] is True:
@@ -43,6 +45,12 @@ def get_data(entity, osm_data=None):
 
     if "wikidata" in entity.tags:
         global wikidata_found
+        global wikidata_id_found
+
+        if entity.tags["wikidata"] in wikidata_id_found:
+            print(entity.tags["wikidata"],"already found, skipping")
+            return False
+
         wikidata_found += 1
         cache_wikidata_file_path = config.data["cache_path"] + "/wikidata_" + entity.tags["wikidata"]
         if os.path.isfile(cache_wikidata_file_path):
@@ -96,7 +104,15 @@ def get_data(entity, osm_data=None):
 
             xml_file_path = config.data["work_path"] + short_name + ".mesh.xml"
             mesh_height = mesh.get_height(xml_file_path)
-            entity_height = osm.get_height(entity)[0]
+
+            if "P2048" in wiki.attributes["claims"]:
+                entity_height_str = wiki.attributes["claims"]["P2048"][0]["mainsnak"]["datavalue"]["value"]["amount"]
+                entity_height = float(entity_height_str.replace("+",""))
+            else:
+                entity_height = osm.get_height(entity)[0]
+                if entity_height is None:
+                    print("Unable to find height of ", entity.tags["wikidata"])
+                    return False
 
             factor = entity_height / mesh_height
 
@@ -109,6 +125,8 @@ def get_data(entity, osm_data=None):
                                      ry=0,
                                      rz=rotation, name=short_name)
 
+
+            wikidata_id_found.append(entity.tags["wikidata"])
             global wikidata_with_3d
             wikidata_with_3d += 1
             config.data["use_wikidata"] = False
