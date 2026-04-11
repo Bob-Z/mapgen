@@ -24,8 +24,13 @@ def get_data():
         print("Requesting OpenStreetMap")
         start_time = time.time()
         overpy_api = overpy.Overpass()
-        result = overpy_api.query(
-            "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;")
+        try:
+            result = overpy_api.query(
+                "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;")
+        except overpy.exception.OverpassGatewayTimeout as e:
+            print("OSM server error: ", e)
+            print("Retry in a few seconds, or try a smaller map")
+            return None
         end_time = time.time()
 
         print("Done in " + str(end_time - start_time) + " seconds\n")
