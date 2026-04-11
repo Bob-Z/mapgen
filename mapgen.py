@@ -240,6 +240,8 @@ for way in osm_data.ways:
 
 print("ways: ", way_qty, "/", way_total)
 
+wiki.print_data()
+
 ror_terrn2_file.create_file()
 
 ror_zip_file.add_to_zip_file_list(config.data["map_name"] + ".tobj")

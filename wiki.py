@@ -13,9 +13,13 @@ import ror_zip_file
 import osm
 import mesh
 import urllib
+import pickle
 
 wikidata_client = Client()
 
+wikidata_found = 0
+wikidata_downloaded = 0
+wikidata_read_from_cache = 0
 
 def init():
     if config.data["use_wikidata"] is True:
@@ -39,12 +43,25 @@ def get_data(entity, osm_data=None):
     found = False
 
     if "wikidata" in entity.tags:
-        try:
-            wiki = wikidata_client.get(entity.tags["wikidata"], load=True)
-        except urllib.error.HTTPError as e:
-            print("Cannot download wikidata page ", entity.tags["wikidata"], ":", e,
-                  ". Try to update wikidata package.")
-            return False
+        global wikidata_found
+        wikidata_found += 1
+        cache_wikidata_file_path = config.data["cache_path"] + "/wikidata_" + entity.tags["wikidata"]
+        if os.path.isfile(cache_wikidata_file_path):
+            with open(cache_wikidata_file_path, "rb") as pickle_file:
+                wiki = pickle.load(pickle_file)
+            global wikidata_read_from_cache
+            wikidata_read_from_cache += 1
+        else:
+            try:
+                wiki = wikidata_client.get(entity.tags["wikidata"], load=True)
+                with open(cache_wikidata_file_path, "wb") as pickle_file:
+                    pickle.dump(wiki, pickle_file)
+                    global wikidata_downloaded
+                    wikidata_downloaded += 1
+            except urllib.error.HTTPError as e:
+                print("Cannot download wikidata page ", entity.tags["wikidata"], ":", e,
+                      ". Try to update wikidata package.")
+                return False
 
         if "P4896" in wiki.attributes["claims"]:
             wiki_name = wiki.attributes["claims"]["P4896"][0]["mainsnak"]["datavalue"]["value"]
@@ -148,3 +165,12 @@ def calculate_rotation_angle(entity, xml_file_path):
                      mesh_xy[(mesh_max_size_index - 1) % 4][1] + (entity_v2[1] - mesh_xy[mesh_max_size_index][1]))
 
     return helper.angle_between(entity_v1, entity_v2, moved_mesh_v1)
+
+def print_data():
+    global wikidata_found
+    global wikidata_downloaded
+    global wikidata_read_from_cache
+
+    print("wikidata tags found:", wikidata_found)
+    print("wikidata data downloaded:", wikidata_downloaded)
+    print("wikidata data read from cache:", wikidata_read_from_cache)
