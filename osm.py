@@ -176,7 +176,7 @@ def convert_height_to_meter(height):
     return height_in_meter
 
 # return x,y coordinate of 4 points: the lowest lon, the highest lon, the lowest lat, the highest lat,
-def get_extreme_x_y(entity):
+def get_extreme_x_y(nodes):
     min_lat = 90.0
     max_lat = -90.0
     min_lon = 180.0
@@ -187,7 +187,7 @@ def get_extreme_x_y(entity):
     min_lon_lat = 0.0
     max_lon_lat = 0.0
 
-    for n in entity.nodes:
+    for n in nodes:
         if n.lat < min_lat:
             min_lat = n.lat
             min_lat_lon = n.lon
@@ -208,13 +208,13 @@ def get_extreme_x_y(entity):
             (helper.lon_to_x(max_lat_lon), helper.lat_to_y(max_lat)))
 
 
-def get_pseudo_center_lon_lat(entity):
+def get_pseudo_center_lon_lat(nodes):
     min_lat = 90.0
     max_lat = -90.0
     min_lon = 180.0
     max_lon = -180.0
 
-    for n in entity.nodes:
+    for n in nodes:
         if n.lat < min_lat:
             min_lat = n.lat
         if n.lat > max_lat:

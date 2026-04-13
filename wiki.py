@@ -118,8 +118,21 @@ def get_data(entity, osm_data=None):
 
             ror_odef_file.create_file(short_name, size_x=factor, size_y=factor, size_z=factor)
 
-            lon, lat = osm.get_pseudo_center_lon_lat(entity)
-            rotation = calculate_rotation_angle(entity, xml_file_path)
+            nodes = None
+            if hasattr(entity, "nodes"):
+                nodes = entity.nodes
+            else:
+                for member in entity.members:
+                    way = osm.get_way_by_id(osm_data, member.ref)
+                    if way is not None:
+                        nodes = way.nodes
+
+            if nodes is None:
+                print("Can't find nodes for ", entity.tags["wikidata"])
+                return False
+
+            lon, lat = osm.get_pseudo_center_lon_lat(nodes)
+            rotation = calculate_rotation_angle(nodes, xml_file_path)
 
             ror_tobj_file.add_object(x=helper.lon_to_x(lon), y=helper.lat_to_y(lat), z=topography.get_z(lon, lat), rx=0,
                                      ry=0,
@@ -147,8 +160,8 @@ def get_data(entity, osm_data=None):
 
 # this give an angle between the largest edge of the given way and the largest edge of the given mesh
 # This is highly empirical, but it seems to work
-def calculate_rotation_angle(entity, xml_file_path):
-    entity_xy = osm.get_extreme_x_y(entity)
+def calculate_rotation_angle(nodes, xml_file_path):
+    entity_xy = osm.get_extreme_x_y(nodes)
     mesh_xy = mesh.get_extreme_x_y(xml_file_path)
 
     # get longest entity segment
