@@ -136,10 +136,10 @@ def get_data(entity, osm_data=None):
                 print("Can't find nodes for ", entity.tags["wikidata"])
                 return False
 
-            lon, lat = osm.get_pseudo_center_lon_lat(nodes)
+            polygon = helper.node_to_polygon(nodes)
             rotation = calculate_rotation_angle(nodes, xml_file_path)
 
-            ror_tobj_file.add_object(x=helper.lon_to_x(lon), y=helper.lat_to_y(lat), z=topography.get_z(lon, lat), rx=0,
+            ror_tobj_file.add_object(x=helper.lon_to_x(polygon.centroid.x), y=helper.lat_to_y(polygon.centroid.y), z=topography.get_z(polygon.centroid.x, polygon.centroid.y), rx=0,
                                      ry=0,
                                      rz=rotation, name=short_name)
 
