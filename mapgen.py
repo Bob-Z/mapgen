@@ -141,8 +141,6 @@ if config.data["use_wikidata"] is True:
         wiki.get_data(rel, osm_data)
     for way in osm_data.ways:
         wiki.get_data(way, osm_data)
-    wiki.print_data()
-    print("")
 
 print("Processing nodes...")
 node_total = len(osm_data.nodes)
@@ -251,6 +249,9 @@ for way in osm_data.ways:
         continue
 
 print("ways: ", way_qty, "/", way_total)
+print("")
+
+wiki.print_data()
 
 ror_terrn2_file.create_file()
 

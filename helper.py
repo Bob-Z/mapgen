@@ -3,6 +3,7 @@ import bbox
 import numpy
 from math import atan2, degrees
 import gvar
+from shapely import Polygon
 
 EARTH_RADIUS = 6371000
 
@@ -170,3 +171,10 @@ def node_to_map_coord(all_node):
         all_coord.append(y)
 
     return all_coord
+
+
+def node_to_polygon(nodes):
+    poly = []
+    for n in nodes:
+        poly.append((n.lon, n.lat))
+    return Polygon(poly)

@@ -4,7 +4,6 @@ import config
 import osm
 import wiki
 
-
 build_tag_value = [
     # first pass
     [
@@ -27,6 +26,7 @@ negative_tag_value = [
     ["landuse", None],
     ["shelter_type", "public_transport"],
 ]
+
 
 # Return True if entity as been processed successfully
 def process(entity, osm_data=None, pass_index=0):
@@ -65,6 +65,9 @@ def build_from_relation(osm_data, rel):
 
 def build_from_way(way, height=None, min_height=None, roof_height=None):
     if "mapgen" in way.tags and way.tags["mapgen"] == "used_by_relation":
+        return
+
+    if wiki.is_object_crossing(way.nodes) is True:
         return
 
     is_barrier = False

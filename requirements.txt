@@ -4,6 +4,7 @@ bmi-topography
 overpy
 wikidata
 pyWikiCommons
+shapely
 #torch
 #diffusers
 #transformers

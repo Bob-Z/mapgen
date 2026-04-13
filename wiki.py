@@ -15,14 +15,19 @@ import mesh
 import urllib
 import pickle
 
+# import matplotlib.pyplot as plt
+
 wikidata_client = Client()
 
 wikidata_found = 0
 wikidata_downloaded = 0
 wikidata_read_from_cache = 0
 wikidata_with_3d = 0
+wikidata_cleaned_crossing = 0
 
 wikidata_id_found = []
+
+wikidata_3D_model_shape = []
 
 
 def init():
@@ -48,7 +53,7 @@ def get_data(entity, osm_data=None):
         global wikidata_id_found
 
         if entity.tags["wikidata"] in wikidata_id_found:
-            print(entity.tags["wikidata"],"already found, skipping")
+            print(entity.tags["wikidata"], "already found, skipping")
             return False
 
         wikidata_found += 1
@@ -107,7 +112,7 @@ def get_data(entity, osm_data=None):
 
             if "P2048" in wiki.attributes["claims"]:
                 entity_height_str = wiki.attributes["claims"]["P2048"][0]["mainsnak"]["datavalue"]["value"]["amount"]
-                entity_height = float(entity_height_str.replace("+",""))
+                entity_height = float(entity_height_str.replace("+", ""))
             else:
                 entity_height = osm.get_height(entity)[0]
                 if entity_height is None:
@@ -138,11 +143,12 @@ def get_data(entity, osm_data=None):
                                      ry=0,
                                      rz=rotation, name=short_name)
 
+            if config.data["ignore_osm_data_crossing_wikidata_model"] is True:
+                wikidata_3D_model_shape.append(helper.node_to_polygon(nodes))
 
             wikidata_id_found.append(entity.tags["wikidata"])
             global wikidata_with_3d
             wikidata_with_3d += 1
-            config.data["use_wikidata"] = False
             found = True
 
     # If entity is a relation, try to find wikidata in each ways
@@ -194,13 +200,35 @@ def calculate_rotation_angle(nodes, xml_file_path):
     return helper.angle_between(entity_v1, entity_v2, moved_mesh_v1)
 
 
-def print_data():
-    global wikidata_found
-    global wikidata_downloaded
-    global wikidata_read_from_cache
-    global wikidata_with_3d
+def is_object_crossing(nodes):
+    if config.data["use_wikidata"] is True and config.data["ignore_osm_data_crossing_wikidata_model"] is True:
+        polygon = helper.node_to_polygon(nodes)
+        for shape in wikidata_3D_model_shape:
+            if shape.disjoint(polygon) is False:
+                global wikidata_cleaned_crossing
+                wikidata_cleaned_crossing += 1
+                return True
+        # x, y = polygon.exterior.xy
+        # plt.plot(x, y)
+        # x, y = wikidata_3D_model_shape[0].exterior.xy
+        # plt.plot(x, y)
 
-    print("wikidata tags found:", wikidata_found)
-    print("wikidata data downloaded:", wikidata_downloaded)
-    print("wikidata data read from cache:", wikidata_read_from_cache)
-    print("wikidata data with 3D model:", wikidata_with_3d)
+        # plt.show(block=True)
+
+    return False
+
+
+def print_data():
+    if config.data["use_wikidata"] is True:
+        global wikidata_found
+        global wikidata_downloaded
+        global wikidata_read_from_cache
+        global wikidata_with_3d
+        global wikidata_cleaned_crossing
+
+        print("wikidata tags found:", wikidata_found)
+        print("wikidata data downloaded:", wikidata_downloaded)
+        print("wikidata data read from cache:", wikidata_read_from_cache)
+        print("wikidata data with 3D model:", wikidata_with_3d)
+        print("OSM objects crossing 3D model ignored:", wikidata_cleaned_crossing)
+        print("")
