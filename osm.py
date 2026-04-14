@@ -176,39 +176,6 @@ def convert_height_to_meter(height):
     return height_in_meter
 
 
-# return x,y coordinate of 4 points: the lowest lon, the highest lon, the lowest lat, the highest lat,
-def get_extreme_x_y(nodes):
-    min_lat = 90.0
-    max_lat = -90.0
-    min_lon = 180.0
-    max_lon = -180.0
-
-    min_lat_lon = 0.0
-    max_lat_lon = 0.0
-    min_lon_lat = 0.0
-    max_lon_lat = 0.0
-
-    for n in nodes:
-        if n.lat < min_lat:
-            min_lat = n.lat
-            min_lat_lon = n.lon
-        if n.lat > max_lat:
-            max_lat = n.lat
-            max_lat_lon = n.lon
-
-        if n.lon < min_lon:
-            min_lon = n.lon
-            min_lon_lat = n.lat
-        if n.lon > max_lon:
-            max_lon = n.lon
-            max_lon_lat = n.lat
-
-    return ((helper.lon_to_x(min_lon), helper.lat_to_y(min_lon_lat)),
-            (helper.lon_to_x(max_lon), helper.lat_to_y(max_lon_lat)),
-            (helper.lon_to_x(min_lat_lon), helper.lat_to_y(min_lat)),
-            (helper.lon_to_x(max_lat_lon), helper.lat_to_y(max_lat)))
-
-
 # all_way is a list of ways. This function returns a single way which is the concatenation of all way sorted by distance between input ways
 def concat_way_by_distance(all_way):
     ready_nodes = all_way.pop()

@@ -1,9 +1,12 @@
 import math
 import bbox
 import numpy
-from math import atan2, degrees
 import gvar
 from shapely import Polygon
+from shapely import LineString
+
+# import matplotlib.pyplot as plt
+
 
 EARTH_RADIUS = 6371000
 
@@ -58,23 +61,6 @@ def calc_normal(p1, p2, external_norm=1.0):
     normal_y = p2x - p1x
     normal_norm = math.sqrt((normal_x * normal_x) + (normal_y * normal_y))
     return (normal_x / normal_norm) * external_norm, (normal_y / normal_norm) * external_norm
-
-
-def angle_between(v1, v2, v3):
-    x1, y1 = v1
-    x2, y2 = v2
-    x3, y3 = v3
-    deg1 = degrees(atan2(y1 - y2, x1 - x2))
-    deg2 = degrees(atan2(y3 - y2, x3 - x2))
-
-    angle = deg2 - deg1
-
-    if angle > 180.0:
-        angle = -360.0 + angle
-    elif angle < -180.0:
-        angle = 360.0 + angle
-
-    return angle
 
 
 # intersection between segment(p1, p2) and segment(p3, p4)
@@ -173,8 +159,53 @@ def node_to_map_coord(all_node):
     return all_coord
 
 
+def node_to_map_coord_cartesian(all_node):
+    all_coord = []
+
+    # First and last nodes are sometimes the same. In this case skip the last node
+    if all_node[0] == all_node[-1]:
+        all_node.pop()
+
+    for node in all_node:
+        x = lon_to_x(node.lon) / gvar.map_precision
+        y = -lat_to_y(node.lat) / gvar.map_precision
+
+        all_coord.append((x, y))
+
+    return all_coord
+
+
 def node_to_polygon(nodes):
+    if len(nodes) < 4:
+        return None
     poly = []
     for n in nodes:
         poly.append((n.lon, n.lat))
     return Polygon(poly)
+
+
+# return the angle in degree between the longest edge of the envelope of the passed shape, and the X axis
+def polygon_envelope_rotation(shape):
+    envelope = shape.minimum_rotated_rectangle.normalize()
+
+    x, y = envelope.exterior.xy
+
+    edge1 = LineString([envelope.exterior.coords[0], envelope.exterior.coords[1]])
+    edge2 = LineString([envelope.exterior.coords[1], envelope.exterior.coords[2]])
+
+    longest_edge = edge1
+    if edge1.length < edge2.length:
+        longest_edge = edge2
+
+    x1, y1 = longest_edge.coords[0]
+    x2, y2 = longest_edge.coords[1]
+
+    # plt.plot(x, y)
+    # X = [x1, x2]
+    # Y = [y1, y2]
+    # plt.plot(X, Y)
+    # plt.show(block=True)
+
+    # Calculate the angle in radians, then convert to degrees
+    angle_rad = math.atan2(y2 - y1, x2 - x1)
+    return math.degrees(angle_rad)

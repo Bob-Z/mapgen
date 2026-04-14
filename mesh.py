@@ -1,4 +1,6 @@
 import xml.etree.ElementTree as ElementTree
+from shapely import MultiPoint
+
 
 def get_height(xml_file_path):
     tree = ElementTree.parse(xml_file_path)
@@ -19,38 +21,13 @@ def get_height(xml_file_path):
     return height
 
 
-def get_extreme_x_y(xml_file_path):
+def get_shape(xml_file_path):
     tree = ElementTree.parse(xml_file_path)
     root = tree.getroot()
     position = root.findall('.//position')
 
-    min_y = 90.0
-    max_y = -90.0
-    min_x = 180.0
-    max_x = -180.0
-
-    min_y_x = 0.0
-    max_y_x = 0.0
-    min_x_y = 0.0
-    max_x_y = 0.0
-
+    xml_points = []
     for p in position:
-        x = float(p.attrib['x'])
-        y = float(p.attrib['y'])
+        xml_points.append([p.attrib['x'], p.attrib['y']])
 
-        if y < min_y:
-            min_y = y
-            min_y_x = x
-        if y > max_y:
-            max_y = y
-            max_y_x = x
-
-        if x < min_x:
-            min_x = x
-            min_x_y = y
-        if x > max_x:
-            max_x = x
-            max_x_y = y
-
-    return (min_x, min_x_y), (max_x, max_x_y), (min_y, min_y_x), (max_y, max_y_x)
-
+    return MultiPoint(xml_points)

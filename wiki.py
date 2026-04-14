@@ -1,4 +1,7 @@
 import math
+
+import shapely
+
 import config
 from wikidata.client import Client
 from pyWikiCommons import pyWikiCommons
@@ -15,7 +18,7 @@ import mesh
 import urllib
 import pickle
 
-# import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 wikidata_client = Client()
 
@@ -164,56 +167,35 @@ def get_data(entity, osm_data=None):
     return found
 
 
-# this give an angle between the largest edge of the given way and the largest edge of the given mesh
+# This tries to guess rotation needed by the mesh described by xml_file_path to match the OSM object rotation
 # This is highly empirical, but it seems to work
 def calculate_rotation_angle(nodes, xml_file_path):
-    entity_xy = osm.get_extreme_x_y(nodes)
-    mesh_xy = mesh.get_extreme_x_y(xml_file_path)
+    osm_shape = shapely.Polygon(helper.node_to_map_coord_cartesian(nodes))
+    osm_angle = helper.polygon_envelope_rotation(osm_shape)
 
-    # get longest entity segment
-    entity_max_size = 0
-    entity_max_size_index = 0
-    entity_segment_size = [0, 0, 0, 0]
-    mesh_max_size = 0
-    mesh_max_size_index = 0
-    mesh_segment_size = [0, 0, 0, 0]
-    for i in range(4):
-        entity_segment_size[i] = math.sqrt(
-            (entity_xy[i][0] - entity_xy[(i + 1) % 4][0]) * (entity_xy[i][0] - entity_xy[(i + 1) % 4][0])
-            + (entity_xy[i][1] - entity_xy[(i + 1) % 4][1]) * (entity_xy[i][1] - entity_xy[(i + 1) % 4][1]))
-        if entity_segment_size[i] > entity_max_size:
-            entity_max_size = entity_segment_size[i]
-            entity_max_size_index = i
+    mesh_shape = mesh.get_shape(xml_file_path)
+    mesh_angle = helper.polygon_envelope_rotation(mesh_shape)
 
-        mesh_segment_size[i] = math.sqrt(
-            (mesh_xy[i][0] - mesh_xy[(i + 1) % 4][0]) * (mesh_xy[i][0] - mesh_xy[(i + 1) % 4][0])
-            + (mesh_xy[i][1] - mesh_xy[(i + 1) % 4][1]) * (mesh_xy[i][1] - mesh_xy[(i + 1) % 4][1]))
-        if mesh_segment_size[i] > mesh_max_size:
-            mesh_max_size = mesh_segment_size[i]
-            mesh_max_size_index = i
-
-    entity_v1 = (entity_xy[entity_max_size_index])
-    entity_v2 = (entity_xy[(entity_max_size_index - 1) % 4])
-    moved_mesh_v1 = (mesh_xy[(mesh_max_size_index - 1) % 4][0] + (entity_v2[0] - mesh_xy[mesh_max_size_index][0]),
-                     mesh_xy[(mesh_max_size_index - 1) % 4][1] + (entity_v2[1] - mesh_xy[mesh_max_size_index][1]))
-
-    return helper.angle_between(entity_v1, entity_v2, moved_mesh_v1)
+    return osm_angle - mesh_angle
 
 
 def is_object_crossing(nodes):
     if config.data["use_wikidata"] is True and config.data["ignore_osm_data_crossing_wikidata_model"] is True:
         polygon = helper.node_to_polygon(nodes)
-        for shape in wikidata_3D_model_shape:
-            if shape.disjoint(polygon) is False:
-                global wikidata_cleaned_crossing
-                wikidata_cleaned_crossing += 1
-                return True
-        # x, y = polygon.exterior.xy
-        # plt.plot(x, y)
-        # x, y = wikidata_3D_model_shape[0].exterior.xy
-        # plt.plot(x, y)
+        if polygon is not None:
+            for shape in wikidata_3D_model_shape:
+                intersection_area = shape.intersection(polygon).area
+                if intersection_area > shape.area * 0.1 or intersection_area > polygon.area * 0.1:
+                #if shape.disjoint(polygon) is False:
+                    global wikidata_cleaned_crossing
+                    wikidata_cleaned_crossing += 1
+                    return True
+            # x, y = polygon.exterior.xy
+            # plt.plot(x, y)
+            # x, y = wikidata_3D_model_shape[0].exterior.xy
+            # plt.plot(x, y)
 
-        # plt.show(block=True)
+            # plt.show(block=True)
 
     return False
 
