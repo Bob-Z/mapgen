@@ -113,7 +113,7 @@ topography.get(api_key)
 osm_data = osm.get_data()
 if osm_data is None:
     print("No OSM data, exiting")
-    exit()
+    exit(-1)
 
 ror_zip_file.create_default_file()
 
