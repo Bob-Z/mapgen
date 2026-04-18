@@ -1,13 +1,11 @@
-import math
-
 import shapely
-
 import config
 from wikidata.client import Client
 from pyWikiCommons import pyWikiCommons
 import os
 import shutil
 import subprocess
+import ogre_material
 import topography
 import helper
 import ror_odef_file
@@ -17,6 +15,7 @@ import osm
 import mesh
 import urllib
 import pickle
+import xml.etree.ElementTree as ET
 
 #import matplotlib.pyplot as plt
 
@@ -111,6 +110,21 @@ def get_data(entity, osm_data=None):
             process.wait()
 
             xml_file_path = config.data["work_path"] + short_name + ".mesh.xml"
+
+            colour = ogre_material.create_material_color(entity.tags)
+            if colour is not None:
+                tree = ET.parse(xml_file_path)
+                for child in tree.getroot().findall(".//submesh"):
+                    child.set('material',colour)
+                tree.write(xml_file_path)
+
+                # convert XML to bin mesh
+                process = subprocess.Popen(["OgreXMLConverter", xml_file_path],
+                                           stdout=subprocess.DEVNULL,
+                                           stderr=subprocess.STDOUT
+                                           )
+                process.wait()
+
             mesh_height = mesh.get_height(xml_file_path)
 
             if "P2048" in wiki.attributes["claims"]:

@@ -88,15 +88,8 @@ def build_from_way(way, height=None, min_height=None, roof_height=None):
     wall_texture = None
     top_texture = None
 
-    if "colour" in way.tags:
-        wall_texture = ogre_material.create_material_color(way.tags["colour"])
-        way.tags.pop("colour")
-    if "building:colour" in way.tags:
-        wall_texture = ogre_material.create_material_color(way.tags["building:colour"])
-        way.tags.pop("building:colour")
-    if "roof:colour" in way.tags:
-        top_texture = ogre_material.create_material_color(way.tags["roof:colour"])
-        way.tags.pop("roof:colour")
+    wall_texture = ogre_material.create_material_color(way.tags)
+
     display_name = None
     if "name:en" in way.tags:
         display_name = way.tags["name:en"]

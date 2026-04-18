@@ -42,8 +42,22 @@ def create_material(tex_name, tex_width, tex_length, dest_width, dest_length):
     return name
 
 
-def create_material_color(colour):
+def create_material_color(tags):
     global material_str
+
+    colour = None
+    if "colour" in tags:
+        colour = tags["colour"]
+        tags.pop("colour")
+    if "building:colour" in tags:
+        colour = tags["building:colour"]
+        tags.pop("building:colour")
+    if "roof:colour" in tags:
+        colour = tags["roof:colour"]
+        tags.pop("roof:colour")
+
+    if colour is None:
+        return None
 
     # OSM documented color
     if colour == "brown":
@@ -76,6 +90,7 @@ def create_material_color(colour):
     except ValueError:
         print("Unsupported colour:", colour)
         return None
+
     tex.save(config.data["work_path"] + name + ".png", "PNG")
     ror_zip_file.add_to_zip_file_list(name + ".png")
 
