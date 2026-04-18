@@ -64,8 +64,6 @@
 
 "wall_texture": "mapgen_beige",
 "top_texture": "mapgen_grey",
-"roof_texture": "mapgen_roof",
-"ground_texture": "mapgen_dust"
-
+"roof_texture": "mapgen_roof"
 }
 
