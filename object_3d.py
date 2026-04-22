@@ -6,6 +6,7 @@ import triangulate
 import config
 import ror_tobj_file
 import ror_odef_file
+import math
 
 VERTEX_PER_WALL = 4
 
@@ -155,10 +156,13 @@ def generate_wall(vertex, height):
         v3 = [vertex[(i + 1) % vertex_qty][0], vertex[(i + 1) % vertex_qty][1],
               height]
 
+        dist = math.dist(v0, v2)
+        texture_size = config.data["texture_size_in_meter"]
+
         vertex_str += create_vertex_str(v0, v2, v1, 0.0, 0.0)
-        vertex_str += create_vertex_str(v1, v0, v3, 0.0, 1.0)
-        vertex_str += create_vertex_str(v2, v3, v0, 1.0, 0.0)
-        vertex_str += create_vertex_str(v3, v1, v2, 1.0, 1.0)
+        vertex_str += create_vertex_str(v1, v0, v3, 0.0, height / texture_size)
+        vertex_str += create_vertex_str(v2, v3, v0, dist / texture_size, 0.0)
+        vertex_str += create_vertex_str(v3, v1, v2, dist / texture_size, height / texture_size)
 
         # Create 2 faces (triangle) per wall
         vertex_index = i * VERTEX_PER_WALL

@@ -64,6 +64,8 @@
 
 "wall_texture": "mapgen_beige",
 "top_texture": "mapgen_grey",
-"roof_texture": "mapgen_roof"
+"roof_texture": "mapgen_roof",
+"texture_size_in_meter_comment": "Used to calculate U,V",
+"texture_size_in_meter": 2.0
 }
 
