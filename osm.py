@@ -21,15 +21,26 @@ def get_data():
         with open(cache_file_path, 'rb') as file:
             result = pickle.load(file)
     else:
+        server_url = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.osm.rambler.ru/cgi/interpreter", "https://api.openstreetmap.fr/oapi/interpreter", "https://overpass.osm.vi-di.fr/api/interpreter"]
         print("Requesting OpenStreetMap")
+        osm_data_ok = False
         start_time = time.time()
-        overpy_api = overpy.Overpass()
-        try:
-            result = overpy_api.query(
-                "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;")
-        except overpy.exception.OverpassGatewayTimeout as e:
-            print("OSM server error: ", e)
-            print("Retry in a few seconds, or try a smaller map")
+        for url in server_url:
+            print("Trying with URL:", url)
+            overpy_api = overpy.Overpass(url=url)
+            try:
+                result = overpy_api.query(
+                    "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;")
+            except overpy.exception.OverpassGatewayTimeout as e:
+                print("OSM server error: ", e)
+                continue
+            except overpy.exception.OverpassUnknownHTTPStatusCode as e:
+                print("OSM server error: ", e)
+                continue
+            osm_data_ok = True
+            break
+
+        if osm_data_ok is False:
             return None
         end_time = time.time()
 
