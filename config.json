@@ -32,10 +32,6 @@
 "water_line": 7.5,
 "water_depth": 4.0,
 
-"hedge_tex_name": "hedge.jpg",
-"hedge_tex_height": 10.0,
-"hedge_tex_width": 10.0,
-
 "swimming_pool_height": 0.02,
 "swimming_pool_depth": 1.5,
 
@@ -65,6 +61,8 @@
 "wall_texture": "mapgen_beige",
 "top_texture": "mapgen_grey",
 "roof_texture": "mapgen_roof",
+"hedge_texture": "mapgen_hedge",
+
 "texture_size_in_meter_comment": "Used to calculate U,V",
 "texture_size_in_meter": 2.0
 }

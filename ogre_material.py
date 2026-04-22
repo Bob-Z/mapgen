@@ -6,12 +6,6 @@ texture_qty = 0
 material_str = ""
 
 
-def create_material_hedge(dest_width, dest_length):
-    return create_material(config.data["hedge_tex_name"], config.data["hedge_tex_width"],
-                           config.data["hedge_tex_height"],
-                           dest_width, dest_length)
-
-
 # return material name
 def create_material(tex_name, tex_width, tex_length, dest_width, dest_length):
     global texture_qty

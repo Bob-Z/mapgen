@@ -6,8 +6,7 @@ import ogre_material
 barrier_tag_value = [
     ['barrier', 'wall', None, "mapgen_dark_grey", None, "mapgen_dark_grey", config.data["barrier_width"]],
     ['barrier', 'fence', None, "mapgen_dark_grey", None, "mapgen_dark_grey", config.data["barrier_width"]],
-    ['barrier', 'hedge', ogre_material.create_material_hedge, None, None, "mapgen_hedge",
-     config.data["hedge_width"]]
+    ['barrier', 'hedge', None, config.data["hedge_texture"], None, config.data["hedge_texture"], config.data["hedge_width"]]
 ]
 
 barrier_tag = []
