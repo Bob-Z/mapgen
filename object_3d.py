@@ -811,8 +811,13 @@ def generate_mesh_file(submesh, obj_name):
     ror_zip_file.add_to_zip_file_list(obj_name + ".mesh")
 
 # Return 3 U,V coordinates for passed vertices
-def calculate_uv(v):
+def calculate_uv(input_v):
     # TODO improve U,V
+
+    v_size = min(len(input_v[0]), len(input_v[1]), len(input_v[2]))
+
+    v = [input_v[0][:v_size], input_v[1][:v_size], input_v[2][:v_size]]
+
     texture_size = config.data["texture_size_in_meter"]
     first_edge_size = math.dist(v[0], v[1])
     angle = helper.angle_between(v[1], v[0], v[2])
