@@ -209,3 +209,24 @@ def polygon_envelope_rotation(shape):
     # Calculate the angle in radians, then convert to degrees
     angle_rad = math.atan2(y2 - y1, x2 - x1)
     return math.degrees(angle_rad)
+
+
+def angle_between(v1, v2, v3):
+    x1 = v1[0]
+    y1 = v1[1]
+    x2 = v2[0]
+    y2 = v2[1]
+    x3 = v3[0]
+    y3 = v3[1]
+
+    deg1 = math.atan2(y1 - y2, x1 - x2)
+    deg2 = math.atan2(y3 - y2, x3 - x2)
+
+    angle = deg2 - deg1
+
+    if angle > math.pi:
+        angle = -(math.pi * 2.0) + angle
+    elif angle < -math.pi:
+        angle = (math.pi * 2.0) + angle
+
+    return angle

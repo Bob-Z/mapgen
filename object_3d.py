@@ -210,10 +210,11 @@ def generate_ceiling_for_building(vertex2d, height, vertex_index, normal=1.0):
         else:
             ear[2][2] = height
 
-        # TODO U,V are wrong here
-        vertex_str += create_vertex_with_normal_str(ear[0], [0.0, 0.0, normal], 0.0, 0.0)
-        vertex_str += create_vertex_with_normal_str(ear[1], [0.0, 0.0, normal], 0.0, 1.0)
-        vertex_str += create_vertex_with_normal_str(ear[2], [0.0, 0.0, normal], 1.0, 0.0)
+        uv = calculate_uv(ear)
+
+        vertex_str += create_vertex_with_normal_str(ear[0], [0.0, 0.0, normal], uv[0])
+        vertex_str += create_vertex_with_normal_str(ear[1], [0.0, 0.0, normal], uv[1])
+        vertex_str += create_vertex_with_normal_str(ear[2], [0.0, 0.0, normal], uv[2])
 
         face_str += create_face(vertex_index + 1, vertex_index + 2, vertex_index + 0)
 
@@ -236,12 +237,20 @@ def generate_ceiling_for_barrier(vertex2d, height, vertex_index, normal=1.0):
         v1 = vertex2d[index]
         v2 = vertex2d[index + 1]
         v3 = vertex2d[vlen - 1 - index]
+
+        uv = calculate_uv([v1,v2,v3])
+
         v1.append(height)
         v2.append(height)
         v3.append(height)
-        vertex_str += create_vertex_with_normal_str(v1, [0.0, 0.0, normal], 0.0, 0.0)
-        vertex_str += create_vertex_with_normal_str(v2, [0.0, 0.0, normal], 0.0, 1.0)
-        vertex_str += create_vertex_with_normal_str(v3, [0.0, 0.0, normal], 1.0, 0.0)
+
+        vertex_str += create_vertex_with_normal_str(v1, [0.0, 0.0, normal], uv[0])
+        vertex_str += create_vertex_with_normal_str(v2, [0.0, 0.0, normal], uv[1])
+        vertex_str += create_vertex_with_normal_str(v3, [0.0, 0.0, normal], uv[2])
+
+        v1.pop()
+        v2.pop()
+        v3.pop()
 
         face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
@@ -251,12 +260,20 @@ def generate_ceiling_for_barrier(vertex2d, height, vertex_index, normal=1.0):
         v1 = vertex2d[index + 1]
         v2 = vertex2d[vlen - 1 - index]
         v3 = vertex2d[vlen - 2 - index]
+
+        uv = calculate_uv([v1,v2,v3])
+
         v1.append(height)
         v2.append(height)
         v3.append(height)
-        vertex_str += create_vertex_with_normal_str(v1, [0.0, 0.0, 1.0], 0.0, 0.0)
-        vertex_str += create_vertex_with_normal_str(v2, [0.0, 0.0, 1.0], 0.0, 1.0)
-        vertex_str += create_vertex_with_normal_str(v3, [0.0, 0.0, 1.0], 1.0, 0.0)
+
+        vertex_str += create_vertex_with_normal_str(v1, [0.0, 0.0, 1.0], uv[0])
+        vertex_str += create_vertex_with_normal_str(v2, [0.0, 0.0, 1.0], uv[1])
+        vertex_str += create_vertex_with_normal_str(v3, [0.0, 0.0, 1.0], uv[2])
+
+        v1.pop()
+        v2.pop()
+        v3.pop()
 
         face_str += create_face(vertex_index + 0, vertex_index + 2, vertex_index + 1)
 
@@ -325,14 +342,17 @@ def generate_roof_pyramidal(vertex2d, height, roof_height, vertex_index):
     for v in vertex2d:
         v1 = vertex2d[index]
         v2 = vertex2d[(index + 1) % len(vertex2d)]
+
+        uv = calculate_uv([v1, v2, (top_vertex[0],top_vertex[1])])
+
         v1.append(height)
         v2.append(height)
 
         norm = helper.calc_norm([v1, v2, top_vertex])
 
-        vertex_str += create_vertex_with_normal_str(v1, [norm[0], norm[1], norm[2]], 0.0, 0.0)
-        vertex_str += create_vertex_with_normal_str(v2, [norm[0], norm[1], norm[2]], 0.0, 1.0)
-        vertex_str += create_vertex_with_normal_str(top_vertex, [norm[0], norm[1], norm[2]], 1.0, 0.0)
+        vertex_str += create_vertex_with_normal_str(v1, [norm[0], norm[1], norm[2]], uv[0])
+        vertex_str += create_vertex_with_normal_str(v2, [norm[0], norm[1], norm[2]], uv[1])
+        vertex_str += create_vertex_with_normal_str(top_vertex, [norm[0], norm[1], norm[2]], uv[2])
 
         face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
@@ -383,11 +403,13 @@ def generate_roof_gabled(vertex2d, height, roof_height, vertex_index):
 
     # first face
     v = [v3d[0], top1, v3d[3]]
-    norm = helper.calc_norm(v)
 
-    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
-    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
-    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+    norm = helper.calc_norm(v)
+    uv = calculate_uv(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], uv[0])
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], uv[1])
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], uv[2])
 
     face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
@@ -398,11 +420,13 @@ def generate_roof_gabled(vertex2d, height, roof_height, vertex_index):
 
     # second face
     v = [v3d[1], v3d[2], top1]
-    norm = helper.calc_norm(v)
 
-    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
-    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
-    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+    norm = helper.calc_norm(v)
+    uv = calculate_uv(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], uv[0])
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], uv[1])
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], uv[2])
 
     face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
@@ -413,11 +437,13 @@ def generate_roof_gabled(vertex2d, height, roof_height, vertex_index):
 
     # third face
     v = [v3d[2], top2, top1]
-    norm = helper.calc_norm(v)
 
-    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
-    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
-    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+    norm = helper.calc_norm(v)
+    uv = calculate_uv(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], uv[0])
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], uv[1])
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], uv[2])
 
     face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
@@ -428,11 +454,13 @@ def generate_roof_gabled(vertex2d, height, roof_height, vertex_index):
 
     # fourth face
     v = [top2, v3d[3], top1]
-    norm = helper.calc_norm(v)
 
-    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
-    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
-    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+    norm = helper.calc_norm(v)
+    uv = calculate_uv(v)
+
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], uv[0])
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], uv[1])
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], uv[2])
 
     face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
@@ -495,10 +523,11 @@ def generate_roof_hipped(vertex2d, height, roof_height, vertex_index):
     # first face
     v = [v3d[0], top1, v3d[3]]
     norm = helper.calc_norm(v)
+    uv = calculate_uv(v)
 
-    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
-    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
-    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], uv[0])
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], uv[1])
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], uv[2])
 
     face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
@@ -510,10 +539,11 @@ def generate_roof_hipped(vertex2d, height, roof_height, vertex_index):
     # second face
     v = [v3d[1], v3d[2], top1]
     norm = helper.calc_norm(v)
+    uv = calculate_uv(v)
 
-    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
-    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
-    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], uv[0])
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], uv[1])
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], uv[2])
 
     face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
@@ -525,10 +555,11 @@ def generate_roof_hipped(vertex2d, height, roof_height, vertex_index):
     # third face
     v = [v3d[2], top2, top1]
     norm = helper.calc_norm(v)
+    uv = calculate_uv(v)
 
-    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
-    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
-    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], uv[0])
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], uv[1])
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], uv[2])
 
     face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
@@ -540,10 +571,11 @@ def generate_roof_hipped(vertex2d, height, roof_height, vertex_index):
     # fourth face
     v = [top2, v3d[3], top1]
     norm = helper.calc_norm(v)
+    uv = calculate_uv(v)
 
-    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
-    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
-    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], uv[0])
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], uv[1])
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], uv[2])
 
     face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
@@ -555,10 +587,11 @@ def generate_roof_hipped(vertex2d, height, roof_height, vertex_index):
     # hipped face 1
     v = [v3d[0], v3d[1], top1]
     norm = helper.calc_norm(v)
+    uv = calculate_uv(v)
 
-    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
-    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
-    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], uv[0])
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], uv[1])
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], uv[2])
 
     face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
@@ -570,10 +603,11 @@ def generate_roof_hipped(vertex2d, height, roof_height, vertex_index):
     # hipped face 2
     v = [v3d[2], v3d[3], top2]
     norm = helper.calc_norm(v)
+    uv = calculate_uv(v)
 
-    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], 0.0, 0.0)
-    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], 0.0, 1.0)
-    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], 1.0, 0.0)
+    vertex_str += create_vertex_with_normal_str(v[0], [norm[0], norm[1], norm[2]], uv[0])
+    vertex_str += create_vertex_with_normal_str(v[1], [norm[0], norm[1], norm[2]], uv[1])
+    vertex_str += create_vertex_with_normal_str(v[2], [norm[0], norm[1], norm[2]], uv[2])
 
     face_str += create_face(vertex_index + 0, vertex_index + 1, vertex_index + 2)
 
@@ -733,13 +767,13 @@ def create_vertex_str(v0, v1, v2, u, v):
     return vertex_str + "</vertex>\n"
 
 
-def create_vertex_with_normal_str(v0, normal, u, v):
+def create_vertex_with_normal_str(v0, normal, uv):
     vertex_str = "<vertex>\n"
     vertex_str = vertex_str + "<position x=\"" + str(v0[0]) + "\" y=\"" + str(v0[1]) + "\" z=\"" + str(
         v0[2]) + "\" />\n"
     vertex_str = vertex_str + "<normal x=\"" + str(normal[0]) + "\" y=\"" + str(normal[1]) + "\" z=\"" + str(
         normal[2]) + "\" />\n"
-    vertex_str = vertex_str + "<texcoord u=\"" + str(u) + "\" v=\"" + str(v) + "\" />"
+    vertex_str = vertex_str + "<texcoord u=\"" + str(uv[0]) + "\" v=\"" + str(uv[1]) + "\" />"
     return vertex_str + "</vertex>\n"
 
 
@@ -775,3 +809,16 @@ def generate_mesh_file(submesh, obj_name):
         "OgreXMLConverter " + config.data["work_path"] + obj_name + ".mesh.xml > /dev/null")
 
     ror_zip_file.add_to_zip_file_list(obj_name + ".mesh")
+
+# Return 3 U,V coordinates for passed vertices
+def calculate_uv(v):
+    # TODO improve U,V
+    texture_size = config.data["texture_size_in_meter"]
+    first_edge_size = math.dist(v[0], v[1])
+    angle = helper.angle_between(v[1], v[0], v[2])
+    dist_to_last_vertex = math.dist(v[0], v[2])
+
+    u = math.cos(angle) * dist_to_last_vertex / texture_size
+    v = math.sin(angle) * dist_to_last_vertex / texture_size
+
+    return [(0,0), (first_edge_size / texture_size, 0.0), (u,v)]

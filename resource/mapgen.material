@@ -63,7 +63,7 @@ material mapgen_hedge
     }
  }
 
- material mapgen_roof : RoR/Managed_Mats/Base
+material mapgen_roof : RoR/Managed_Mats/Base
 {
 	technique BaseTechnique
 	{

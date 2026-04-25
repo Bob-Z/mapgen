@@ -7,8 +7,7 @@ import os
 import pickle
 import config
 import math
-
-import helper
+import urllib
 
 
 def get_data():
@@ -35,6 +34,9 @@ def get_data():
                 print("OSM server error: ", e)
                 continue
             except overpy.exception.OverpassUnknownHTTPStatusCode as e:
+                print("OSM server error: ", e)
+                continue
+            except urllib.error.URLError as e:
                 print("OSM server error: ", e)
                 continue
             osm_data_ok = True
