@@ -64,6 +64,9 @@
 "hedge_texture": "mapgen_hedge",
 
 "texture_size_in_meter_comment": "Used to calculate U,V",
-"texture_size_in_meter": 2.0
+"texture_size_in_meter": 2.0,
+
+"topography_dataset_comment": "see https://bmi-topography.csdms.io/en/latest/",
+"topography_dataset": "COP30"
 }
 

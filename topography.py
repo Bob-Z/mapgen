@@ -26,7 +26,7 @@ def get(api_key):
         params["west"] = bbox.coord["west"]
         params["east"] = bbox.coord["east"]
         params["api_key"] = api_key
-        params["dem_type"] = "COP30"
+        params["dem_type"] = config.data["topography_dataset"]
         # ('SRTMGL3', 'SRTMGL1', 'SRTMGL1_E', 'AW3D30', 'AW3D30_E', 'SRTM15Plus', 'NASADEM', 'COP30', 'COP90')
 
         global topo
