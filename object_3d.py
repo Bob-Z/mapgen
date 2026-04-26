@@ -20,8 +20,7 @@ warn_hipped_roof = True
 def create_all_object_file(nodes, height=config.data["building_level_height"], z=0.0,
                            wall_texture=config.data["wall_texture"], top_texture=config.data["top_texture"],
                            scale=1.0,
-                           is_barrier=False, half_barrier=False, wall_texture_generator=None,
-                           top_texture_generator=None,
+                           is_barrier=False, half_barrier=False,
                            roof_shape=None,
                            roof_height=None,
                            barrier_width=config.data["barrier_width"],
@@ -81,11 +80,6 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
     wall_vertex_index, wall_face_qty, wall_vertex_str, wall_face_str = generate_wall(vertex, height)
     if wall_vertex_str is None:
         return None
-
-    if wall_texture_generator is not None:
-        wall_texture = wall_texture_generator(width, length)
-    if top_texture_generator is not None:
-        top_texture = top_texture_generator(width, length)
 
     floor_face_qty = 0
     floor_vertex_str = ""
@@ -238,7 +232,7 @@ def generate_ceiling_for_barrier(vertex2d, height, vertex_index, normal=1.0):
         v2 = vertex2d[index + 1]
         v3 = vertex2d[vlen - 1 - index]
 
-        uv = calculate_uv([v1,v2,v3])
+        uv = calculate_uv([v1, v2, v3])
 
         v1.append(height)
         v2.append(height)
@@ -261,7 +255,7 @@ def generate_ceiling_for_barrier(vertex2d, height, vertex_index, normal=1.0):
         v2 = vertex2d[vlen - 1 - index]
         v3 = vertex2d[vlen - 2 - index]
 
-        uv = calculate_uv([v1,v2,v3])
+        uv = calculate_uv([v1, v2, v3])
 
         v1.append(height)
         v2.append(height)
@@ -343,7 +337,7 @@ def generate_roof_pyramidal(vertex2d, height, roof_height, vertex_index):
         v1 = vertex2d[index]
         v2 = vertex2d[(index + 1) % len(vertex2d)]
 
-        uv = calculate_uv([v1, v2, (top_vertex[0],top_vertex[1])])
+        uv = calculate_uv([v1, v2, (top_vertex[0], top_vertex[1])])
 
         v1.append(height)
         v2.append(height)
@@ -810,6 +804,7 @@ def generate_mesh_file(submesh, obj_name):
 
     ror_zip_file.add_to_zip_file_list(obj_name + ".mesh")
 
+
 # Return 3 U,V coordinates for passed vertices
 def calculate_uv(input_v):
     # TODO improve U,V
@@ -826,4 +821,4 @@ def calculate_uv(input_v):
     u = math.cos(angle) * dist_to_last_vertex / texture_size
     v = math.sin(angle) * dist_to_last_vertex / texture_size
 
-    return [(0,0), (first_edge_size / texture_size, 0.0), (u,v)]
+    return [(0, 0), (first_edge_size / texture_size, 0.0), (u, v)]

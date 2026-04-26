@@ -1,12 +1,11 @@
 import object_3d
 import config
 import osm
-import ogre_material
 
 barrier_tag_value = [
-    ['barrier', 'wall', None, "mapgen_dark_grey", None, "mapgen_dark_grey", config.data["barrier_width"]],
-    ['barrier', 'fence', None, "mapgen_dark_grey", None, "mapgen_dark_grey", config.data["barrier_width"]],
-    ['barrier', 'hedge', None, config.data["hedge_texture"], None, config.data["hedge_texture"], config.data["hedge_width"]]
+    ['barrier', 'wall', "mapgen_dark_grey", "mapgen_dark_grey", config.data["barrier_width"]],
+    ['barrier', 'fence', "mapgen_dark_grey", "mapgen_dark_grey", config.data["barrier_width"]],
+    ['barrier', 'hedge', config.data["hedge_texture"], config.data["hedge_texture"], config.data["hedge_width"]]
 ]
 
 barrier_tag = []
@@ -20,10 +19,8 @@ def process(way):
                 if height is None:
                     height = config.data["barrier_height"]
                 object_3d.create_all_object_file(way.nodes, height=height,
-                                                 wall_texture=tag_value[3], top_texture=tag_value[5],
-                                                 wall_texture_generator=tag_value[2],
-                                                 top_texture_generator=tag_value[4],
-                                                 is_barrier=True, barrier_width=tag_value[6])
+                                                 wall_texture=tag_value[2], top_texture=tag_value[3],
+                                                 is_barrier=True, barrier_width=tag_value[4])
                 way.tags.pop(tag_value[0])
                 return True
 
