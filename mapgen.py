@@ -1,5 +1,6 @@
 import config
 import helper
+import ogre_map_vegetation
 import ror_waypoint_file
 import ror_zip_file
 import osm
@@ -261,6 +262,7 @@ ror_zip_file.add_to_zip_file_list(config.data["map_name"] + "_vegetation.tobj")
 ogre_material.create_file()
 ogre_map_height.create_file()
 ogre_map_surface.create_file()
+ogre_map_vegetation.create_file()
 
 gen_road.write_all_roads()
 ror_waypoint_file.write()

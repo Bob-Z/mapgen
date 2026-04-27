@@ -6,30 +6,35 @@ import ror_zip_file
 import ogre_map_helper
 import gvar
 
-index = 0
+all_image = {}
 
 
 def init():
     pass
 
 
-def add_vegetation_map(osm_data, entity, density):
-    global index
+def draw_vegetation_map(name, osm_data, entity, density):
+    if name not in all_image:
+        all_image[name] = PIL.Image.new(mode="L", size=(
+            int(gvar.map_size / gvar.map_precision),
+            int(gvar.map_size / gvar.map_precision)),
+                                        color=0)
 
-    surf = PIL.Image.new(mode="L", size=(
-        int(gvar.map_size / gvar.map_precision),
-        int(gvar.map_size / gvar.map_precision)),
-                         color=0)
-
-    my_draw = PIL.ImageDraw.Draw(surf)
+    image = all_image[name]
+    my_draw = PIL.ImageDraw.Draw(image)
 
     ogre_map_helper.draw_entity(my_draw, osm_data, entity, outer_height=density, inner_height=0)
 
-    file_name = "vegetation" + str(index) + ".png"
-    surf.save(config.data["work_path"] + file_name, "PNG")
+    return get_file_name(name)
 
-    ror_zip_file.add_to_zip_file_list(file_name)
 
-    index += 1
+def create_file():
+    global all_image
+    for key, image in all_image.items():
+        image.save(config.data["work_path"] + get_file_name(key), "PNG")
 
-    return file_name
+        ror_zip_file.add_to_zip_file_list(get_file_name(key))
+
+
+def get_file_name(key):
+    return "vegetation_" + key + ".png"
