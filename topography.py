@@ -3,6 +3,7 @@ import bbox
 import helper
 import ogre_map_height
 import config
+from multiprocessing import Pool, cpu_count
 #import matplotlib.pyplot as plt
 
 topo = None
@@ -48,6 +49,15 @@ def get(api_key):
     else:
         print("No OpenTopography API key provided, using flat map")
 
+def calculate_height(all_param):
+    image_width, image_height, w, h = all_param
+
+    width_percent = w / image_width
+    height_percent = h / image_height
+
+    elevation = get_elevation_percent(width_percent, height_percent)
+
+    return w, h, elevation * ogre_map_height.MAX_COLOR
 
 def fill_map_height(draw):
     print("Generating height from topography, please wait\n")
@@ -55,19 +65,19 @@ def fill_map_height(draw):
     image_width = draw.im.size[0]
     image_height = draw.im.size[1]
 
+    # prepare input
+    all_params = []
     for w in range(image_width):
-        # longitude = bbox.coord["west"] + (((bbox.coord["east"] - bbox.coord["west"]) / width) * w)
-        width_percent = w / image_width
-        print(w/image_width*100.0, end='\r', flush=True)
         for h in range(image_height):
-            # latitude = bbox.coord["south"] + (((bbox.coord["north"] - bbox.coord["south"]) / height) * h)
-            height_percent = h / image_height
+            all_params.append((image_width, image_height, w, h))
 
-            elevation = get_elevation_percent(width_percent, height_percent)
+    with Pool(cpu_count()) as pool:
+        # waits for all results
+        results = pool.map(calculate_height, all_params)
 
-            color = elevation * ogre_map_height.MAX_COLOR
-
-            draw.point((w, h), fill=int(color))
+    for r in results:
+        w, h, color = r
+        draw.point((w, h), fill=int(color))
 
 
 def get_total_height():
