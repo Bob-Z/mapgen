@@ -1,5 +1,4 @@
 import overpy
-import gvar
 import sys
 import bbox
 import time
@@ -54,7 +53,6 @@ def get_data():
 
     if has_tag(result, "natural", "coastline") is True:
         print("This is a water map\n")
-        gvar.is_water_map = True
 
     return result
 
