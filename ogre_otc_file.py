@@ -1,5 +1,4 @@
 import config
-import gvar
 import topography
 
 
@@ -15,10 +14,10 @@ def create_file():
         otc_file.write("\
 PagesX=0\n\
 PagesZ=0\n\
-PageSize=" + str(int(gvar.map_size / gvar.map_precision) + 1) + "\n\
+PageSize=" + str(config.data["map_size"] / config.data["map_precision"] + 1) + "\n\
 Flat=0 \n\
-WorldSizeX=" + str(int(gvar.map_size)) + "\n\
-WorldSizeZ=" + str(int(gvar.map_size)) + "\n\
+WorldSizeX=" + str(config.data["map_size"]) + "\n\
+WorldSizeZ=" + str(config.data["map_size"]) + "\n\
 WorldSizeY=" + str(int(get_height())) + "\n\
 PageFileFormat=" + config.data["map_name"] + "-page-{X}-{Z}.otc" + "\n\
 LayerBlendMapSize=1024\n\

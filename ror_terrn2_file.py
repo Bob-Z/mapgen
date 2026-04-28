@@ -1,4 +1,3 @@
-import gvar
 import config
 
 
@@ -12,7 +11,7 @@ CaelumConfigFile = " + config.data["map_name"] + ".os" + "\n\
 Water = 1\n\
 WaterLine = " + str(config.data["water_line"]) + "\n\
 AmbientColor = 1, 1, 1\n\
-StartPosition = " + str(gvar.map_size / 2) + " " + str(config.data["ground_line"]) + " " + str(gvar.map_size / 2) + "\n\
+StartPosition = " + str(config.data["map_size"] / 2) + " " + str(config.data["ground_line"]) + " " + str(config.data["map_size"] / 2) + "\n\
 SandStormCubeMap = tracks/skyboxcol\n\
 Gravity = -9.81\n\
 CategoryID = 129\n\

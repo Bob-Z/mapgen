@@ -4,9 +4,7 @@ import PIL.ImageFilter
 import config
 import ror_zip_file
 import ogre_otc_file
-import ogre_map_height
 import ogre_map_helper
-import gvar
 import topography
 
 MAX_COLOR = 0xff  # Because we use 8 bits PNG
@@ -26,9 +24,9 @@ def init():
     global draw
 
     im = PIL.Image.new(mode="L", size=(
-        int(gvar.map_size / gvar.map_precision),
-        int(gvar.map_size / gvar.map_precision)),
-                       color=ogre_map_height.MAX_COLOR)  # color=MAX_COLOR fill the map with height defined by WorldSizeY parameter in otc file
+        int(config.data["map_size"] / config.data["map_precision"]),
+        int(config.data["map_size"] / config.data["map_precision"])),
+                       color=MAX_COLOR)  # color=MAX_COLOR fill the map with height defined by WorldSizeY parameter in otc file
 
     draw = PIL.ImageDraw.Draw(im)
 
@@ -39,7 +37,7 @@ def init():
 def set_map_height(height):
     if topography.is_enabled() is False:
         global im
-        im.paste(ogre_map_height.height_to_color(height), (0, 0, im.size[0], im.size[1]))
+        im.paste(height_to_color(height), (0, 0, im.size[0], im.size[1]))
 
 
 def draw_entity(osm_data, entity, outer_height, inner_height=None, draw_object=None, force=False):
@@ -57,17 +55,17 @@ def draw_entity_unblurred(osm_data, entity, outer_height, inner_height=None):
 
 def draw_polygon(polygon, color):
     if topography.is_enabled() is False:
-        if gvar.map_precision != 1.0:
+        if config.data["map_precision"] != 1:
             new_polygon = []
             for c in polygon:
-                new_polygon.append((c[0] / gvar.map_precision, c[1] / gvar.map_precision))
+                new_polygon.append((c[0] / config.data["map_precision"], c[1] / config.data["map_precision"]))
             polygon = new_polygon
         ogre_map_helper.draw_polygon(draw, polygon, color)
 
 
 def create_file():
     global im
-    blur_im = im.filter(PIL.ImageFilter.GaussianBlur(ogre_map_height.BLUR_RADIUS))
+    blur_im = im.filter(PIL.ImageFilter.GaussianBlur(BLUR_RADIUS))
     unblurred_draw = PIL.ImageDraw.Draw(blur_im)
 
     for entity in unblurred_entity:

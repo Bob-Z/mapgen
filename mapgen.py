@@ -8,7 +8,6 @@ import topography
 import bbox
 import sys
 import ogre_material
-import gvar
 import gen_barrier
 import gen_building
 import gen_land
@@ -63,17 +62,15 @@ print("")
 center_coord = config.data["coord"].split(',')
 print("Coordinates:", center_coord)
 
-gvar.map_size = int(config.data["map_size"])
-if helper.is_power_of_2(gvar.map_size) is False:
-    print("Given map size is " + str(gvar.map_size) + ", but map size must be a power of 2")
+if helper.is_power_of_2(config.data["map_size"]) is False:
+    print("Given map size is " + str(config.data["map_size"]) + ", but map size must be a power of 2")
     sys.exit(0)
-print("Map size:", gvar.map_size, "meters")
+print("Map size:", config.data["map_size"], "meters")
 
-gvar.map_precision = int(config.data["map_precision"])
-if helper.is_power_of_2(gvar.map_precision) is False:
+if helper.is_power_of_2(config.data["map_precision"]) is False:
     print("Map precision must be a power of 2")
     sys.exit(0)
-print("Map precision:", gvar.map_precision, "meters")
+print("Map precision:", config.data["map_precision"], "meters")
 
 api_key = config.data["api_key"]
 # Avoid record API key in config.json
@@ -84,10 +81,10 @@ center_lon = float(center_coord[1])
 meter_by_decimal_latitude = helper.lat_lon_to_distance(center_lat, center_lat + 0.1, center_lon, center_lon)
 meter_by_decimal_longitude = helper.lat_lon_to_distance(center_lat, center_lat, center_lon, center_lon + 0.1)
 
-north = center_lat + (gvar.map_size / 2.0) / meter_by_decimal_latitude * 0.1
-south = center_lat - (gvar.map_size / 2.0) / meter_by_decimal_latitude * 0.1
-west = center_lon + (gvar.map_size / 2.0) / meter_by_decimal_longitude * 0.1
-east = center_lon - (gvar.map_size / 2.0) / meter_by_decimal_longitude * 0.1
+north = center_lat + (config.data["map_size"] / 2.0) / meter_by_decimal_latitude * 0.1
+south = center_lat - (config.data["map_size"] / 2.0) / meter_by_decimal_latitude * 0.1
+west = center_lon + (config.data["map_size"] / 2.0) / meter_by_decimal_longitude * 0.1
+east = center_lon - (config.data["map_size"] / 2.0) / meter_by_decimal_longitude * 0.1
 
 if north < south:
     t = south
@@ -259,13 +256,13 @@ ror_terrn2_file.create_file()
 ror_zip_file.add_to_zip_file_list(config.data["map_name"] + ".tobj")
 ror_zip_file.add_to_zip_file_list(config.data["map_name"] + "_vegetation.tobj")
 
+gen_road.write_all_roads()
+ror_waypoint_file.write()
+
 ogre_material.create_file()
 ogre_map_height.create_file()
 ogre_map_surface.create_file()
-ogre_map_vegetation.create_file()
-
-gen_road.write_all_roads()
-ror_waypoint_file.write()
+ogre_map_vegetation.create_file(gen_road.get_road_coord()) # must be called after gen_road.write_all_roads()
 
 ror_zip_file.write_default_file()
 ror_zip_file.create_zip_file()

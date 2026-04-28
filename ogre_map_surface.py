@@ -5,9 +5,6 @@ import config
 import ror_zip_file
 import ogre_map_height
 import ogre_map_helper
-import osm
-import helper
-import gvar
 
 surf = []
 draw = []
@@ -19,7 +16,8 @@ def init():
 
     for n in range(5):
         surf.append(PIL.Image.new(mode="RGB", size=(
-            int(gvar.map_size / gvar.map_precision), int(gvar.map_size / gvar.map_precision)),
+            int(config.data["map_size"] / config.data["map_precision"]),
+            int(config.data["map_size"] / config.data["map_precision"])),
                                   color=(0, 0, 0)))
         draw.append(PIL.ImageDraw.Draw(surf[n]))
 

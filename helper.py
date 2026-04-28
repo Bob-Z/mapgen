@@ -1,7 +1,7 @@
 import math
 import bbox
 import numpy
-import gvar
+import config
 from shapely import Polygon
 from shapely import LineString
 
@@ -150,8 +150,8 @@ def node_to_map_coord(all_node):
         all_node.pop()
 
     for node in all_node:
-        x = lon_to_x(node.lon) / gvar.map_precision
-        y = lat_to_y(node.lat) / gvar.map_precision
+        x = lon_to_x(node.lon) / config.data["map_precision"]
+        y = lat_to_y(node.lat) / config.data["map_precision"]
 
         all_coord.append(x)
         all_coord.append(y)
@@ -167,8 +167,8 @@ def node_to_map_coord_cartesian(all_node):
         all_node.pop()
 
     for node in all_node:
-        x = lon_to_x(node.lon) / gvar.map_precision
-        y = -lat_to_y(node.lat) / gvar.map_precision
+        x = lon_to_x(node.lon) / config.data["map_precision"]
+        y = -lat_to_y(node.lat) / config.data["map_precision"]
 
         all_coord.append((x, y))
 

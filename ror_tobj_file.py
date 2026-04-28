@@ -1,7 +1,5 @@
 import config
-import gvar
 import ogre_map_vegetation
-import topography
 
 display_name_debug_index = 0
 vegetation_added = {}
@@ -43,7 +41,7 @@ def add_tree(osm_data, entity, scaleFrom, scaleTo, density, mesh_name, collision
     if "tree" not in vegetation_added:
         # trees yawFrom, yawTo, scaleFrom, scaleTo, highDensity, distance1, distance2, meshName colormap densitymap gridspacing collmesh
         new_line = "trees 0, 360, " + str(scaleFrom) + ", " + str(scaleTo) + ", 1.0, 250, " + str(
-            gvar.map_size) + "," + mesh_name + " none " + map_file_name + " " + str(
+            config.data["map_size"]) + "," + mesh_name + " none " + map_file_name + " " + str(
             density) + "  " + collision_mesh_name + "\n"
 
         with open(config.data["work_path"] + config.data["map_name"] + "_vegetation.tobj", "a") as tobj_file:

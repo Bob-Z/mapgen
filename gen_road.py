@@ -7,6 +7,7 @@ import osm
 import topography
 
 all_road_data = []
+all_road_coord = []
 index = 1
 
 
@@ -303,7 +304,8 @@ def add_traffic_signals(node, road_x, road_y, angle, road_width):
             signal_x = road_x + (math.cos(math.radians(angle)) * road_width / 2.0)
             signal_y = road_y - (math.sin(math.radians(angle)) * road_width / 2.0)
 
-            ror_tobj_file.add_object(signal_x, signal_y, topography.get_z(node.lon, node.lat), 0.0, 0.0, angle, "trafficlightsequence1")
+            ror_tobj_file.add_object(signal_x, signal_y, topography.get_z(node.lon, node.lat), 0.0, 0.0, angle,
+                                     "trafficlightsequence1")
 
 
 def write_all_roads():
@@ -318,3 +320,9 @@ def write_all_roads():
             ror_waypoint_file.add_waypoint(ready_nodes, my_road_data["name"])
 
         ror_tobj_file.write_road(road_data)
+
+        all_road_coord.append(road_data)
+
+
+def get_road_coord():
+    return all_road_coord
