@@ -40,7 +40,7 @@ def add_tree(osm_data, entity, scaleFrom, scaleTo, density, mesh_name, collision
     global vegetation_added
     if "tree" not in vegetation_added:
         # trees yawFrom, yawTo, scaleFrom, scaleTo, highDensity, distance1, distance2, meshName colormap densitymap gridspacing collmesh
-        new_line = "trees 0, 360, " + str(scaleFrom) + ", " + str(scaleTo) + ", 1.0, 250, " + str(
+        new_line = "trees 0, 360, " + str(scaleFrom) + ", " + str(scaleTo) + ", " + str(config.data["tree_density"]) + ", " + str(config.data["tree_mesh_distance"]) + ", " + str(
             config.data["map_size"]) + "," + mesh_name + " none " + map_file_name + " " + str(
             density) + "  " + collision_mesh_name + "\n"
 
@@ -56,7 +56,7 @@ def add_grass(osm_data, entity, grass_name):
     global vegetation_added
     if grass_name not in vegetation_added:
         # format: grass range, SwaySpeed, SwayLength, SwayDistribution, Density, minx, miny, maxx, maxy, fadetype, minY, maxY, material colormap densitymap
-        new_line = "grass 200, 0.5, 0.05, 10, 0.3, 0.2, 0.2, 1, 1, 1, 0, 0, " + grass_name + " grass_diffusespecular.dds " + map_file_name + "\n"
+        new_line = "grass 200, 0.5, 0.05, 10, " + str(config.data["grass_density"]) + ", 0.2, 0.2, 1, 1, 1, 0, 0, " + grass_name + " grass_diffusespecular.dds " + map_file_name + "\n"
 
         with open(config.data["work_path"] + config.data["map_name"] + "_vegetation.tobj", "a") as tobj_file:
             tobj_file.write(new_line)

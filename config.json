@@ -69,6 +69,12 @@
 "texture_size_in_meter": 2.0,
 
 "topography_dataset_comment": "see https://bmi-topography.csdms.io/en/latest/",
-"topography_dataset": "COP30"
+"topography_dataset": "COP30",
+
+"tree_mesh_distance_comment": "distance to which the game should use the mesh instead of the billboard. This is performance critical, use low values if possible! - https://docs.rigsofrods.org/terrain-creation/terrn2-subsystem/",
+"tree_mesh_distance": 60,
+"tree_density_comment": "increase with care, trees are memory intensive",
+"tree_density": 1.5,
+"grass_density": 0.3
 }
 
