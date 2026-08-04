@@ -7,6 +7,7 @@ import pickle
 import config
 import math
 import urllib
+import http
 
 
 def get_data():
@@ -36,6 +37,9 @@ def get_data():
                 print("OSM server error: ", e)
                 continue
             except urllib.error.URLError as e:
+                print("OSM server error: ", e)
+                continue
+            except http.client.RemoteDisconnected as e:
                 print("OSM server error: ", e)
                 continue
             osm_data_ok = True
