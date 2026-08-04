@@ -4,7 +4,7 @@ import topography
 
 def get_height():
     if topography.is_enabled():
-        return topography.get_total_height()
+        return topography.get_topo_elevation()
     else:
         return config.data["ground_line"]  # just managing water depth for now
 

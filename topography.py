@@ -4,12 +4,11 @@ import helper
 import ogre_map_height
 import config
 from multiprocessing import Pool, cpu_count
-#import matplotlib.pyplot as plt
+
+# import matplotlib.pyplot as plt
 
 topo = None
 enabled = False
-elevation_min = None
-elevation_max = None
 
 
 def is_enabled():
@@ -35,29 +34,26 @@ def get(api_key):
         topo.fetch()
         topo.load()
 
-        global elevation_min
-        global elevation_max
-        elevation_min = topo.da.data.min()
-        elevation_max = topo.da.data.max()
-
         global enabled
         enabled = True
 
-        #topo.da.plot()
-        #plt.show()
+        # topo.da.plot()
+        # plt.show()
 
     else:
         print("No OpenTopography API key provided, using flat map")
 
+
 def calculate_height(all_param):
-    image_width, image_height, w, h = all_param
+    topo, image_width, image_height, w, h = all_param
 
     width_percent = w / image_width
     height_percent = h / image_height
 
-    elevation = get_elevation_percent(width_percent, height_percent)
+    elevation = get_elevation_percent(topo, width_percent, height_percent)
 
     return w, h, elevation * ogre_map_height.MAX_COLOR
+
 
 def fill_map_height(draw):
     print("Generating height from topography, please wait\n")
@@ -66,10 +62,13 @@ def fill_map_height(draw):
     image_height = draw.im.size[1]
 
     # prepare input
+    global topo
     all_params = []
     for w in range(image_width):
         for h in range(image_height):
-            all_params.append((image_width, image_height, w, h))
+            all_params.append((topo, image_width, image_height, w, h))
+            # w, h, color = calculate_height((image_width, image_height, w, h))
+            # draw.point((w, h), fill=int(color))
 
     with Pool(cpu_count()) as pool:
         # waits for all results
@@ -80,15 +79,16 @@ def fill_map_height(draw):
         draw.point((w, h), fill=int(color))
 
 
-def get_total_height():
-    global elevation_min
-    global elevation_max
+def get_total_elevation(topo):
+    return topo.da.data.max() - topo.da.data.min()
 
-    return elevation_max - elevation_min
+def get_topo_elevation():
+    global topo
+    return topo.da.data.max() - topo.da.data.min()
 
 
 # input are percentage of width and height on the topography data
-def get_elevation_percent(width_percent, height_percent):
+def get_elevation_percent(topo, width_percent, height_percent):
     topo_data_index_w = topo.da.data.shape[2] * width_percent
     topo_data_index_h = topo.da.data.shape[1] * height_percent
 
@@ -111,7 +111,7 @@ def get_elevation_percent(width_percent, height_percent):
 
     elevation = elevation_h_1 + ((elevation_h_2 - elevation_h_1) * (topo_data_index_w % 1))
 
-    return (elevation - elevation_min) / get_total_height()
+    return (elevation - topo.da.data.min()) / get_total_elevation(topo)
 
 
 def get_elevation_from_lon_lat(lon, lat):
@@ -119,7 +119,8 @@ def get_elevation_from_lon_lat(lon, lat):
         width_percent = (float(lon) - bbox.coord["west"]) / (bbox.coord["east"] - bbox.coord["west"])
         height_percent = (float(lat) - bbox.coord["north"]) / (bbox.coord["south"] - bbox.coord["north"])
 
-        return get_elevation_percent(width_percent, height_percent) * get_total_height()
+        global topo
+        return get_elevation_percent(topo, width_percent, height_percent) * get_total_elevation(topo)
     else:
         return config.data["ground_line"]
 
