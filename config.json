@@ -39,6 +39,9 @@
 
 "fountain_depth": 7.0,
 
+"building_ratio_comment": "If set to 1.0, 100% of buildings on map are generated. Lower value will skip some buildings",
+"building_ratio": 1.0,
+
 "barrier_width": 0.3,
 "barrier_height": 1.0,
 "bridge_height": 4.0,

@@ -27,6 +27,9 @@ negative_tag_value = [
     ["shelter_type", "public_transport"],
 ]
 
+building_created_qty = 0
+building_discovered_qty = 0
+
 
 # Return True if entity as been processed successfully
 def process(entity, osm_data=None, pass_index=0):
@@ -56,19 +59,21 @@ def build_from_relation(osm_data, rel):
         way = osm.get_way_by_id(osm_data, member.ref)
         if way is not None:
             if member.role == "outer" or member.role == "part":  # Don't draw outline, it breaks Paris Eiffel Tower
-                build_from_way(way, height, min_height, roof_height)
+                if build_from_way(way, height, min_height, roof_height) is True:
+                    way.tags["mapgen"] = "used_by_relation"
             # FIXME: How to manager inner ?
             # elif member.role == "inner":
+            else:
+                way.tags["mapgen"] = "skip_outer"
 
-            way.tags["mapgen"] = "used_by_relation"
 
-
+# Return True if a building has been created
 def build_from_way(way, height=None, min_height=None, roof_height=None):
     if "mapgen" in way.tags and way.tags["mapgen"] == "used_by_relation":
-        return
+        return False
 
     if wiki.is_object_crossing(way.nodes) is True:
-        return
+        return False
 
     is_barrier = False
     if len(way.nodes) < 3:
@@ -111,13 +116,25 @@ def build_from_way(way, height=None, min_height=None, roof_height=None):
     if top_texture is None:
         top_texture = config.data["top_texture"]
 
-    object_3d.create_all_object_file(way.nodes, height, z=min_height,
-                                     wall_texture=wall_texture,
-                                     top_texture=top_texture,
-                                     is_barrier=is_barrier,
-                                     roof_shape=roof_shape,
-                                     roof_height=roof_height,
-                                     display_name=display_name)
+    global building_discovered_qty
+    global building_created_qty
+
+    building_discovered_qty += 1
+
+    if building_created_qty / building_discovered_qty < config.data["building_ratio"]:
+        building_created_qty += 1
+
+        object_3d.create_all_object_file(way.nodes, height, z=min_height,
+                                         wall_texture=wall_texture,
+                                         top_texture=top_texture,
+                                         is_barrier=is_barrier,
+                                         roof_shape=roof_shape,
+                                         roof_height=roof_height,
+                                         display_name=display_name)
+
+        return True
+    else:
+        return False
 
 
 def is_allowed(entity):
