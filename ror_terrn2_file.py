@@ -11,7 +11,8 @@ CaelumConfigFile = " + config.data["map_name"] + ".os" + "\n\
 Water = 1\n\
 WaterLine = " + str(config.data["water_line"]) + "\n\
 AmbientColor = 1, 1, 1\n\
-StartPosition = " + str(config.data["map_size"] / 2) + " " + str(config.data["ground_line"]) + " " + str(config.data["map_size"] / 2) + "\n\
+StartPosition = " + str(config.data["map_size"] / 2) + " " + str(config.data["ground_line"]) + " " + str(
+            config.data["map_size"] / 2) + "\n\
 SandStormCubeMap = tracks/skyboxcol\n\
 Gravity = -9.81\n\
 CategoryID = 129\n\
@@ -29,3 +30,10 @@ def add_waypoints():
         terrn2_file.write("\
 [AI Presets]\n\
 waypoints.json=\n")
+
+
+def add_as_script():
+    with open(config.data["work_path"] + config.data["map_name"] + ".terrn2", "a") as terrn2_file:
+        terrn2_file.write("\
+[Scripts]\n" +
+                          config.data["map_name"] + ".terrn.as=\n")

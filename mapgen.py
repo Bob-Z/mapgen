@@ -1,3 +1,6 @@
+import time
+
+import ror_as_script
 import config
 import helper
 import ogre_map_vegetation
@@ -21,6 +24,7 @@ import copy
 import ogre_map_height
 import ogre_map_surface
 import ror_terrn2_file
+import ror_as_file
 import json
 import wiki
 import os
@@ -110,10 +114,15 @@ def my_main():
 
     topography.get(api_key)
 
-    osm_data = osm.get_data()
-    if osm_data is None:
-        print("No OSM data. Retry later or with a smaller map.")
-        exit(-1)
+    osm_data = None
+
+    retry_timeout = 30.0
+
+    while osm_data is None:
+        osm_data = osm.get_data()
+        if osm_data is None:
+            print("Can't download OSM data. Waiting for " + str(retry_timeout) + " seconds before retry. You may also try a smaller map.")
+            time.sleep(retry_timeout)
 
     ror_zip_file.create_default_file()
 
@@ -260,6 +269,7 @@ def my_main():
 
     gen_road.write_all_roads()
     ror_waypoint_file.write()
+    ror_as_file.write()
 
     ogre_material.create_file()
     ogre_map_height.create_file()

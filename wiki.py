@@ -43,7 +43,7 @@ def init():
                 "work_path"] + ", wikidata's 3D model download disabled")
             config.data["use_wikidata"] = False
         else:
-            print("OgreAssimpConverter found, wikidata's 3D model download enabled")
+            print("OgreAssimpConverter found, wikidata's 3D model download enabled\n")
 
 
 # Return True if successfully got data

@@ -78,6 +78,10 @@
 "tree_mesh_distance": 60,
 "tree_density_comment": "increase with care, trees are memory intensive",
 "tree_density": 1.5,
-"grass_density": 0.3
+"grass_density": 0.3,
+
+"bots_slow_move_timeout_before_reset": 10,
+"road_bots_quantity" : 4,
+"road_bots_name" : "b6b0UID-semi.truck,95bbUID-agoras.truck"
 }
 

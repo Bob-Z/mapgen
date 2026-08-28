@@ -41,7 +41,7 @@ def get(api_key):
         # plt.show()
 
     else:
-        print("No OpenTopography API key provided, using flat map")
+        print("No OpenTopography API key provided, using flat map\n")
 
 
 def calculate_height(all_param):
