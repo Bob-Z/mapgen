@@ -142,21 +142,21 @@ def is_power_of_2(n):
     return (math.log(n) / math.log(2)).is_integer()
 
 
-def node_to_map_coord(all_node):
-    all_coord = []
+def coord_to_map_coord(all_coord):
+    all_map_coord = []
 
     # First and last nodes are sometimes the same. In this case skip the last node
-    if all_node[0] == all_node[-1]:
-        all_node.pop()
+    if all_coord[0] == all_coord[-1]:
+        all_coord.pop()
 
-    for node in all_node:
-        x = lon_to_x(node.lon) / config.data["map_precision"]
-        y = lat_to_y(node.lat) / config.data["map_precision"]
+    for coord in all_coord:
+        x = lon_to_x(coord[0]) / config.data["map_precision"]
+        y = lat_to_y(coord[1]) / config.data["map_precision"]
 
-        all_coord.append(x)
-        all_coord.append(y)
+        all_map_coord.append(x)
+        all_map_coord.append(y)
 
-    return all_coord
+    return all_map_coord
 
 
 def node_to_map_coord_cartesian(all_node):
@@ -175,12 +175,12 @@ def node_to_map_coord_cartesian(all_node):
     return all_coord
 
 
-def node_to_polygon(nodes):
-    if len(nodes) < 4:
+def coord_to_polygon(all_coord):
+    if len(all_coord) < 4:
         return None
     poly = []
-    for n in nodes:
-        poly.append((n.lon, n.lat))
+    for coord in all_coord:
+        poly.append((coord[0], coord[1]))
     return Polygon(poly)
 
 

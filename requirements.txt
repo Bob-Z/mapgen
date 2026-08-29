@@ -1,7 +1,7 @@
 numpy
 pillow
 bmi-topography
-overpy
+overpass
 wikidata
 pyWikiCommons
 shapely
@@ -9,3 +9,4 @@ shapely
 #diffusers
 #transformers
 #accelerate
+

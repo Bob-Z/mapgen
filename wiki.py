@@ -47,136 +47,127 @@ def init():
 
 
 # Return True if successfully got data
-def get_data(entity, osm_data=None):
+def get_data(osm_data):
     found = False
 
-    if "wikidata" in entity.tags:
-        global wikidata_found
-        global wikidata_id_found
+    for feature in osm_data["features"]:
+        if "wikidate" in feature["properties"]["tags"]:
+            global wikidata_found
+            global wikidata_id_found
 
-        if entity.tags["wikidata"] in wikidata_id_found:
-            print(entity.tags["wikidata"], "already found, skipping")
-            return False
-
-        wikidata_found += 1
-        cache_wikidata_file_path = config.data["cache_path"] + "/wikidata_" + entity.tags["wikidata"]
-        if os.path.isfile(cache_wikidata_file_path):
-            with open(cache_wikidata_file_path, "rb") as pickle_file:
-                wiki = pickle.load(pickle_file)
-            global wikidata_read_from_cache
-            wikidata_read_from_cache += 1
-        else:
-            try:
-                wiki = wikidata_client.get(entity.tags["wikidata"], load=True)
-                with open(cache_wikidata_file_path, "wb") as pickle_file:
-                    pickle.dump(wiki, pickle_file)
-                    global wikidata_downloaded
-                    wikidata_downloaded += 1
-            except urllib.error.HTTPError as e:
-                print("Cannot download wikidata page ", entity.tags["wikidata"], ":", e,
-                      ". Try to update wikidata package.")
+            if feature["properties"]["tags"]["wikidata"] in wikidata_id_found:
+                print(feature["properties"]["tags"]["wikidata"], "already found, skipping")
                 return False
 
-        if "P4896" in wiki.attributes["claims"]:
-            wiki_name = wiki.attributes["claims"]["P4896"][0]["mainsnak"]["datavalue"]["value"]
-
-            name = wiki_name.replace(' ', '_')
-            cache_stl_file_path = config.data["cache_path"] + "/" + name
-            work_stl_file_path = config.data["work_path"] + "/" + name
-            if os.path.isfile(cache_stl_file_path):
-                print("Reading cached 3D model file " + cache_stl_file_path)
-                shutil.copyfile(cache_stl_file_path, work_stl_file_path)
+            wikidata_found += 1
+            cache_wikidata_file_path = config.data["cache_path"] + "/wikidata_" + feature["properties"]["tags"]["wikidata"]
+            if os.path.isfile(cache_wikidata_file_path):
+                with open(cache_wikidata_file_path, "rb") as pickle_file:
+                    wiki = pickle.load(pickle_file)
+                global wikidata_read_from_cache
+                wikidata_read_from_cache += 1
             else:
-                print("Download 3D model file " + cache_stl_file_path)
-                pyWikiCommons.download_commons_image(wiki_name, config.data["work_path"])
-                shutil.move(config.data["work_path"] + "/File:" + wiki_name, config.data["work_path"] + name)
-                shutil.copyfile(work_stl_file_path, cache_stl_file_path)
+                try:
+                    wiki = wikidata_client.get(feature["properties"]["tags"]["wikidata"], load=True)
+                    with open(cache_wikidata_file_path, "wb") as pickle_file:
+                        pickle.dump(wiki, pickle_file)
+                        global wikidata_downloaded
+                        wikidata_downloaded += 1
+                except urllib.error.HTTPError as e:
+                    print("Cannot download wikidata page ", feature["properties"]["tags"]["wikidata"], ":", e,
+                          ". Try to update wikidata package.")
+                    return False
 
-            process = subprocess.Popen([config.data["OgreAssimp_path"] + "OgreAssimpConverter", work_stl_file_path],
-                                       stdout=subprocess.DEVNULL,
-                                       stderr=subprocess.STDOUT
-                                       )
-            process.wait()
+            if "P4896" in wiki.attributes["claims"]:
+                wiki_name = wiki.attributes["claims"]["P4896"][0]["mainsnak"]["datavalue"]["value"]
 
-            short_name = name.removesuffix(".stl")
-            ror_zip_file.add_to_zip_file_list(short_name + ".mesh")
-            ror_zip_file.add_to_zip_file_list(short_name + ".material")
+                name = wiki_name.replace(' ', '_')
+                cache_stl_file_path = config.data["cache_path"] + "/" + name
+                work_stl_file_path = config.data["work_path"] + "/" + name
+                if os.path.isfile(cache_stl_file_path):
+                    print("Reading cached 3D model file " + cache_stl_file_path)
+                    shutil.copyfile(cache_stl_file_path, work_stl_file_path)
+                else:
+                    print("Download 3D model file " + cache_stl_file_path)
+                    pyWikiCommons.download_commons_image(wiki_name, config.data["work_path"])
+                    shutil.move(config.data["work_path"] + "/File:" + wiki_name, config.data["work_path"] + name)
+                    shutil.copyfile(work_stl_file_path, cache_stl_file_path)
 
-            # convert bin mesh to XML mesh
-            process = subprocess.Popen(["OgreXMLConverter", config.data["work_path"] + short_name + ".mesh"],
-                                       stdout=subprocess.DEVNULL,
-                                       stderr=subprocess.STDOUT
-                                       )
-            process.wait()
-
-            xml_file_path = config.data["work_path"] + short_name + ".mesh.xml"
-
-            colour = ogre_material.create_material_color(entity.tags)
-            if colour is not None:
-                tree = ET.parse(xml_file_path)
-                for child in tree.getroot().findall(".//submesh"):
-                    child.set('material',colour)
-                tree.write(xml_file_path)
-
-                # convert XML to bin mesh
-                process = subprocess.Popen(["OgreXMLConverter", xml_file_path],
+                process = subprocess.Popen([config.data["OgreAssimp_path"] + "OgreAssimpConverter", work_stl_file_path],
                                            stdout=subprocess.DEVNULL,
                                            stderr=subprocess.STDOUT
                                            )
                 process.wait()
 
-            mesh_height = mesh.get_height(xml_file_path)
+                short_name = name.removesuffix(".stl")
+                ror_zip_file.add_to_zip_file_list(short_name + ".mesh")
+                ror_zip_file.add_to_zip_file_list(short_name + ".material")
 
-            if "P2048" in wiki.attributes["claims"]:
-                entity_height_str = wiki.attributes["claims"]["P2048"][0]["mainsnak"]["datavalue"]["value"]["amount"]
-                entity_height = float(entity_height_str.replace("+", ""))
-            else:
-                entity_height = osm.get_height(entity)[0]
-                if entity_height is None:
-                    print("Unable to find height of ", entity.tags["wikidata"])
+                # convert bin mesh to XML mesh
+                process = subprocess.Popen(["OgreXMLConverter", config.data["work_path"] + short_name + ".mesh"],
+                                           stdout=subprocess.DEVNULL,
+                                           stderr=subprocess.STDOUT
+                                           )
+                process.wait()
+
+                xml_file_path = config.data["work_path"] + short_name + ".mesh.xml"
+
+                colour = ogre_material.create_material_color(feature["properties"]["tags"])
+                if colour is not None:
+                    tree = ET.parse(xml_file_path)
+                    for child in tree.getroot().findall(".//submesh"):
+                        child.set('material',colour)
+                    tree.write(xml_file_path)
+
+                    # convert XML to bin mesh
+                    process = subprocess.Popen(["OgreXMLConverter", xml_file_path],
+                                               stdout=subprocess.DEVNULL,
+                                               stderr=subprocess.STDOUT
+                                               )
+                    process.wait()
+
+                mesh_height = mesh.get_height(xml_file_path)
+
+                if "P2048" in wiki.attributes["claims"]:
+                    entity_height_str = wiki.attributes["claims"]["P2048"][0]["mainsnak"]["datavalue"]["value"]["amount"]
+                    entity_height = float(entity_height_str.replace("+", ""))
+                else:
+                    entity_height = osm.get_height(feature)[0]
+                    if entity_height is None:
+                        print("Unable to find height of ", feature["properties"]["tags"]["wikidata"])
+                        return False
+
+                factor = entity_height / mesh_height
+
+                ror_odef_file.create_file(short_name, size_x=factor, size_y=factor, size_z=factor)
+
+                nodes = None
+                if hasattr(entity, "nodes"):
+                    nodes = entity.nodes
+                else:
+                    for member in entity.members:
+                        way = osm.get_way_by_id(osm_data, member.ref)
+                        if way is not None:
+                            nodes = way.nodes
+
+                if nodes is None:
+                    print("Can't find nodes for ", feature["properties"]["tags"]["wikidata"])
                     return False
 
-            factor = entity_height / mesh_height
+                polygon = helper.coord_to_polygon(nodes)
+                rotation = calculate_rotation_angle(nodes, xml_file_path)
 
-            ror_odef_file.create_file(short_name, size_x=factor, size_y=factor, size_z=factor)
+                ror_tobj_file.add_object(x=helper.lon_to_x(polygon.centroid.x), y=helper.lat_to_y(polygon.centroid.y), z=topography.get_z(polygon.centroid.x, polygon.centroid.y), rx=0,
+                                         ry=0,
+                                         rz=rotation, name=short_name)
 
-            nodes = None
-            if hasattr(entity, "nodes"):
-                nodes = entity.nodes
-            else:
-                for member in entity.members:
-                    way = osm.get_way_by_id(osm_data, member.ref)
-                    if way is not None:
-                        nodes = way.nodes
+                if config.data["ignore_osm_data_crossing_wikidata_model"] is True:
+                    wikidata_3D_model_shape.append(helper.coord_to_polygon(nodes))
 
-            if nodes is None:
-                print("Can't find nodes for ", entity.tags["wikidata"])
-                return False
-
-            polygon = helper.node_to_polygon(nodes)
-            rotation = calculate_rotation_angle(nodes, xml_file_path)
-
-            ror_tobj_file.add_object(x=helper.lon_to_x(polygon.centroid.x), y=helper.lat_to_y(polygon.centroid.y), z=topography.get_z(polygon.centroid.x, polygon.centroid.y), rx=0,
-                                     ry=0,
-                                     rz=rotation, name=short_name)
-
-            if config.data["ignore_osm_data_crossing_wikidata_model"] is True:
-                wikidata_3D_model_shape.append(helper.node_to_polygon(nodes))
-
-            wikidata_id_found.append(entity.tags["wikidata"])
-            global wikidata_with_3d
-            wikidata_with_3d += 1
-            found = True
-
-    # If entity is a relation, try to find wikidata in each ways
-    if found is False and osm_data is not None:
-        if hasattr(entity, 'members'):
-            for member in entity.members:
-                way = osm.get_way_by_id(osm_data, member.ref)
-                if way is not None:
-                    if get_data(way) is True:
-                        found = True
-                        break
+                wikidata_id_found.append(feature["properties"]["tags"]["wikidata"])
+                global wikidata_with_3d
+                wikidata_with_3d += 1
+                found = True
 
     return found
 
@@ -193,9 +184,9 @@ def calculate_rotation_angle(nodes, xml_file_path):
     return osm_angle - mesh_angle
 
 
-def is_object_crossing(nodes):
+def is_object_crossing(all_cord):
     if config.data["use_wikidata"] is True and config.data["ignore_osm_data_crossing_wikidata_model"] is True:
-        polygon = helper.node_to_polygon(nodes)
+        polygon = helper.coord_to_polygon(all_cord)
         if polygon is not None:
             for shape in wikidata_3D_model_shape:
                 intersection_area = shape.intersection(polygon).area

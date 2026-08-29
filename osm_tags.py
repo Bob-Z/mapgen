@@ -60,38 +60,38 @@ entity_used_by_relation = ""
 entity_used_by_relation_qty = 0
 
 
-def is_entity_ignored(entity):
-    if ("mapgen" in entity.tags and
-            (entity.tags["mapgen"] == "ignored_entity_by_tags" or
-             entity.tags["mapgen"] == "ignored_entity_by_tag_value" or
-             entity.tags["mapgen"] == "ignored_entity_all_tags_filtered")):
+def is_entity_ignored(tags):
+    if ("mapgen" in tags and
+            (tags["mapgen"] == "ignored_entity_by_tags" or
+             tags["mapgen"] == "ignored_entity_by_tag_value" or
+             tags["mapgen"] == "ignored_entity_all_tags_filtered")):
         return True
     return False
 
 
-def filter_ignored(modified_entity):
-    for entity in modified_entity:
-        if len(entity.tags) == 0:
-            entity.tags["mapgen"] = "empty"
+def filter_ignored(osm_data):
+    for feature in osm_data["features"]:
+        if "tags" not in feature["properties"]["tags"] or len(feature["properties"]["tags"]) == 0:
+            feature["properties"]["tags"]["mapgen"] = "empty"
             continue
 
         for tag in ignored_entity:
-            if tag in entity.tags:
-                entity.tags["mapgen"] = "ignored_entity_by_tags"
+            if tag in feature["properties"]["tags"]:
+                feature["properties"]["tags"]["mapgen"] = "ignored_entity_by_tags"
                 continue
 
         for tag_value in ignored_entity_by_tag_value:
-            if tag_value[0] in entity.tags:
-                if entity.tags[tag_value[0]] == tag_value[1]:
-                    entity.tags["mapgen"] = "ignored_entity_by_tag_value"
+            if tag_value[0] in feature["properties"]["tags"]:
+                if feature["properties"]["tags"][tag_value[0]] == tag_value[1]:
+                    feature["properties"]["tags"]["mapgen"] = "ignored_entity_by_tag_value"
                     continue
 
         for tag in ignored_tags:
-            if tag in entity.tags:
-                entity.tags.pop(tag)
+            if tag in feature["properties"]["tags"]:
+                feature["properties"]["tags"].pop(tag)
 
-        if len(entity.tags) == 0:
-            entity.tags["mapgen"] = "ignored_entity_all_tags_filtered"
+        if len(feature["properties"]["tags"]) == 0:
+            feature["properties"]["tags"]["mapgen"] = "ignored_entity_all_tags_filtered"
 
 
 def show_stat(name, original_entity, modified_entity):

@@ -40,12 +40,12 @@ def set_map_height(height):
         im.paste(height_to_color(height), (0, 0, im.size[0], im.size[1]))
 
 
-def draw_entity(osm_data, entity, outer_height, inner_height=None, draw_object=None, force=False):
+def draw_feature(osm_data, feature, outer_height, inner_height=None, draw_object=None, force=False):
     if topography.is_enabled() is False or force is True:
         global draw
         if draw_object is None:
             draw_object = draw
-        ogre_map_helper.draw_entity(draw_object, osm_data, entity, outer_height=outer_height, inner_height=inner_height)
+        ogre_map_helper.draw_feature(draw_object, osm_data, feature, outer_height=outer_height, inner_height=inner_height)
 
 
 def draw_entity_unblurred(osm_data, entity, outer_height, inner_height=None):

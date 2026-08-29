@@ -1,3 +1,5 @@
+from shapely import coordinates
+
 import object_3d
 import config
 import osm
@@ -7,37 +9,37 @@ shelter_tag_value = [["amenity", "shelter"], ["building", "roof"], ["shelter", "
 shelter_tag = []
 
 
-def process(entity, osm_data=None):
+def process(feature, osm_data=None):
     for tag_value in shelter_tag_value:
-        if tag_value[0] in entity.tags:
-            if entity.tags[tag_value[0]] == tag_value[1]:
+        if tag_value[0] in feature["properties"]["tags"]:
+            if feature["properties"]["tags"][tag_value[0]] == tag_value[1]:
                 if osm_data is None:
-                    build_from_way(entity)
+                    build_from_way(feature)
                 else:
-                    build_from_relation(osm_data, entity)
-                entity.tags.pop(tag_value[0])
-                if "type" in entity.tags:
-                    if entity.tags["type"] == "multipolygon":
-                        entity.tags.pop("type")
+                    build_from_relation(osm_data, feature)
+                feature["properties"]["tags"].pop(tag_value[0])
+                if "type" in feature["properties"]["tags"]:
+                    if feature["properties"]["tags"]["type"] == "multipolygon":
+                        feature["properties"]["tags"].pop("type")
                 return True
 
     for tag in shelter_tag:
-        if tag in entity.tags:
+        if tag in feature["properties"]["tags"]:
             if osm_data is None:
                 build_from_way(entity)
             else:
                 build_from_relation(osm_data, entity)
-            entity.tags.pop(tag)
-            if "type" in entity.tags:
-                if entity.tags["type"] == "multipolygon":
-                    entity.tags.pop("type")
+            feature["properties"]["tags"].pop(tag)
+            if "type" in feature["properties"]["tags"]:
+                if feature["properties"]["tags"]["type"] == "multipolygon":
+                    feature["properties"]["tags"].pop("type")
             return True
 
     return False
 
 
-def build_from_relation(osm_data, rel):
-    height, min_height, roof_height = osm.get_height(rel)
+def build_from_relation(osm_data, feature):
+    height, min_height, roof_height = osm.get_height(feature)
 
     for member in rel.members:
         way = osm.get_way_by_id(osm_data, member.ref)
@@ -48,12 +50,12 @@ def build_from_relation(osm_data, rel):
             # elif member.role == "inner":
 
 
-def build_from_way(way, height=None, min_height=None, from_relation=False):
+def build_from_way(feature, height=None, min_height=None, from_relation=False):
     is_barrier = False
-    if len(way.nodes) < 3:
+    if len(feature["geometry"]["coordinates"][0]) < 3:
         is_barrier = True
 
-    calc_height, calc_min_height, calc_roof_height = osm.get_height(way)
+    calc_height, calc_min_height, calc_roof_height = osm.get_height(feature)
 
     if calc_height is not None:
         height = calc_height
@@ -64,10 +66,10 @@ def build_from_way(way, height=None, min_height=None, from_relation=False):
     if calc_roof_height is not None:
         roof_height = calc_roof_height
 
-    build_shelter(way, height, min_height, is_barrier)
+    build_shelter(feature, height, min_height, is_barrier)
 
 
-def build_shelter(way, height, min_height, is_barrier):
+def build_shelter(feature, height, min_height, is_barrier):
     if height is None:
         height = config.data["building_level_height"] - config.data["shelter_ceiling"]
     else:
@@ -77,25 +79,25 @@ def build_shelter(way, height, min_height, is_barrier):
         min_height = 0.0
 
     # Pillars
-    for node in way.nodes:
+    for coord in feature["geometry"]["coordinates"][0]:
         group_z = 0.0
-        z = topography.get_z(node.lon, node.lat)
+        z = topography.get_z(coord[0], coord[0])
         if z > group_z:
             group_z = z
 
-    for node in way.nodes:
-        object_3d.create_all_object_file([node], height, z=min_height,
+    for coord in feature["geometry"]["coordinates"][0]:
+        object_3d.create_all_object_file([coord], height, z=min_height,
                                          wall_texture=config.data["wall_texture"],
                                          top_texture=config.data["top_texture"],
                                          is_barrier=is_barrier,
                                          group_z=group_z)
     # Roof
     # Z is pillars' height
-    object_3d.create_all_object_file(way.nodes, config.data["shelter_ceiling"], z=height + min_height,
+    object_3d.create_all_object_file(feature["geometry"]["coordinates"][0], config.data["shelter_ceiling"], z=height + min_height,
                                      wall_texture=config.data["wall_texture"],
                                      top_texture=config.data["top_texture"], is_barrier=is_barrier)
 
     # floor
-    object_3d.create_all_object_file(way.nodes, config.data["shelter_floor"], z=min_height,
+    object_3d.create_all_object_file(feature["geometry"]["coordinates"][0], config.data["shelter_floor"], z=min_height,
                                      wall_texture=config.data["wall_texture"],
                                      top_texture=config.data["top_texture"], is_barrier=is_barrier)

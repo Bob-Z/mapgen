@@ -126,136 +126,145 @@ def my_main():
 
     ror_zip_file.create_default_file()
 
+    osm.dump_result_to_file(osm_data)
+
     json_string = json.dumps(config.data, indent=2)
     with open(config.data["work_path"] + "config.json", "w") as json_file:
         json_file.write(json_string)
     ror_zip_file.add_to_zip_file_list("config.json")
-
-    osm.dump_result_to_file(osm_data)
 
     if config.data["generate_statistics"] is True:
         nodes_original = copy.deepcopy(osm_data.nodes)
         ways_original = copy.deepcopy(osm_data.ways)
         relations_original = copy.deepcopy(osm_data.relations)
 
-    osm_tags.filter_ignored(osm_data.nodes)
-    osm_tags.filter_ignored(osm_data.ways)
-    osm_tags.filter_ignored(osm_data.relations)
+    osm_tags.filter_ignored(osm_data)
 
     gen_sea.process(osm_data)
 
     if config.data["use_wikidata"] is True:
         print("Searching for 3D model in OSM data...")
-        for rel in osm_data.relations:
-            wiki.get_data(rel, osm_data)
-        for way in osm_data.ways:
-            wiki.get_data(way, osm_data)
+        wiki.get_data(osm_data)
 
     print("Processing nodes...")
-    node_total = len(osm_data.nodes)
+    node_total = 0
+    for feature in osm_data["features"]:
+        if feature["properties"]["type"] == "node":
+            node_total += 1
     node_qty = 0
-    for node in osm_data.nodes:
-        node_qty += 1
-        if node_qty % 100 == 0:
-            print("nodes: ", node_qty, "/", node_total, "\r", end="")
+    for feature in osm_data["features"]:
+        if feature["properties"]["type"] == "node":
+            node_qty += 1
+            if node_qty % 100 == 0:
+                print("nodes: ", node_qty, "/", node_total, "\r", end="")
 
-        if len(node.tags) == 0:
-            continue
+            if len(feature["properties"]["tags"]) == 0:
+                continue
 
-        if osm_tags.is_entity_ignored(node):
-            continue
+            if osm_tags.is_entity_ignored(feature["properties"]["tags"]):
+                continue
 
-        gen_object.process(node)
+            gen_object.process(feature)
     print("nodes: ", node_qty, "/", node_total)
 
     print("Processing relations...")
-    rel_total = len(osm_data.relations)
+    rel_total = 0
+    for feature in osm_data["features"]:
+        if feature["properties"]["type"] == "relation":
+            rel_total += 1
+
     rel_qty = 0
-    for rel in osm_data.relations:
-        rel_qty += 1
-        if rel_qty % 10 == 0:
-            print("first pass relations: ", rel_qty, "/", rel_total, "\r", end="")
+    for feature in osm_data["features"]:
+        if feature["properties"]["type"] == "relation":
+            rel_qty += 1
+            if rel_qty % 10 == 0:
+                print("first pass relations: ", rel_qty, "/", rel_total, "\r", end="")
 
-        if len(rel.tags) == 0:
-            continue
+            if len(feature["properties"]["tags"]) == 0:
+                continue
 
-        if osm_tags.is_entity_ignored(rel):
-            continue
+            if osm_tags.is_entity_ignored(feature["properties"]["tags"]):
+                continue
 
-        if gen_building.process(rel, osm_data, pass_index=0):
-            continue
-        if gen_shelter.process(rel, osm_data):
-            continue
-        if gen_land.process(rel, osm_data):
-            continue
-        if gen_water.process(rel, osm_data):
-            continue
-        if gen_road.process(rel, osm_data):
-            continue
+            if gen_building.process(feature, osm_data, pass_index=0):
+                continue
+            if gen_shelter.process(feature, osm_data):
+                continue
+            if gen_land.process(feature, osm_data):
+                continue
+            if gen_water.process(feature, osm_data):
+                continue
+            if gen_road.process(feature, osm_data):
+                continue
 
     # Second pass
-    rel_total = len(osm_data.relations)
     rel_qty = 0
-    for rel in osm_data.relations:
-        rel_qty += 1
-        if rel_qty % 10 == 0:
-            print("second pass relations: ", rel_qty, "/", rel_total, "\r", end="")
+    for feature in osm_data["features"]:
+        if feature["properties"]["type"] == "relation":
+            rel_qty += 1
+            if rel_qty % 10 == 0:
+                print("second pass relations: ", rel_qty, "/", rel_total, "\r", end="")
 
-        if len(rel.tags) == 0:
-            continue
+            if len(feature["properties"]["tags"]) == 0:
+                continue
 
-        if osm_tags.is_entity_ignored(rel):
-            continue
+            if osm_tags.is_entity_ignored(feature["properties"]["tags"]):
+                continue
 
-        if gen_building.process(rel, osm_data, pass_index=1):
-            continue
+            if gen_building.process(feature, osm_data, pass_index=1):
+                continue
 
     print("relations: ", rel_qty, "/", rel_total)
 
     print("Processing ways...")
     # First pass
-    way_total = len(osm_data.ways)
+    way_total = 0
+    for feature in osm_data["features"]:
+        if feature["properties"]["type"] == "way":
+            way_total += 1
+
     way_qty = 0
-    for way in osm_data.ways:
-        way_qty += 1
-        if way_qty % 10 == 0:
-            print("first pass ways: ", way_qty, "/", way_total, "\r", end="")
+    for feature in osm_data["features"]:
+        if feature["properties"]["type"] == "way":
+            way_qty += 1
+            if way_qty % 10 == 0:
+                print("first pass ways: ", way_qty, "/", way_total, "\r", end="")
 
-        if len(way.tags) == 0:
-            continue
+            if len(feature["properties"]["tags"]) == 0:
+                continue
 
-        if osm_tags.is_entity_ignored(way):
-            continue
+            if osm_tags.is_entity_ignored(feature):
+                continue
 
-        if gen_building.process(way, pass_index=0):
-            continue
-        if gen_shelter.process(way):
-            continue
-        if gen_land.process(way):
-            continue
-        if gen_water.process(way):
-            continue
-        if gen_barrier.process(way):
-            continue
-        if gen_road.process(way):
-            continue
+            if gen_building.process(feature, pass_index=0):
+                continue
+            if gen_shelter.process(feature):
+                continue
+            if gen_land.process(feature):
+                continue
+            if gen_water.process(feature):
+                continue
+            if gen_barrier.process(feature):
+                continue
+            if gen_road.process(feature):
+                continue
 
     # second pass
-    way_total = len(osm_data.ways)
     way_qty = 0
-    for way in osm_data.ways:
-        way_qty += 1
-        if way_qty % 10 == 0:
-            print("second pass ways: ", way_qty, "/", way_total, "\r", end="")
+    for feature in osm_data["features"]:
+        if feature["properties"]["type"] == "way":
+            way_qty += 1
+            if way_qty % 10 == 0:
+                print("second pass ways: ", way_qty, "/", way_total, "\r", end="")
 
-        if len(way.tags) == 0:
-            continue
+            if len(feature["properties"]["tags"]) == 0:
+                continue
 
-        if osm_tags.is_entity_ignored(way):
-            continue
+            if osm_tags.is_entity_ignored(feature["properties"]["tags"]):
+                continue
 
-        if gen_building.process(way, pass_index=1):
-            continue
+            if gen_building.process(feature, pass_index=1):
+                continue
 
     print("ways: ", way_qty, "/", way_total)
     print("")
@@ -285,7 +294,8 @@ def my_main():
         osm_tags.show_stat("relations", relations_original, osm_data.relations)
 
 if __name__ == '__main__':
-    freeze_support()
-    set_start_method('spawn')
-    p = Process(target=my_main)
-    p.start()
+    #freeze_support()
+    #set_start_method('spawn')
+    #p = Process(target=my_main)
+    #p.start()
+    my_main()

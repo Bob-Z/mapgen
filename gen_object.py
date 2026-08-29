@@ -4,18 +4,23 @@ import helper
 import topography
 
 
-def process(node):
-    if "natural" in node.tags:
-        if node.tags["natural"] == "tree":
-            ror_tobj_file.add_object(x=helper.lon_to_x(node.lon), y=helper.lat_to_y(node.lat),
-                                     z=topography.get_z(node.lon, node.lat), rx=90.0,
+def process(feature):
+    if "natural" in feature["properties"]["tags"]:
+        if feature["properties"]["tags"]["natural"] == "tree":
+            lon = feature["geometry"]["coordinates"][0]
+            lat = feature["geometry"]["coordinates"][1]
+            ror_tobj_file.add_object(x=helper.lon_to_x(lon), y=helper.lat_to_y(lat),
+                                     z=topography.get_z(lon, lat), rx=90.0,
                                      ry=float(random.randint(0, 359)), rz=0.0, name="tree1")
-            node.tags.pop("natural")
+            feature["properties"]["tags"].pop("natural")
 
-    if "amenity" in node.tags:
-        if node.tags["amenity"] == "bench":
+    if "amenity" in feature["properties"]["tags"]:
+        if feature["properties"]["tags"]["amenity"] == "bench":
+            lon = feature["geometry"]["coordinates"][0]
+            lat = feature["geometry"]["coordinates"][1]
+
             # FIXME remove this + 0.5
-            ror_tobj_file.add_object(x=helper.lon_to_x(node.lon), y=helper.lat_to_y(node.lat),
-                                     z=topography.get_z(node.lon, node.lat) + 0.5, rx=0.0,
+            ror_tobj_file.add_object(x=helper.lon_to_x(lon), y=helper.lat_to_y(lat),
+                                     z=topography.get_z(lon, lat) + 0.5, rx=0.0,
                                      ry=0.0, rz=float(random.randint(0, 359)), name="bench")
-            node.tags.pop("amenity")
+            feature["properties"]["tags"].pop("amenity")

@@ -1,4 +1,4 @@
-import overpy
+import overpass
 import sys
 import bbox
 import time
@@ -14,88 +14,84 @@ def get_data():
     bounding_box = str(bbox.coord["south"]) + "," + str(bbox.coord["west"]) + "," + str(
         bbox.coord["north"]) + "," + str(bbox.coord["east"])
 
-    cache_file_path = config.data["cache_path"] + "/" + bounding_box
+    cache_file_path = config.data["cache_path"] + "/" + bounding_box + "," + str(config.data["map_size"])
     if os.path.isfile(cache_file_path):
         print("Reading OpenStreetMap cache file " + cache_file_path + "\n")
         with open(cache_file_path, 'rb') as file:
-            result = pickle.load(file)
+            respond = pickle.load(file)
     else:
-        server_url = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.osm.rambler.ru/cgi/interpreter", "https://api.openstreetmap.fr/oapi/interpreter", "https://overpass.osm.vi-di.fr/api/interpreter"]
         print("Requesting OpenStreetMap")
         osm_data_ok = False
         start_time = time.time()
-        for url in server_url:
-            print("Trying with URL:", url)
-            overpy_api = overpy.Overpass(url=url)
-            try:
-                result = overpy_api.query(
-                    "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;")
-            except overpy.exception.OverpassGatewayTimeout as e:
-                print("OSM server error: ", e)
-                continue
-            except overpy.exception.OverpassUnknownHTTPStatusCode as e:
-                print("OSM server error: ", e)
-                continue
-            except urllib.error.URLError as e:
-                print("OSM server error: ", e)
-                continue
-            except http.client.RemoteDisconnected as e:
-                print("OSM server error: ", e)
-                continue
-            osm_data_ok = True
-            break
-
-        if osm_data_ok is False:
+        overpy_api = overpass.API(user_agent="mapgen")
+        try:
+            respond = overpy_api.get(
+                "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;")
+        except urllib.error.URLError as e:
+            print("OSM server error: ", e)
             return None
+        except http.client.RemoteDisconnected as e:
+            print("OSM server error: ", e)
+            return None
+
         end_time = time.time()
 
         print("Done in " + str(end_time - start_time) + " seconds\n")
 
         print("Writing OpenStreetMap cache file " + cache_file_path + "\n")
         with open(cache_file_path, 'wb') as file:
-            pickle.dump(result, file)
+            pickle.dump(respond, file)
 
-    if has_tag(result, "natural", "coastline") is True:
+    if has_tag(respond, "natural", "coastline") is True:
         print("This is a water map\n")
 
-    return result
+    return respond
 
 
-def dump_result_to_file(result):
+def dump_result_to_file(respond):
     original_stdout = sys.stdout
 
     print("Dumping OSM data in " + config.data["log_path"] + "osm_request.txt")
     with open(config.data["log_path"] + "osm_request.txt", "w") as result_file:
         sys.stdout = result_file
 
-        for node in result.nodes:
-            print(node.tags, node)
+        print(respond)
 
-        for way in result.ways:
-            print(way.tags, way)
+    with open(config.data["log_path"] + "osm_request_nodes.txt", "w") as result_file:
+        sys.stdout = result_file
 
-        for relation in result.relations:
-            print(relation, relation.tags)
-            for member in relation.members:
-                print(member)
+        for feature in respond["features"]:
+            if "type" in feature["properties"] and feature["properties"]["type"] == "node":
+                print(feature)
+
+    with open(config.data["log_path"] + "osm_request_ways.txt", "w") as result_file:
+        sys.stdout = result_file
+
+        for feature in respond["features"]:
+            if "type" in feature["properties"] and feature["properties"]["type"] == "way":
+                print(feature)
+
+    with open(config.data["log_path"] + "osm_request_relations.txt", "w") as result_file:
+        sys.stdout = result_file
+
+        for feature in respond["features"]:
+            if "type" in feature["properties"] and feature["properties"]["type"] == "relation":
+                print(feature)
+
+    with open(config.data["log_path"] + "osm_request_other.txt", "w") as result_file:
+        sys.stdout = result_file
+
+        for feature in respond["features"]:
+            if "type" in feature["properties"] and feature["properties"]["type"] != "relation" and feature["properties"]["type"] != "way" and feature["properties"]["type"] != "node":
+                print(feature)
 
     sys.stdout = original_stdout
 
 
 def has_tag(result, tag, value):
-    for node in result.nodes:
-        if tag in node.tags:
-            if node.tags[tag] == value:
-                return True
-
-    for way in result.ways:
-        if tag in way.tags:
-            if way.tags[tag] == value:
-                return True
-
-    for relation in result.relations:
-        if tag in relation.tags:
-            if relation.tags[tag] == value:
+    for feature in result["features"]:
+        if tag in feature["properties"]["tags"]:
+            if feature["properties"]["tags"][tag] == value:
                 return True
 
     return False
@@ -108,54 +104,56 @@ def get_way_by_id(osm_data, way_id):
         return None
 
 
-def get_height(entity):
+def get_height(feature):
     height = None
 
-    if "building:levels" in entity.tags:
-        level_qty = entity.tags["building:levels"]
+    tags = feature["properties"]["tags"]
+
+    if "building:levels" in tags:
+        level_qty = tags["building:levels"]
         try:
             height = float(level_qty) * config.data["building_level_height"]
-            entity.tags.pop("building:levels")
+            tags.pop("building:levels")
         except ValueError:
-            print("Cannot convert building:levels : " + entity.tags["building:levels"])
+            print("Cannot convert building:levels : " + tags["building:levels"])
 
-    if "height" in entity.tags:
-        h = convert_height_to_meter(entity.tags["height"])
+    if "height" in tags:
+        h = convert_height_to_meter(tags["height"])
         if h is not None:
             height = h
-            entity.tags.pop("height")
+            tags.pop("height")
 
     roof_height = None
-    if "roof:height" in entity.tags:
-        h = convert_height_to_meter(entity.tags["roof:height"])
+    if "roof:height" in tags:
+        h = convert_height_to_meter(tags["roof:height"])
         if h is not None:
             roof_height = h
-            entity.tags.pop("roof:height")
-    if roof_height is None and "est_roof:height" in entity.tags:
-        h = convert_height_to_meter(entity.tags["est_roof:height"])
+            tags.pop("roof:height")
+    if roof_height is None and "est_roof:height" in tags:
+        h = convert_height_to_meter(tags["est_roof:height"])
         if h is not None:
             roof_height = h
-            entity.tags.pop("est_roof:height")
-    if roof_height is None and "roof:levels" in entity.tags:
-        roof_height = float(entity.tags["roof:levels"]) * config.data["roof_height"]
-        entity.tags.pop("roof:levels")
+            tags.pop("est_roof:height")
+    if roof_height is None and "roof:levels" in tags:
+        roof_height = float(tags["roof:levels"]) * config.data["roof_height"]
+        tags.pop("roof:levels")
 
     min_height = None
-    if "min_height" in entity.tags:
-        height, min_height = get_min_height(height, convert_height_to_meter(entity.tags["min_height"]))
+    if "min_height" in tags:
+        height, min_height = get_min_height(height, convert_height_to_meter(tags["min_height"]))
         if min_height is not None:
-            entity.tags.pop("min_height")
-    elif "building:min_level" in entity.tags:
-        level_qty = entity.tags["building:min_level"]
+            tags.pop("min_height")
+    elif "building:min_level" in tags:
+        level_qty = tags["building:min_level"]
         min_h = None
         try:
             min_h = float(level_qty) * config.data["building_level_height"]
         except ValueError:
-            print("Cannot convert building:levels : " + entity.tags["building:min_level"])
+            print("Cannot convert building:levels : " + tags["building:min_level"])
 
         height, min_height = get_min_height(height, min_h)
         if min_height is not None:
-            entity.tags.pop("building:min_level")
+            tags.pop("building:min_level")
 
     # height = facade height + roof_height
     return height, min_height, roof_height
@@ -191,20 +189,20 @@ def convert_height_to_meter(height):
     return height_in_meter
 
 
-# all_way is a list of ways. This function returns a single way which is the concatenation of all way sorted by distance between input ways
-def concat_way_by_distance(all_way):
-    ready_nodes = all_way.pop()
+# all_all_cord is a list of all_cord. all_cord is list of coord. This function returns a single way which is the concatenation of all way sorted by distance between input ways
+def concat_way_by_distance(all_all_cord):
+    ready_coord = all_all_cord.pop()
 
     # Link roads with the same name
-    while len(all_way) > 0:
+    while len(all_all_cord) > 0:
         index = 0
         selected_index = 0
         distance = 999999.0
-        for node in all_way:
-            existing_first_point = [ready_nodes[0].lon, ready_nodes[0].lat]
-            existing_last_point = [ready_nodes[-1].lon, ready_nodes[-1].lat]
-            new_first_point = [node[0].lon, node[0].lat]
-            new_last_point = [node[-1].lon, node[-1].lat]
+        for all_cord in all_all_cord:
+            existing_first_point = [ready_coord[0][0], ready_coord[0][1]]
+            existing_last_point = [ready_coord[-1][0], ready_coord[-1][1]]
+            new_first_point = [all_cord[0][0], all_cord[0][1]]
+            new_last_point = [all_cord[-1][0], all_cord[-1][1]]
 
             first_to_first_dist = math.dist(existing_first_point, new_first_point)
             first_to_last_dist = math.dist(existing_first_point, new_last_point)
@@ -216,12 +214,12 @@ def concat_way_by_distance(all_way):
                 if first_to_first_dist < distance:
                     selected_index = index
                     distance = first_to_first_dist
-                    ready_nodes.reverse()
+                    ready_coord.reverse()
             elif first_to_last_dist < first_to_first_dist and first_to_last_dist < last_to_first_dist and first_to_last_dist < last_to_last_dist:
                 if first_to_last_dist < distance:
                     selected_index = index
                     distance = first_to_last_dist
-                    ready_nodes.reverse()
+                    ready_coord.reverse()
                     node.reverse()
             elif last_to_first_dist < first_to_first_dist and last_to_first_dist < first_to_last_dist and last_to_first_dist < last_to_last_dist:
                 if last_to_first_dist < distance:
@@ -235,6 +233,6 @@ def concat_way_by_distance(all_way):
 
             index += 1
 
-        ready_nodes = ready_nodes + all_way.pop(selected_index)
+        ready_coord = ready_coord + all_all_cord.pop(selected_index)
 
-    return ready_nodes
+    return ready_coord

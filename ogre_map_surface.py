@@ -22,30 +22,30 @@ def init():
         draw.append(PIL.ImageDraw.Draw(surf[n]))
 
 
-def draw_asphalt_entity(osm_data, entity):
-    draw_entity(0, osm_data, entity, (255, 0, 0))
+def draw_asphalt_feature(osm_data, feature):
+    draw_feature(0, osm_data, feature, (255, 0, 0))
 
 
-def draw_rock_entity(osm_data, entity):
-    draw_entity(1, osm_data, entity, (255, 0, 0))
+def draw_rock_feature(osm_data, feature):
+    draw_feature(1, osm_data, feature, (255, 0, 0))
 
 
-def draw_sand_entity(osm_data, entity):
-    draw_entity(2, osm_data, entity, (255, 0, 0))
+def draw_sand_feature(osm_data, feature):
+    draw_feature(2, osm_data, feature, (255, 0, 0))
 
 
-def draw_grass_entity(osm_data, entity):
-    draw_entity(3, osm_data, entity, (255, 0, 0))
+def draw_grass_feature(osm_data, feature):
+    draw_feature(3, osm_data, feature, (255, 0, 0))
 
 
-def draw_gravel_entity(osm_data, entity):
+def draw_gravel_feature(osm_data, feature):
     # RoR currently ignore the last blendmap when shadows are activated. So we fall back to another surface (4 -> 2)
-    # draw_entity(4, osm_data, entity, (255, 0, 0))
-    draw_entity(2, osm_data, entity, (255, 0, 0))
+    # draw_feature(4, osm_data, feature, (255, 0, 0))
+    draw_feature(2, osm_data, feature, (255, 0, 0))
 
 
-def draw_entity(surf_index, osm_data, entity, color):
-    ogre_map_helper.draw_entity(draw[surf_index], osm_data, entity, outer_color=color, inner_color=(0, 0, 0))
+def draw_feature(surf_index, osm_data, feature, color):
+    ogre_map_helper.draw_feature(draw[surf_index], osm_data, feature, outer_color=color, inner_color=(0, 0, 0))
 
 
 def draw_polygon(surf_index, polygon, color):

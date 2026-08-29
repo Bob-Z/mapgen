@@ -17,7 +17,7 @@ warn_gabled_roof = True
 warn_hipped_roof = True
 
 
-def create_all_object_file(nodes, height=config.data["building_level_height"], z=0.0,
+def create_all_object_file(all_coord, height=config.data["building_level_height"], z=0.0,
                            wall_texture=config.data["wall_texture"], top_texture=config.data["top_texture"],
                            scale=1.0,
                            is_barrier=False, half_barrier=False,
@@ -35,8 +35,8 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
     base_z = config.data["ground_line"]
     if topography.is_enabled():
         base_z = 0.0
-        for node in nodes:
-            node_z = topography.get_z(node.lon, node.lat)
+        for coord in all_coord:
+            node_z = topography.get_z(coord[0], coord[1])
             if node_z > base_z:
                 base_z = node_z
 
@@ -64,18 +64,13 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
 
     obj_name = "obj" + str(object_index)
 
-    if len(nodes) > 1:
-        if hasattr(nodes[0], 'lat'):
-            center_x, center_y, width, length, vertex = get_info_from_input_data(nodes, scale=scale, is_node=True,
-                                                                                 keep_all_nodes=is_barrier)
-        else:
-            center_x, center_y, width, length, vertex = get_info_from_input_data(nodes, scale=scale, is_node=False,
-                                                                                 keep_all_nodes=is_barrier)
+    if len(all_coord) > 1:
+        center_x, center_y, width, length, vertex = get_info_from_input_data(all_coord, scale=scale,keep_all_nodes=is_barrier)
 
         if is_barrier is True:
             vertex = create_additional_vertex_for_barrier(vertex, half_barrier, barrier_width)
     else:
-        center_x, center_y, width, length, vertex = create_vertex_for_pillar(nodes[0])
+        center_x, center_y, width, length, vertex = create_vertex_for_pillar(all_coord[0])
 
     wall_vertex_index, wall_face_qty, wall_vertex_str, wall_face_str = generate_wall(vertex, height)
     if wall_vertex_str is None:
@@ -613,7 +608,7 @@ def generate_roof_hipped(vertex2d, height, roof_height, vertex_index):
     return vertex_index, face_qty, vertex_str, face_str
 
 
-def get_info_from_input_data(nodes, scale=1.0, is_node=True, keep_all_nodes=False):
+def get_info_from_input_data(all_coord, scale=1.0, keep_all_nodes=False):
     all_vertex = []
     min_x = 9999999.0
     min_y = 9999999.0
@@ -622,16 +617,12 @@ def get_info_from_input_data(nodes, scale=1.0, is_node=True, keep_all_nodes=Fals
 
     # First and last nodes are sometimes the same. In this case skip the last node unless specified otherwise
     if keep_all_nodes is False:
-        if nodes[0] == nodes[-1]:
-            nodes.pop()
+        if all_coord[0] == all_coord[-1]:
+            all_coord.pop()
 
-    for node in nodes:
-        if is_node is True:
-            x = helper.lon_to_x(node.lon)
-            y = helper.lat_to_y(node.lat)
-        else:
-            x = node[0]
-            y = node[1]
+    for coord in all_coord:
+        x = helper.lon_to_x(coord[0])
+        y = helper.lat_to_y(coord[1])
 
         if x < min_x:
             min_x = x
@@ -739,9 +730,9 @@ def create_additional_vertex_for_barrier(vertex, half_barrier, barrier_width):
     return centered_vertex
 
 
-def create_vertex_for_pillar(node):
-    x = helper.lon_to_x(node.lon)
-    y = helper.lat_to_y(node.lat)
+def create_vertex_for_pillar(coord):
+    x = helper.lon_to_x(coord[0])
+    y = helper.lat_to_y(coord[1])
 
     length = config.data["barrier_width"] / 2.0
 
