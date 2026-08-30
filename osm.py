@@ -236,3 +236,20 @@ def concat_way_by_distance(all_all_cord):
         ready_coord = ready_coord + all_all_cord.pop(selected_index)
 
     return ready_coord
+
+# return an array of array of coord i.e. [lon,lat]
+def get_coord_from_feature(feature):
+    all_all_coord = []
+
+    if feature["geometry"]["type"] == "MultiPolygon":
+        for all_cord in feature["geometry"]["coordinates"][0]:
+            all_all_coord.append(all_cord)
+    elif feature["geometry"]["type"] == "Polygon":
+        all_all_coord = [feature["geometry"]["coordinates"][0]]
+    elif feature["geometry"]["type"] == "LineString":
+        all_all_coord = [feature["geometry"]["coordinates"]]
+    else:
+        print("Unsupported geometry " + feature["geometry"]["type"])
+        sys.exit(-1)
+
+    return all_all_coord

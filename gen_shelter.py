@@ -78,26 +78,35 @@ def build_shelter(feature, height, min_height, is_barrier):
     if min_height is None:
         min_height = 0.0
 
+    if feature["geometry"]["type"] == "Polygon":
+        all_coord = feature["geometry"]["coordinates"][0]
+    else:
+        print("GEOMETRY TYPE UNSUPOPORTED for gen_shelter: " + feature["geometry"]["type"])
+        sys.exit(-1)
+
     # Pillars
-    for coord in feature["geometry"]["coordinates"][0]:
+    for coord in all_coord:
         group_z = 0.0
-        z = topography.get_z(coord[0], coord[0])
+        z = topography.get_z(coord[0], coord[1])
         if z > group_z:
             group_z = z
 
-    for coord in feature["geometry"]["coordinates"][0]:
-        object_3d.create_all_object_file(feature, height, z=min_height,
-                                         wall_texture=config.data["wall_texture"],
-                                         top_texture=config.data["top_texture"],
-                                         is_barrier=is_barrier,
-                                         group_z=group_z)
+    all_all_cord = osm.get_coord_from_feature(feature)
+
+    for coord in all_all_cord[0]:
+        # Send coord one by one
+        object_3d.create_all_object_file([[coord]], height, z=min_height,
+                                     wall_texture=config.data["wall_texture"],
+                                     top_texture=config.data["top_texture"],
+                                     is_barrier=is_barrier,
+                                     group_z=group_z)
     # Roof
     # Z is pillars' height
-    object_3d.create_all_object_file(feature, config.data["shelter_ceiling"], z=height + min_height,
+    object_3d.create_all_object_file(osm.get_coord_from_feature(feature), config.data["shelter_ceiling"], z=height + min_height,
                                      wall_texture=config.data["wall_texture"],
                                      top_texture=config.data["top_texture"], is_barrier=is_barrier)
 
     # floor
-    object_3d.create_all_object_file(feature, config.data["shelter_floor"], z=min_height,
+    object_3d.create_all_object_file(osm.get_coord_from_feature(feature), config.data["shelter_floor"], z=min_height,
                                      wall_texture=config.data["wall_texture"],
                                      top_texture=config.data["top_texture"], is_barrier=is_barrier)

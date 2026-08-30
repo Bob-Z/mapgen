@@ -117,7 +117,7 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
     if building_created_qty / building_discovered_qty < config.data["building_ratio"]:
         building_created_qty += 1
 
-        object_3d.create_all_object_file(feature, height, z=min_height,
+        object_3d.create_all_object_file(osm.get_coord_from_feature(feature), height, z=min_height,
                                          wall_texture=wall_texture,
                                          top_texture=top_texture,
                                          is_barrier=is_barrier,

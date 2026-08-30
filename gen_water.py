@@ -19,14 +19,14 @@ def process(feature, osm_data=None):
             ogre_map_height.draw_entity_unblurred(osm_data, feature,
                                                   0.0, config.data["ground_line"])
 
-            object_3d.create_all_object_file(feature,
+            object_3d.create_all_object_file(osm.get_coord_from_feature(feature),
                                              height=config.data["ground_line"] + config.data[
                                                  "swimming_pool_height"],
                                              z=-config.data["ground_line"],
                                              wall_texture="mapgen_dark_grey", top_texture="mapgen_dark_grey",
                                              is_barrier=True, half_barrier=True, barrier_width=2.25)
             # pool bottom
-            object_3d.create_all_object_file(feature,
+            object_3d.create_all_object_file(osm.get_coord_from_feature(feature),
                                              height=config.data["ground_line"] - config.data["swimming_pool_depth"],
                                              z=-config.data["ground_line"],
                                              wall_texture="mapgen_dark_grey", top_texture="mapgen_dark_grey")
