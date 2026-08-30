@@ -15,7 +15,8 @@ def draw_feature(draw, osm_data, feature, outer_height=None, inner_height=None, 
             my_inner_color = ogre_map_height.height_to_color(config.data["ground_line"])
 
     first_coord = True  # FIXME Is first coord always the outer one ?
-    for all_coord in feature["geometry"]["coordinates"]:
+    all_all_coord = osm.get_coord_from_feature(feature)
+    for all_coord in all_all_coord:
         all_map_coord = helper.coord_to_map_coord(all_coord)
         if first_coord is True:
             fill_color = my_outer_color

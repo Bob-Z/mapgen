@@ -3,6 +3,7 @@ import ogre_map_surface
 import ogre_map_height
 import object_3d
 import ror_tobj_file
+import osm
 
 
 def process(feature, osm_data=None):
@@ -16,8 +17,8 @@ def process(feature, osm_data=None):
 
     if "leisure" in feature["properties"]["tags"]:
         if feature["properties"]["tags"]["leisure"] == "swimming_pool":
-            ogre_map_height.draw_entity_unblurred(osm_data, feature,
-                                                  0.0, config.data["ground_line"])
+            ogre_map_height.draw_feature_unblurred(osm_data, feature,
+                                                   0.0, config.data["ground_line"])
 
             object_3d.create_all_object_file(osm.get_coord_from_feature(feature),
                                              height=config.data["ground_line"] + config.data[

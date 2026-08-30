@@ -145,11 +145,13 @@ def is_power_of_2(n):
 def coord_to_map_coord(all_coord):
     all_map_coord = []
 
-    # First and last nodes are sometimes the same. In this case skip the last node
-    if all_coord[0] == all_coord[-1]:
-        all_coord.pop()
+    first_coord = all_coord[0]
 
     for coord in all_coord:
+        # First and last nodes are sometimes the same. In this case skip the last node
+        if first_coord == coord:
+            continue
+
         x = lon_to_x(coord[0]) / config.data["map_precision"]
         y = lat_to_y(coord[1]) / config.data["map_precision"]
 
