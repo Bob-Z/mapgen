@@ -147,126 +147,164 @@ def my_main():
         wiki.get_data(osm_data)
 
     print("Processing nodes...")
+    node_id = []
     node_total = 0
+    node_duplicate = 0
     for feature in osm_data["features"]:
         if feature["properties"]["type"] == "node":
             node_total += 1
+            if feature["properties"]["id"] not in node_id:
+                node_id.append(feature["properties"]["id"])
+            else:
+                node_duplicate += 1
+    node_id = []
     node_qty = 0
     for feature in osm_data["features"]:
         if feature["properties"]["type"] == "node":
-            node_qty += 1
-            if node_qty % 100 == 0:
-                print("nodes: ", node_qty, "/", node_total, "\r", end="")
+            if feature["properties"]["id"] not in node_id:
+                node_qty += 1
+                node_id.append(feature["properties"]["id"])
+                if node_qty % 100 == 0:
+                    print("nodes: ", node_qty, "/", node_total, "\r", end="")
 
-            if len(feature["properties"]["tags"]) == 0:
-                continue
+                if len(feature["properties"]["tags"]) == 0:
+                    continue
 
-            if osm_tags.is_entity_ignored(feature["properties"]["tags"]):
-                continue
+                if osm_tags.is_entity_ignored(feature["properties"]["tags"]):
+                    continue
 
-            gen_object.process(feature)
-    print("nodes: ", node_qty, "/", node_total)
+                gen_object.process(feature)
+    print("nodes: ", node_qty, "/", node_total, " (duplicate ", node_duplicate,")")
 
     print("Processing relations...")
+    rel_id = []
+    rel_duplicate = 0
     rel_total = 0
     for feature in osm_data["features"]:
         if feature["properties"]["type"] == "relation":
             rel_total += 1
+            if feature["properties"]["id"] not in rel_id:
+                rel_id.append(feature["properties"]["id"])
+            else:
+                rel_duplicate += 1
 
+    rel_id = []
     rel_qty = 0
     for feature in osm_data["features"]:
         if feature["properties"]["type"] == "relation":
-            rel_qty += 1
-            if rel_qty % 10 == 0:
-                print("first pass relations: ", rel_qty, "/", rel_total, "\r", end="")
+            if feature["properties"]["id"] not in rel_id:
+                rel_qty += 1
+                rel_id.append(feature["properties"]["id"])
 
-            if len(feature["properties"]["tags"]) == 0:
-                continue
+                if rel_qty % 10 == 0:
+                    print("first pass relations: ", rel_qty, "/", rel_total, "\r", end="")
 
-            if osm_tags.is_entity_ignored(feature["properties"]["tags"]):
-                continue
+                if len(feature["properties"]["tags"]) == 0:
+                    continue
 
-            if gen_building.process(feature, osm_data, pass_index=0):
-                continue
-            if gen_shelter.process(feature, osm_data):
-                continue
-            if gen_land.process(feature, osm_data):
-                continue
-            if gen_water.process(feature, osm_data):
-                continue
-            if gen_road.process(feature, osm_data):
-                continue
+                if osm_tags.is_entity_ignored(feature["properties"]["tags"]):
+                    continue
+
+                if gen_building.process(feature, osm_data, pass_index=0):
+                    continue
+                if gen_shelter.process(feature, osm_data):
+                    continue
+                if gen_land.process(feature, osm_data):
+                    continue
+                if gen_water.process(feature, osm_data):
+                    continue
+                if gen_road.process(feature, osm_data):
+                    continue
 
     # Second pass
+    rel_id = []
     rel_qty = 0
     for feature in osm_data["features"]:
         if feature["properties"]["type"] == "relation":
-            rel_qty += 1
-            if rel_qty % 10 == 0:
-                print("second pass relations: ", rel_qty, "/", rel_total, "\r", end="")
+            if feature["properties"]["id"] not in rel_id:
+                rel_id.append(feature["properties"]["id"])
+                rel_qty += 1
 
-            if len(feature["properties"]["tags"]) == 0:
-                continue
+                if rel_qty % 10 == 0:
+                    print("second pass relations: ", rel_qty, "/", rel_total, "\r", end="")
 
-            if osm_tags.is_entity_ignored(feature["properties"]["tags"]):
-                continue
+                if len(feature["properties"]["tags"]) == 0:
+                    continue
 
-            if gen_building.process(feature, osm_data, pass_index=1):
-                continue
+                if osm_tags.is_entity_ignored(feature["properties"]["tags"]):
+                    continue
 
-    print("relations: ", rel_qty, "/", rel_total)
+                if gen_building.process(feature, osm_data, pass_index=1):
+                    continue
+
+    print("relations: ", rel_qty, "/", rel_total, " (duplicate ", rel_duplicate,")")
 
     print("Processing ways...")
     # First pass
+    way_id = []
     way_total = 0
+    way_duplicate = 0
+
     for feature in osm_data["features"]:
         if feature["properties"]["type"] == "way":
             way_total += 1
+            if feature["properties"]["id"] not in way_id:
+                way_id.append(feature["properties"]["id"])
+            else:
+                way_duplicate += 1
 
+    way_id = []
     way_qty = 0
     for feature in osm_data["features"]:
         if feature["properties"]["type"] == "way":
-            way_qty += 1
-            if way_qty % 10 == 0:
-                print("first pass ways: ", way_qty, "/", way_total, "\r", end="")
+            if feature["properties"]["id"] not in way_id:
+                way_id.append(feature["properties"]["id"])
+                way_qty += 1
 
-            if len(feature["properties"]["tags"]) == 0:
-                continue
+                if way_qty % 10 == 0:
+                    print("first pass ways: ", way_qty, "/", way_total, "\r", end="")
 
-            if osm_tags.is_entity_ignored(feature):
-                continue
+                if len(feature["properties"]["tags"]) == 0:
+                    continue
 
-            if gen_building.process(feature, pass_index=0):
-                continue
-            if gen_shelter.process(feature):
-                continue
-            if gen_land.process(feature):
-                continue
-            if gen_water.process(feature):
-                continue
-            if gen_barrier.process(feature):
-                continue
-            if gen_road.process(feature):
-                continue
+                if osm_tags.is_entity_ignored(feature):
+                    continue
+
+                if gen_building.process(feature, pass_index=0):
+                    continue
+                if gen_shelter.process(feature):
+                    continue
+                if gen_land.process(feature):
+                    continue
+                if gen_water.process(feature):
+                    continue
+                if gen_barrier.process(feature):
+                    continue
+                if gen_road.process(feature):
+                    continue
 
     # second pass
+    way_id = []
     way_qty = 0
     for feature in osm_data["features"]:
         if feature["properties"]["type"] == "way":
-            way_qty += 1
-            if way_qty % 10 == 0:
-                print("second pass ways: ", way_qty, "/", way_total, "\r", end="")
+            if feature["properties"]["id"] not in way_id:
+                way_id.append(feature["properties"]["id"])
+                way_qty += 1
 
-            if len(feature["properties"]["tags"]) == 0:
-                continue
+                if way_qty % 10 == 0:
+                    print("second pass ways: ", way_qty, "/", way_total, "\r", end="")
 
-            if osm_tags.is_entity_ignored(feature["properties"]["tags"]):
-                continue
+                if len(feature["properties"]["tags"]) == 0:
+                    continue
 
-            if gen_building.process(feature, pass_index=1):
-                continue
+                if osm_tags.is_entity_ignored(feature["properties"]["tags"]):
+                    continue
 
-    print("ways: ", way_qty, "/", way_total)
+                if gen_building.process(feature, pass_index=1):
+                    continue
+
+    print("ways: ", way_qty, "/", way_total, " (duplicate ", way_duplicate,")")
     print("")
 
     wiki.print_data()

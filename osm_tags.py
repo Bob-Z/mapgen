@@ -71,19 +71,24 @@ def is_entity_ignored(tags):
 
 def filter_ignored(osm_data):
     for feature in osm_data["features"]:
-        if "tags" not in feature["properties"]["tags"] or len(feature["properties"]["tags"]) == 0:
-            feature["properties"]["tags"]["mapgen"] = "empty"
+        if "tags" not in feature["properties"]:
+            feature["properties"]["tags"] = {}
+            feature["properties"]["mapgen"] = "empty"
+            continue
+
+        if len(feature["properties"]["tags"]) == 0:
+            feature["properties"]["mapgen"] = "empty"
             continue
 
         for tag in ignored_entity:
             if tag in feature["properties"]["tags"]:
-                feature["properties"]["tags"]["mapgen"] = "ignored_entity_by_tags"
+                feature["properties"]["mapgen"] = "ignored_entity_by_tags"
                 continue
 
         for tag_value in ignored_entity_by_tag_value:
             if tag_value[0] in feature["properties"]["tags"]:
                 if feature["properties"]["tags"][tag_value[0]] == tag_value[1]:
-                    feature["properties"]["tags"]["mapgen"] = "ignored_entity_by_tag_value"
+                    feature["properties"]["mapgen"] = "ignored_entity_by_tag_value"
                     continue
 
         for tag in ignored_tags:

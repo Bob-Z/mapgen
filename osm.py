@@ -21,18 +21,26 @@ def get_data():
             respond = pickle.load(file)
     else:
         print("Requesting OpenStreetMap")
-        osm_data_ok = False
+
         start_time = time.time()
         overpy_api = overpass.API(user_agent="mapgen")
-        try:
-            respond = overpy_api.get(
-                "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;")
-        except urllib.error.URLError as e:
-            print("OSM server error: ", e)
-            return None
-        except http.client.RemoteDisconnected as e:
-            print("OSM server error: ", e)
-            return None
+
+        respond = None
+        while respond is None:
+            try:
+                respond = overpy_api.get(
+                    "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;"
+                )
+            except overpass.ServerLoadError as e:
+                print("OSM server is under load. Waiting 5 seconds")
+                time.sleep(5.0)
+                print("Retrying")
+            except urllib.error.URLError as e:
+                print("OSM server error: ", e)
+                return None
+            except http.client.RemoteDisconnected as e:
+                print("OSM server error: ", e)
+                return None
 
         end_time = time.time()
 
@@ -82,7 +90,8 @@ def dump_result_to_file(respond):
         sys.stdout = result_file
 
         for feature in respond["features"]:
-            if "type" in feature["properties"] and feature["properties"]["type"] != "relation" and feature["properties"]["type"] != "way" and feature["properties"]["type"] != "node":
+            if "type" in feature["properties"] and feature["properties"]["type"] != "relation" and \
+                    feature["properties"]["type"] != "way" and feature["properties"]["type"] != "node":
                 print(feature)
 
     sys.stdout = original_stdout
@@ -90,9 +99,10 @@ def dump_result_to_file(respond):
 
 def has_tag(result, tag, value):
     for feature in result["features"]:
-        if tag in feature["properties"]["tags"]:
-            if feature["properties"]["tags"][tag] == value:
-                return True
+        if "tags" in feature["properties"]:
+            if tag in feature["properties"]["tags"]:
+                if feature["properties"]["tags"][tag] == value:
+                    return True
 
     return False
 
@@ -236,6 +246,7 @@ def concat_way_by_distance(all_all_cord):
         ready_coord = ready_coord + all_all_cord.pop(selected_index)
 
     return ready_coord
+
 
 # return an array of array of coord i.e. [lon,lat]
 def get_coord_from_feature(feature):
