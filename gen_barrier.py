@@ -18,7 +18,7 @@ def process(feature):
                 height, min_height, roof_height = osm.get_height(feature)
                 if height is None:
                     height = config.data["barrier_height"]
-                object_3d.create_all_object_file(way.nodes, height=height,
+                object_3d.create_all_object_file(feature, height=height,
                                                  wall_texture=tag_value[2], top_texture=tag_value[3],
                                                  is_barrier=True, barrier_width=tag_value[4])
                 feature["properties"]["tags"].pop(tag_value[0])
@@ -29,7 +29,7 @@ def process(feature):
             height = osm.get_height(feature)
             if height is None:
                 height = config.data["barrier_height"]
-            object_3d.create_all_object_file(way.nodes, height=height,
+            object_3d.create_all_object_file(feature, height=height,
                                              wall_texture="mapgen_dark_grey", top_texture="mapgen_dark_grey",
                                              is_barrier=True)
             feature["properties"]["tags"].pop(tag)

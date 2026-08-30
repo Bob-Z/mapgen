@@ -86,18 +86,18 @@ def build_shelter(feature, height, min_height, is_barrier):
             group_z = z
 
     for coord in feature["geometry"]["coordinates"][0]:
-        object_3d.create_all_object_file([coord], height, z=min_height,
+        object_3d.create_all_object_file(feature, height, z=min_height,
                                          wall_texture=config.data["wall_texture"],
                                          top_texture=config.data["top_texture"],
                                          is_barrier=is_barrier,
                                          group_z=group_z)
     # Roof
     # Z is pillars' height
-    object_3d.create_all_object_file(feature["geometry"]["coordinates"][0], config.data["shelter_ceiling"], z=height + min_height,
+    object_3d.create_all_object_file(feature, config.data["shelter_ceiling"], z=height + min_height,
                                      wall_texture=config.data["wall_texture"],
                                      top_texture=config.data["top_texture"], is_barrier=is_barrier)
 
     # floor
-    object_3d.create_all_object_file(feature["geometry"]["coordinates"][0], config.data["shelter_floor"], z=min_height,
+    object_3d.create_all_object_file(feature, config.data["shelter_floor"], z=min_height,
                                      wall_texture=config.data["wall_texture"],
                                      top_texture=config.data["top_texture"], is_barrier=is_barrier)

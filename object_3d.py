@@ -17,7 +17,7 @@ warn_gabled_roof = True
 warn_hipped_roof = True
 
 
-def create_all_object_file(all_coord, height=config.data["building_level_height"], z=0.0,
+def create_all_object_file(feature, height=config.data["building_level_height"], z=0.0,
                            wall_texture=config.data["wall_texture"], top_texture=config.data["top_texture"],
                            scale=1.0,
                            is_barrier=False, half_barrier=False,
@@ -30,6 +30,16 @@ def create_all_object_file(all_coord, height=config.data["building_level_height"
 
     if height is None:
         height = config.data["building_level_height"]
+
+    if feature["geometry"]["type"] == "MultiPolygon":
+        all_coord = feature["geometry"]["coordinates"][0][0]
+        # inner_coord = feature["geometry"]["coordinates"][0][1] ....
+    elif feature["geometry"]["type"] == "Polygon":
+        all_coord = feature["geometry"]["coordinates"][0]
+    elif feature["geometry"]["type"] == "LineString":
+        all_coord = feature["geometry"]["coordinates"]
+    else:
+        print("")
 
     # Find the highest z for all nodes of the object
     base_z = config.data["ground_line"]

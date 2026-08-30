@@ -39,19 +39,12 @@ def process(feature, osm_data=None, pass_index=0):
                 if feature["properties"]["tags"][tag_value[0]] != tag_value[1]:
                     continue
             if is_allowed(feature):
-                if osm_data is None:
-                    build_from_way(feature)
-                else:
-                    build_from_relation(osm_data, feature)
-                feature["properties"]["tags"].pop(tag_value[0])
-                if "type" in feature["properties"]["tags"]:
-                    if feature["properties"]["tags"]["type"] == "multipolygon":
-                        feature["properties"]["tags"].pop("type")
+                build_from_way(feature)
                 return True
 
     return False
 
-
+# FIXME Is this still needed ?
 def build_from_relation(osm_data, rel):
     height, min_height, roof_height = osm.get_height(rel)
 
@@ -124,7 +117,7 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
     if building_created_qty / building_discovered_qty < config.data["building_ratio"]:
         building_created_qty += 1
 
-        object_3d.create_all_object_file(feature["geometry"]["coordinates"][0], height, z=min_height,
+        object_3d.create_all_object_file(feature, height, z=min_height,
                                          wall_texture=wall_texture,
                                          top_texture=top_texture,
                                          is_barrier=is_barrier,
