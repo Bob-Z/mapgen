@@ -184,23 +184,24 @@ def calculate_rotation_angle(nodes, xml_file_path):
     return osm_angle - mesh_angle
 
 
-def is_object_crossing(all_cord):
-    if config.data["use_wikidata"] is True and config.data["ignore_osm_data_crossing_wikidata_model"] is True:
-        polygon = helper.coord_to_polygon(all_cord)
-        if polygon is not None:
-            for shape in wikidata_3D_model_shape:
-                intersection_area = shape.intersection(polygon).area
-                if intersection_area > shape.area * 0.1 or intersection_area > polygon.area * 0.1:
-                #if shape.disjoint(polygon) is False:
-                    global wikidata_cleaned_crossing
-                    wikidata_cleaned_crossing += 1
-                    return True
-            # x, y = polygon.exterior.xy
-            # plt.plot(x, y)
-            # x, y = wikidata_3D_model_shape[0].exterior.xy
-            # plt.plot(x, y)
+def is_object_crossing(all_all_cord):
+    for all_cord in all_all_cord:
+        if config.data["use_wikidata"] is True and config.data["ignore_osm_data_crossing_wikidata_model"] is True:
+            polygon = helper.coord_to_polygon(all_cord)
+            if polygon is not None:
+                for shape in wikidata_3D_model_shape:
+                    intersection_area = shape.intersection(polygon).area
+                    if intersection_area > shape.area * 0.1 or intersection_area > polygon.area * 0.1:
+                    #if shape.disjoint(polygon) is False:
+                        global wikidata_cleaned_crossing
+                        wikidata_cleaned_crossing += 1
+                        return True
+                # x, y = polygon.exterior.xy
+                # plt.plot(x, y)
+                # x, y = wikidata_3D_model_shape[0].exterior.xy
+                # plt.plot(x, y)
 
-            # plt.show(block=True)
+                # plt.show(block=True)
 
     return False
 

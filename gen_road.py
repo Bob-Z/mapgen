@@ -65,18 +65,21 @@ def append_road(feature, link_road=False):
         elif "name" in feature["properties"]["tags"]:
             name = feature["properties"]["tags"]["name"]
 
-        if (link_road is True or road_config["need_waypoints"] is True) and name != "":
-            # append roads with the same name
-            already_exist = False
-            for my_road_data in all_road_data:
-                if my_road_data["name"] == name:
-                    my_road_data["nodes"].append(feature["geometry"]["coordinates"][0])
-                    already_exist = True
-                    break
-            if already_exist is False:
-                all_road_data.append({"name": name, "road_config": road_config, "tags": feature["properties"]["tags"], "nodes": [feature["geometry"]["coordinates"]]})
-        else:
-            all_road_data.append({"name": name, "road_config": road_config, "tags": feature["properties"]["tags"], "nodes": [feature["geometry"]["coordinates"]]})
+        all_all_coord = osm.get_coord_from_feature(feature)
+
+        for all_coord in all_all_coord:
+            if (link_road is True or road_config["need_waypoints"] is True) and name != "":
+                # append roads with the same name
+                already_exist = False
+                for my_road_data in all_road_data:
+                    if my_road_data["name"] == name:
+                        my_road_data["nodes"].append(all_coord)
+                        already_exist = True
+                        break
+                if already_exist is False:
+                    all_road_data.append({"name": name, "road_config": road_config, "tags": feature["properties"]["tags"], "nodes": all_all_coord})
+            else:
+                all_road_data.append({"name": name, "road_config": road_config, "tags": feature["properties"]["tags"], "nodes": all_all_coord})
 
         return True
 

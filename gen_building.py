@@ -65,7 +65,7 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
     if "mapgen" in feature["properties"]["tags"] and feature["properties"]["tags"]["mapgen"] == "used_by_relation":
         return False
 
-    if wiki.is_object_crossing(feature["geometry"]["coordinates"][0]) is True:
+    if wiki.is_object_crossing(osm.get_coord_from_feature(feature)) is True:
         return False
 
     all_all_cord = osm.get_coord_from_feature(feature)
