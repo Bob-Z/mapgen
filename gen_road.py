@@ -20,10 +20,6 @@ def process(entity, osm_data=None):
 
 
 def process_relation(feature, osm_data):
-    if feature["geometry"]["type"] != "LineString":
-        print("Warning trying to build a road that is not a LineString")
-        return
-
     if "type" in feature["properties"]["tags"] and feature["properties"]["tags"]["type"] == "circuit":
         if member.role != "pit_lane" and member.role != "pitlane":
             if "name:en" in feature["properties"]["tags"]:
