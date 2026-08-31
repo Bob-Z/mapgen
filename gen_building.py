@@ -68,8 +68,10 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
     if wiki.is_object_crossing(feature["geometry"]["coordinates"][0]) is True:
         return False
 
+    all_all_cord = osm.get_coord_from_feature(feature)
+
     is_barrier = False
-    if len(feature["geometry"]["coordinates"][0]) < 3:
+    if len(all_all_cord[0]) < 3:
         is_barrier = True
 
     calc_height, calc_min_height, calc_roof_height = osm.get_height(feature)
@@ -117,7 +119,7 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
     if building_created_qty / building_discovered_qty < config.data["building_ratio"]:
         building_created_qty += 1
 
-        object_3d.create_all_object_file(osm.get_coord_from_feature(feature), height, z=min_height,
+        object_3d.create_all_object_file(all_all_cord, height, z=min_height,
                                          wall_texture=wall_texture,
                                          top_texture=top_texture,
                                          is_barrier=is_barrier,
