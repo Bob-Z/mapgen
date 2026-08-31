@@ -161,20 +161,20 @@ def coord_to_map_coord(all_coord):
     return all_map_coord
 
 
-def node_to_map_coord_cartesian(all_node):
-    all_coord = []
+def all_coord_to_map_coord_cartesian(all_coord):
+    all_map_coord = []
 
     # First and last nodes are sometimes the same. In this case skip the last node
-    if all_node[0] == all_node[-1]:
-        all_node.pop()
+    if all_coord[0] == all_coord[-1]:
+        all_coord.pop()
 
-    for node in all_node:
-        x = lon_to_x(node.lon) / config.data["map_precision"]
-        y = -lat_to_y(node.lat) / config.data["map_precision"]
+    for coord in all_coord:
+        x = lon_to_x(coord[0]) / config.data["map_precision"]
+        y = -lat_to_y(coord[1]) / config.data["map_precision"]
 
-        all_coord.append((x, y))
+        all_map_coord.append((x, y))
 
-    return all_coord
+    return all_map_coord
 
 
 def coord_to_polygon(all_coord):

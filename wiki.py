@@ -51,7 +51,7 @@ def get_data(osm_data):
     found = False
 
     for feature in osm_data["features"]:
-        if "wikidate" in feature["properties"]["tags"]:
+        if "wikidata" in feature["properties"]["tags"]:
             global wikidata_found
             global wikidata_id_found
 
@@ -141,28 +141,17 @@ def get_data(osm_data):
 
                 ror_odef_file.create_file(short_name, size_x=factor, size_y=factor, size_z=factor)
 
-                nodes = None
-                if hasattr(entity, "nodes"):
-                    nodes = entity.nodes
-                else:
-                    for member in entity.members:
-                        way = osm.get_way_by_id(osm_data, member.ref)
-                        if way is not None:
-                            nodes = way.nodes
+                all_all_coord = osm.get_coord_from_feature(feature)
 
-                if nodes is None:
-                    print("Can't find nodes for ", feature["properties"]["tags"]["wikidata"])
-                    return False
-
-                polygon = helper.coord_to_polygon(nodes)
-                rotation = calculate_rotation_angle(nodes, xml_file_path)
+                polygon = helper.coord_to_polygon(all_all_coord[0])
+                rotation = calculate_rotation_angle(all_all_coord[0], xml_file_path)
 
                 ror_tobj_file.add_object(x=helper.lon_to_x(polygon.centroid.x), y=helper.lat_to_y(polygon.centroid.y), z=topography.get_z(polygon.centroid.x, polygon.centroid.y), rx=0,
                                          ry=0,
                                          rz=rotation, name=short_name)
 
                 if config.data["ignore_osm_data_crossing_wikidata_model"] is True:
-                    wikidata_3D_model_shape.append(helper.coord_to_polygon(nodes))
+                    wikidata_3D_model_shape.append(helper.coord_to_polygon(all_all_coord[0]))
 
                 wikidata_id_found.append(feature["properties"]["tags"]["wikidata"])
                 global wikidata_with_3d
@@ -174,8 +163,8 @@ def get_data(osm_data):
 
 # This tries to guess rotation needed by the mesh described by xml_file_path to match the OSM object rotation
 # This is highly empirical, but it seems to work
-def calculate_rotation_angle(nodes, xml_file_path):
-    osm_shape = shapely.Polygon(helper.node_to_map_coord_cartesian(nodes))
+def calculate_rotation_angle(all_coord, xml_file_path):
+    osm_shape = shapely.Polygon(helper.all_coord_to_map_coord_cartesian(all_coord))
     osm_angle = helper.polygon_envelope_rotation(osm_shape)
 
     mesh_shape = mesh.get_shape(xml_file_path)
