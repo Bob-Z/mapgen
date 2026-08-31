@@ -1,15 +1,17 @@
 import gen_road
 import config
-
+import math
 
 def generate_road_bots():
     if config.data["road_bots_quantity"] == 0:
         print("No road bots created")
         return None
 
+    road_bots_quantity = min(len(gen_road.get_road_coord()), config.data["road_bots_quantity"])
+
     script_string = "#include \"base.as\"\n\
 \n\
-const int truck_qty = " + str(config.data["road_bots_quantity"]) + ";\n\
+const int truck_qty = " + str(road_bots_quantity) + ";\n\
 \n\
 int frame_qty = 0;\n\
 array<BeamClass@> all_truck(truck_qty);\n\
