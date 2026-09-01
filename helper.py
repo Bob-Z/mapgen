@@ -142,21 +142,20 @@ def is_power_of_2(n):
     return (math.log(n) / math.log(2)).is_integer()
 
 
-def coord_to_map_coord(all_coord):
+def all_coord_to_map_coord(all_coord):
     all_map_coord = []
 
-    first_coord = all_coord[0]
-
     for coord in all_coord:
-        # First and last nodes are sometimes the same. In this case skip the last node
-        if first_coord == coord:
-            continue
-
         x = lon_to_x(coord[0]) / config.data["map_precision"]
         y = lat_to_y(coord[1]) / config.data["map_precision"]
 
         all_map_coord.append(x)
         all_map_coord.append(y)
+
+    # First and last nodes are sometimes the same. In this case skip the last node
+    if all_map_coord[0] == all_map_coord[-2] and all_map_coord[1] == all_map_coord[-1]:
+        all_map_coord.pop()
+        all_map_coord.pop()
 
     return all_map_coord
 
@@ -164,15 +163,15 @@ def coord_to_map_coord(all_coord):
 def all_coord_to_map_coord_cartesian(all_coord):
     all_map_coord = []
 
-    # First and last nodes are sometimes the same. In this case skip the last node
-    if all_coord[0] == all_coord[-1]:
-        all_coord.pop()
-
     for coord in all_coord:
         x = lon_to_x(coord[0]) / config.data["map_precision"]
         y = -lat_to_y(coord[1]) / config.data["map_precision"]
 
         all_map_coord.append((x, y))
+
+    # First and last nodes are sometimes the same. In this case skip the last node
+    if all_map_coord[0] == all_map_coord[-1]:
+        all_map_coord.pop()
 
     return all_map_coord
 

@@ -22,7 +22,7 @@ def draw_vegetation_map(name, osm_data, entity, density):
     image = all_image[name]
     my_draw = PIL.ImageDraw.Draw(image)
 
-    ogre_map_helper.draw_feature(my_draw, osm_data, entity, outer_height=density, inner_height=0)
+    ogre_map_helper.draw_feature(my_draw, entity, outer_height=density, inner_height=0)
 
     return get_file_name(name)
 

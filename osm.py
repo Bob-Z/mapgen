@@ -29,7 +29,9 @@ def get_data():
         while respond is None:
             try:
                 respond = overpy_api.get(
-                    "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;"
+                    #"(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;"
+                    "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););out;"
+                    #"(>>;nwr(" + bounding_box + "););out;"
                 )
             except overpass.ServerLoadError as e:
                 print("OSM server is under load. Waiting 5 seconds")

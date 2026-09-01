@@ -98,7 +98,7 @@ def process(feature, osm_data=None):
             feature["properties"]["tags"].pop("place")
             return True
         if feature["properties"]["tags"]["place"] == "islet":
-            ogre_map_height.draw_feature(osm_data, feature, config.data["ground_line"], config.data["water_depth"])
+            ogre_map_height.draw_feature(feature, config.data["ground_line"], config.data["water_depth"])
             feature["properties"]["tags"].pop("place")
             return True
         # It doesn't seem a good idea to render this:

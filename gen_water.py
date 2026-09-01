@@ -9,7 +9,7 @@ import osm
 def process(feature, osm_data=None):
     if "amenity" in feature["properties"]["tags"]:
         if feature["properties"]["tags"]["amenity"] == "fountain":
-            ogre_map_height.draw_entity(osm_data, entity,
+            ogre_map_height.draw_feature(feature,
                                         config.data["ground_line"] - config.data["fountain_depth"],
                                         config.data["ground_line"])
             feature["properties"]["tags"].pop("amenity")
@@ -38,7 +38,7 @@ def process(feature, osm_data=None):
 
     if "natural" in feature["properties"]["tags"]:
         if feature["properties"]["tags"]["natural"] == "water":
-            ogre_map_height.draw_feature(osm_data, feature, config.data["water_depth"], config.data["ground_line"], force=True)
+            ogre_map_height.draw_feature(feature, config.data["water_depth"], config.data["ground_line"], force=True)
             ogre_map_surface.draw_rock_feature(osm_data, feature)
             ror_tobj_file.add_grass(osm_data, feature, "seaweed")
             feature["properties"]["tags"].pop("natural")

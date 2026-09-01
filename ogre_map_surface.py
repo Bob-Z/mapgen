@@ -45,7 +45,7 @@ def draw_gravel_feature(osm_data, feature):
 
 
 def draw_feature(surf_index, osm_data, feature, color):
-    ogre_map_helper.draw_feature(draw[surf_index], osm_data, feature, outer_color=color, inner_color=(0, 0, 0))
+    ogre_map_helper.draw_feature(draw[surf_index], feature, outer_color=color, inner_color=(0, 0, 0))
 
 
 def draw_polygon(surf_index, polygon, color):
