@@ -48,11 +48,19 @@ def create_material_color(tags):
         return name
 
     # Create texture file
+    tex = None
     try:
         tex = PIL.Image.new(mode="RGB", size=(1, 1), color=colour)
     except ValueError:
-        print("Unsupported colour:", colour)
-        return None
+        pass
+
+    if tex is None:
+        colour = "#" + colour
+        try:
+            tex = PIL.Image.new(mode="RGB", size=(1, 1), color=colour)
+        except ValueError:
+            print("Unsupported colour:", colour[1:])
+            return None
 
     tex.save(config.data["work_path"] + name + ".png", "PNG")
     ror_zip_file.add_to_zip_file_list(name + ".png")
