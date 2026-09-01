@@ -40,9 +40,9 @@ def write():
                     ]
             }
 
-            for node in road[0]:
-                x = helper.lon_to_x(node.lon)
-                y = helper.lat_to_y(node.lat)
+            for coord in road[0]:
+                x = helper.lon_to_x(coord[0])
+                y = helper.lat_to_y(coord[1])
                 waypoint["waypoints"].append([x, config.data["ground_line"], y])
 
             data.append(waypoint)
