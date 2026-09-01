@@ -37,6 +37,10 @@ def get_data():
                 print("OSM server is under load. Waiting 5 seconds")
                 time.sleep(5.0)
                 print("Retrying")
+            except overpass.errors.TimeoutError as e:
+                print("OSM server timeout. Waiting 5 seconds")
+                time.sleep(5.0)
+                print("Retrying")
             except urllib.error.URLError as e:
                 print("OSM server error: ", e)
                 return None
