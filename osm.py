@@ -232,7 +232,7 @@ def concat_way_by_distance(all_all_cord):
                     selected_index = index
                     distance = first_to_last_dist
                     ready_coord.reverse()
-                    node.reverse()
+                    all_cord.reverse()
             elif last_to_first_dist < first_to_first_dist and last_to_first_dist < first_to_last_dist and last_to_first_dist < last_to_last_dist:
                 if last_to_first_dist < distance:
                     selected_index = index
@@ -241,7 +241,7 @@ def concat_way_by_distance(all_all_cord):
                 if last_to_last_dist < distance:
                     selected_index = index
                     distance = last_to_last_dist
-                    node.reverse()
+                    all_cord.reverse()
 
             index += 1
 
