@@ -50,7 +50,7 @@ def draw_feature(feature, outer_height, inner_height=None, draw_object=None, for
 
 def draw_feature_unblurred(osm_data, feature, outer_height, inner_height=None):
     if topography.is_enabled() is False:
-        unblurred_feature.append((osm_data, feature, outer_height, inner_height))
+        unblurred_feature.append((feature, outer_height, inner_height))
 
 
 def draw_polygon(polygon, color):
@@ -69,7 +69,7 @@ def create_file():
     unblurred_draw = PIL.ImageDraw.Draw(blur_im)
 
     for feature in unblurred_feature:
-        draw_feature(feature[0], feature[1], feature[2], feature[3], draw_object=unblurred_draw)
+        draw_feature(feature[0], feature[1], feature[2], draw_object=unblurred_draw)
 
     blur_im.save(config.data["work_path"] + config.data["map_name"] + "_height.png", "PNG")
     ror_zip_file.add_to_zip_file_list(config.data["map_name"] + "_height.png")
