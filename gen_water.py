@@ -6,7 +6,7 @@ import ror_tobj_file
 import osm
 
 
-def process(feature, osm_data=None):
+def process(feature):
     if "amenity" in feature["properties"]["tags"]:
         if feature["properties"]["tags"]["amenity"] == "fountain":
             ogre_map_height.draw_feature(feature,
@@ -17,7 +17,7 @@ def process(feature, osm_data=None):
 
     if "leisure" in feature["properties"]["tags"]:
         if feature["properties"]["tags"]["leisure"] == "swimming_pool":
-            ogre_map_height.draw_feature_unblurred(osm_data, feature,
+            ogre_map_height.draw_feature_unblurred(feature,
                                                    0.0, config.data["ground_line"])
 
             object_3d.create_all_object_file(osm.get_coord_from_feature(feature),
@@ -39,13 +39,9 @@ def process(feature, osm_data=None):
     if "natural" in feature["properties"]["tags"]:
         if feature["properties"]["tags"]["natural"] == "water":
             ogre_map_height.draw_feature(feature, config.data["water_depth"], config.data["ground_line"], force=True)
-            ogre_map_surface.draw_rock_feature(osm_data, feature)
-            ror_tobj_file.add_grass(osm_data, feature, "seaweed")
+            ogre_map_surface.draw_rock_feature(feature)
+            ror_tobj_file.add_grass(feature, "seaweed")
             feature["properties"]["tags"].pop("natural")
-
-            if "type" in feature["properties"]["tags"]:
-                if feature["properties"]["tags"]["type"] == "multipolygon":
-                    feature["properties"]["tags"].pop("type")
 
             return True
 

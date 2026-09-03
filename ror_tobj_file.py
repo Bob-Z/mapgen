@@ -34,8 +34,8 @@ def write_road(road_data):
             tobj_file.write("end_procedural_roads\n")
 
 
-def add_tree(osm_data, entity, scaleFrom, scaleTo, density, mesh_name, collision_mesh_name):
-    map_file_name = ogre_map_vegetation.draw_vegetation_map("tree", osm_data, entity, 0xff)
+def add_tree(entity, scaleFrom, scaleTo, density, mesh_name, collision_mesh_name):
+    map_file_name = ogre_map_vegetation.draw_vegetation_map("tree", entity, 0xff)
 
     global vegetation_added
     if "tree" not in vegetation_added:
@@ -50,8 +50,8 @@ def add_tree(osm_data, entity, scaleFrom, scaleTo, density, mesh_name, collision
         vegetation_added["tree"] = True
 
 
-def add_grass(osm_data, entity, grass_name):
-    map_file_name = ogre_map_vegetation.draw_vegetation_map(grass_name, osm_data, entity, 0xff)
+def add_grass(entity, grass_name):
+    map_file_name = ogre_map_vegetation.draw_vegetation_map(grass_name, entity, 0xff)
 
     global vegetation_added
     if grass_name not in vegetation_added:

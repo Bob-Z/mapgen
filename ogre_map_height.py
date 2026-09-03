@@ -48,7 +48,7 @@ def draw_feature(feature, outer_height, inner_height=None, draw_object=None, for
         ogre_map_helper.draw_feature(draw_object, feature, outer_height=outer_height, inner_height=inner_height)
 
 
-def draw_feature_unblurred(osm_data, feature, outer_height, inner_height=None):
+def draw_feature_unblurred(feature, outer_height, inner_height=None):
     if topography.is_enabled() is False:
         unblurred_feature.append((feature, outer_height, inner_height))
 

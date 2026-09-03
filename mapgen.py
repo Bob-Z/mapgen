@@ -209,9 +209,9 @@ def my_main():
                     continue
                 if gen_shelter.process(feature, osm_data):
                     continue
-                if gen_land.process(feature, osm_data):
+                if gen_land.process(feature):
                     continue
-                if gen_water.process(feature, osm_data):
+                if gen_water.process(feature):
                     continue
                 if gen_road.process(feature, osm_data):
                     continue

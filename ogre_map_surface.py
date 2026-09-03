@@ -22,29 +22,29 @@ def init():
         draw.append(PIL.ImageDraw.Draw(surf[n]))
 
 
-def draw_asphalt_feature(osm_data, feature):
-    draw_feature(0, osm_data, feature, (255, 0, 0))
+def draw_asphalt_feature(feature):
+    draw_feature(0, feature, (255, 0, 0))
 
 
-def draw_rock_feature(osm_data, feature):
-    draw_feature(1, osm_data, feature, (255, 0, 0))
+def draw_rock_feature(feature):
+    draw_feature(1, feature, (255, 0, 0))
 
 
-def draw_sand_feature(osm_data, feature):
-    draw_feature(2, osm_data, feature, (255, 0, 0))
+def draw_sand_feature(feature):
+    draw_feature(2, feature, (255, 0, 0))
 
 
-def draw_grass_feature(osm_data, feature):
-    draw_feature(3, osm_data, feature, (255, 0, 0))
+def draw_grass_feature(feature):
+    draw_feature(3, feature, (255, 0, 0))
 
 
-def draw_gravel_feature(osm_data, feature):
-    # RoR currently ignore the last blendmap when shadows are activated. So we fall back to another surface (4 -> 2)
+def draw_gravel_feature(feature):
+    # RoR currently ignore the last blend map when shadows are activated. So we fall back to another surface (4 -> 2)
     # draw_feature(4, osm_data, feature, (255, 0, 0))
-    draw_feature(2, osm_data, feature, (255, 0, 0))
+    draw_feature(2,  feature, (255, 0, 0))
 
 
-def draw_feature(surf_index, osm_data, feature, color):
+def draw_feature(surf_index, feature, color):
     ogre_map_helper.draw_feature(draw[surf_index], feature, outer_color=color, inner_color=(0, 0, 0))
 
 

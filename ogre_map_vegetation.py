@@ -12,7 +12,7 @@ def init():
     pass
 
 
-def draw_vegetation_map(name, osm_data, entity, density):
+def draw_vegetation_map(name, entity, density):
     if name not in all_image:
         all_image[name] = PIL.Image.new(mode="L", size=(
             int(config.data["map_size"] / config.data["map_precision"]),
