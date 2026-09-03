@@ -23,7 +23,7 @@ def get_data():
         print("Requesting OpenStreetMap")
 
         start_time = time.time()
-        overpy_api = overpass.API(user_agent="mapgen")
+        overpy_api = overpass.API(user_agent="mapgen", timeout=25)
 
         respond = None
         while respond is None:
@@ -34,12 +34,16 @@ def get_data():
                     #"(>>;nwr(" + bounding_box + "););out;"
                 )
             except overpass.ServerLoadError as e:
-                print("OSM server is under load. Waiting 5 seconds")
+                print("OSM server is under load. Waiting for 5 seconds")
                 time.sleep(5.0)
                 print("Retrying")
             except overpass.errors.TimeoutError as e:
-                print("OSM server timeout. Waiting 5 seconds")
-                time.sleep(5.0)
+                print("OSM server timeout. Waiting for 15 seconds")
+                time.sleep(15.0)
+                print("Retrying")
+            except overpass.errors.MultipleRequestsError as e:
+                print("OSM server timeout. Waiting for 60 seconds")
+                time.sleep(60.0)
                 print("Retrying")
             except urllib.error.URLError as e:
                 print("OSM server error: ", e)
