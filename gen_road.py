@@ -104,7 +104,7 @@ def generate_road_config(tags):
     found = False
 
     if "lanes" in tags:
-        road_config["road_width"] = int(tags["lanes"]) * config.data["lane_width"]
+        road_config["road_width"] = int(math.ceil(float(tags["lanes"]))) * config.data["lane_width"]
         tags.pop("lanes")
 
     if "highway" in tags:
