@@ -271,6 +271,8 @@ def get_coord_from_feature(feature):
         all_all_coord = [feature["geometry"]["coordinates"]]
     elif feature["geometry"]["type"] == "MultiLineString":
         all_all_coord = feature["geometry"]["coordinates"]
+    elif feature["geometry"]["type"] == "Point":
+        all_all_coord = [feature["geometry"]["coordinates"]]
     else:
         print("Unsupported geometry " + feature["geometry"]["type"])
         sys.exit(-1)
