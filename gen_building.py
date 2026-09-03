@@ -22,6 +22,7 @@ build_tag_value = [
 
 negative_tag_value = [
     ["amenity", "shelter"],
+    ["building:part", "no"],
     ["building", "roof"],
     ["landuse", None],
     ["shelter_type", "public_transport"],
