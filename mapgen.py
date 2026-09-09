@@ -213,7 +213,7 @@ def my_main():
                     continue
                 if gen_water.process(feature):
                     continue
-                if gen_road.process(feature, osm_data):
+                if gen_road.process(feature):
                     continue
 
     # Second pass

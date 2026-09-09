@@ -11,15 +11,13 @@ all_road_coord = []
 index = 1
 
 
-def process(entity, osm_data=None):
+def process(feature):
     if bool(config.data["generate_road"]):
-        if osm_data is None:
-            process_way(entity)
-        else:
-            process_relation(entity, osm_data)
+            if process_relation(feature) is False:
+                process_way(feature)
 
 
-def process_relation(feature, osm_data):
+def process_relation(feature):
     if "type" in feature["properties"]["tags"] and feature["properties"]["tags"]["type"] == "circuit":
         if member.role != "pit_lane" and member.role != "pitlane":
             if "name:en" in feature["properties"]["tags"]:
@@ -41,6 +39,8 @@ def process_relation(feature, osm_data):
                 feature["properties"]["tags"]["mapgen"] = "used_by_relation"
 
             feature["properties"]["tags"] = old_tag
+
+            return True
 
 
 def process_way(feature):
