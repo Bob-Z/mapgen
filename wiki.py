@@ -143,6 +143,9 @@ def get_data(osm_data):
 
                 all_all_coord = osm.get_coord_from_feature(feature)
 
+                if len(all_all_coord) < 3:
+                    continue
+
                 polygon = helper.coord_to_polygon(all_all_coord[0])
                 rotation = calculate_rotation_angle(all_all_coord[0], xml_file_path)
 
