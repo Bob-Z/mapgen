@@ -42,6 +42,8 @@ def process_relation(feature):
 
             return True
 
+    return False
+
 
 def process_way(feature):
     if "mapgen" in feature["properties"]["tags"] and feature["properties"]["tags"]["mapgen"] == "used_by_relation":
