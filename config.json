@@ -26,7 +26,7 @@
 "no_vegetation_for_road_size": 15,
 
 "use_wikidata_comment": "Fetch 3D models from wikidata when available",
-"use_wikidata": true,
+"use_wikidata": false,
 "ignore_osm_data_crossing_wikidata_model_comment": "Do not generate OSM object when they cross a wikidata model",
 "ignore_osm_data_crossing_wikidata_model": true,
 

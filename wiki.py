@@ -141,20 +141,33 @@ def get_data(osm_data):
 
                 ror_odef_file.create_file(short_name, size_x=factor, size_y=factor, size_z=factor)
 
-                all_all_coord = osm.get_coord_from_feature(feature)
+                mesh_shape = mesh.get_shape(xml_file_path)
 
-                if len(all_all_coord) < 3:
-                    continue
-
-                polygon = helper.coord_to_polygon(all_all_coord[0])
-                rotation = calculate_rotation_angle(all_all_coord[0], xml_file_path)
+                if feature["geometry"]["type"] == "Point":
+                    # unit unknown, pure mathematical coord
+                    envelop_polygon = mesh_shape.minimum_rotated_rectangle.normalize()
+                    # unit : meter (i.e. map coord)
+                    envelop_polygon_scaled = shapely.transform(envelop_polygon, lambda x, y: (x * factor, y * factor), interleaved=False)
+                    feature_x = helper.lon_to_x(feature["geometry"]["coordinates"][0])
+                    feature_y = helper.lat_to_y(feature["geometry"]["coordinates"][1])
+                    lon = feature["geometry"]["coordinates"][0]
+                    lat = feature["geometry"]["coordinates"][1]
+                    # unit : lon.lat degree
+                    polygon = shapely.transform(envelop_polygon_scaled, \
+                                                lambda x, y: (helper.x_to_lon(x,lat) + lon, helper.y_to_lat(y) + lat), interleaved=False)
+                    rotation = 0.0 # FIXME is there a way to detect rotation ?
+                    print("Warning: Can't detect Wiki 3D object rotation")
+                else:
+                    all_all_coord = osm.get_coord_from_feature(feature)
+                    polygon = helper.all_coord_to_polygon(all_all_coord[0])
+                    rotation = calculate_rotation_angle(mesh_shape, all_all_coord[0], xml_file_path)
 
                 ror_tobj_file.add_object(x=helper.lon_to_x(polygon.centroid.x), y=helper.lat_to_y(polygon.centroid.y), z=topography.get_z(polygon.centroid.x, polygon.centroid.y), rx=0,
                                          ry=0,
                                          rz=rotation, name=short_name)
 
                 if config.data["ignore_osm_data_crossing_wikidata_model"] is True:
-                    wikidata_3D_model_shape.append(helper.coord_to_polygon(all_all_coord[0]))
+                    wikidata_3D_model_shape.append(polygon)
 
                 wikidata_id_found.append(feature["properties"]["tags"]["wikidata"])
                 global wikidata_with_3d
@@ -166,11 +179,10 @@ def get_data(osm_data):
 
 # This tries to guess rotation needed by the mesh described by xml_file_path to match the OSM object rotation
 # This is highly empirical, but it seems to work
-def calculate_rotation_angle(all_coord, xml_file_path):
+def calculate_rotation_angle(mesh_shape, all_coord, xml_file_path):
     osm_shape = shapely.Polygon(helper.all_coord_to_map_coord_cartesian(all_coord))
     osm_angle = helper.polygon_envelope_rotation(osm_shape)
 
-    mesh_shape = mesh.get_shape(xml_file_path)
     mesh_angle = helper.polygon_envelope_rotation(mesh_shape)
 
     return osm_angle - mesh_angle
@@ -179,7 +191,7 @@ def calculate_rotation_angle(all_coord, xml_file_path):
 def is_object_crossing(all_all_cord):
     for all_cord in all_all_cord:
         if config.data["use_wikidata"] is True and config.data["ignore_osm_data_crossing_wikidata_model"] is True:
-            polygon = helper.coord_to_polygon(all_cord)
+            polygon = helper.all_coord_to_polygon(all_cord)
             if polygon is not None:
                 for shape in wikidata_3D_model_shape:
                     intersection_area = shape.intersection(polygon).area

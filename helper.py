@@ -9,6 +9,8 @@ from shapely import LineString
 
 
 EARTH_RADIUS = 6371000
+LENGTH_OF_ONE_DEGREE_OF_LATITUDE = 111132
+LENGTH_OF_ONE_DEGREE_OF_LONGITUDE_AT_EQUATOR = 111320
 
 
 # Return distance (in meters) between 2 points described by their latitude/longitude
@@ -37,6 +39,13 @@ def lon_to_x(lon):
         return lat_lon_to_distance(bbox.coord["north"], bbox.coord["north"], bbox.coord["west"], float(lon))
     else:
         return -lat_lon_to_distance(bbox.coord["north"], bbox.coord["north"], bbox.coord["west"], float(lon))
+
+# x is in meter (i.e. map coordinate)
+def x_to_lon(x, lat):
+    return  x / (LENGTH_OF_ONE_DEGREE_OF_LONGITUDE_AT_EQUATOR * math.cos(lat))
+
+def y_to_lat(y):
+    return  y /LENGTH_OF_ONE_DEGREE_OF_LATITUDE
 
 
 # Get an array of 3 vertices
@@ -176,12 +185,23 @@ def all_coord_to_map_coord_cartesian(all_coord):
     return all_map_coord
 
 
-def coord_to_polygon(all_coord):
+def all_coord_to_polygon(all_coord):
     if len(all_coord) < 4:
         return None
     poly = []
     for coord in all_coord:
         poly.append((coord[0], coord[1]))
+    return Polygon(poly)
+
+def map_coord_to_polygon(map_coord):
+    if len(map_coord) < 4:
+        return None
+
+    all_pair = zip(map_coord[::2], map_coord[1::2])
+    poly = []
+    for coord in all_pair:
+        poly.append((coord[0], coord[1]))
+
     return Polygon(poly)
 
 
