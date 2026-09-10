@@ -5,6 +5,7 @@ import helper
 import math
 import osm
 import topography
+import bbox
 
 all_road_data = []
 all_road_coord = []
@@ -13,8 +14,8 @@ index = 1
 
 def process(feature):
     if bool(config.data["generate_road"]):
-            if process_relation(feature) is False:
-                process_way(feature)
+        if process_relation(feature) is False:
+            process_way(feature)
 
 
 def process_relation(feature):
@@ -75,9 +76,12 @@ def append_road(feature, link_road=False):
                         already_exist = True
                         break
                 if already_exist is False:
-                    all_road_data.append({"name": name, "road_config": road_config, "tags": feature["properties"]["tags"], "nodes": all_all_coord})
+                    all_road_data.append(
+                        {"name": name, "road_config": road_config, "tags": feature["properties"]["tags"],
+                         "nodes": all_all_coord})
             else:
-                all_road_data.append({"name": name, "road_config": road_config, "tags": feature["properties"]["tags"], "nodes": all_all_coord})
+                all_road_data.append({"name": name, "road_config": road_config, "tags": feature["properties"]["tags"],
+                                      "nodes": all_all_coord})
 
         return True
 
@@ -267,7 +271,8 @@ def generate_road_from_config(road_config, all_coord):
             add_road(road_data, x_history[1], y_history[1], z_history[1], 0.0, 0.0, angle, road_config["road_width"],
                      road_config["border_width"],
                      road_config["border_height"], road_config["road_type"])
-            add_traffic_signals(coord, x_history[1], y_history[1], angle, road_config["road_width"], road_config["tags"])
+            add_traffic_signals(coord, x_history[1], y_history[1], angle, road_config["road_width"],
+                                road_config["tags"])
 
             x_history[0] = x_history[1]
             y_history[0] = y_history[1]
@@ -315,17 +320,49 @@ def write_all_roads():
     for my_road_data in all_road_data:
 
         # Link roads with the same name
-        ready_nodes = osm.concat_way_by_distance(my_road_data["nodes"])
+        linked_node = osm.concat_way_by_distance(my_road_data["nodes"])
 
-        road_data = generate_road_from_config(my_road_data["road_config"], ready_nodes)
+        all_inside_map_coord = filter_inside_map_road(linked_node)
 
-        if my_road_data["road_config"]["need_waypoints"]:
-            ror_waypoint_file.add_waypoint(ready_nodes, my_road_data["name"])
+        for inside_map_coord in all_inside_map_coord:
+            if len(inside_map_coord) > 1:
+                road_data = generate_road_from_config(my_road_data["road_config"], inside_map_coord)
 
-        ror_tobj_file.write_road(road_data)
+                if my_road_data["road_config"]["need_waypoints"]:
+                    ror_waypoint_file.add_waypoint(inside_map_coord, my_road_data["name"])
 
-        all_road_coord.append(road_data)
+                ror_tobj_file.write_road(road_data)
+
+                all_road_coord.append(road_data)
 
 
 def get_road_coord():
     return all_road_coord
+
+
+def filter_inside_map_road(all_coord):
+    all_road = []
+
+    is_inside = False
+    current_road = []
+    last_coord = []
+    for coord in all_coord:
+        if bbox.coord["west"] < coord[0] < bbox.coord["east"] and bbox.coord["south"] < coord[1] < bbox.coord["north"]:
+            is_inside = True
+            if len(last_coord) > 0:
+                current_road.append(last_coord.copy())
+            last_coord.clear()
+            current_road.append(coord)
+        else:
+            if is_inside is True:
+                current_road.append(coord)
+                all_road.append(current_road)
+
+            current_road.clear()
+            is_inside = False
+            last_coord = coord
+
+    if is_inside is True:
+        all_road.append(current_road)
+
+    return all_road
