@@ -347,7 +347,7 @@ def filter_inside_map_road(all_coord):
     current_road = []
     last_coord = []
     for coord in all_coord:
-        if bbox.coord["west"] < coord[0] < bbox.coord["east"] and bbox.coord["south"] < coord[1] < bbox.coord["north"]:
+        if helper.is_inside_lon_lat(coord[0], coord[1]):
             is_inside = True
             if len(last_coord) > 0:
                 current_road.append(last_coord.copy())
