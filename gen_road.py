@@ -335,6 +335,8 @@ def write_all_roads():
 
                 all_road_coord.append(road_data)
 
+    all_road_coord.sort(key=len, reverse=True)
+
 
 def get_road_coord():
     return all_road_coord
