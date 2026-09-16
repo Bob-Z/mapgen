@@ -20,41 +20,18 @@ def get_data():
         with open(cache_file_path, 'rb') as file:
             respond = pickle.load(file)
     else:
-        print("Requesting OpenStreetMap")
+        print("Requesting OpenStreetMap overall data")
+        overall_data = query(
+            # "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
+            "(node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
+        )
 
-        start_time = time.time()
-        overpy_api = overpass.API(user_agent="mapgen", timeout=25)
+        # FIXME: Find the right query to have both coastlines and all other data in one request
+        print("Requesting OpenStreetMap coastlines")
+        coastline_data = query(
+            "node(" + bounding_box + ");<;>;")
 
-        respond = None
-        while respond is None:
-            try:
-                respond = overpy_api.get(
-                    #"(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + "););out;"
-                    "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););out;"
-                    #"(>>;nwr(" + bounding_box + "););out;"
-                )
-            except overpass.ServerLoadError as e:
-                print("OSM server is under load. Waiting for 5 seconds")
-                time.sleep(5.0)
-                print("Retrying")
-            except overpass.errors.TimeoutError as e:
-                print("OSM server timeout. Waiting for 15 seconds")
-                time.sleep(15.0)
-                print("Retrying")
-            except overpass.errors.MultipleRequestsError as e:
-                print("OSM server timeout. Waiting for 60 seconds")
-                time.sleep(60.0)
-                print("Retrying")
-            except urllib.error.URLError as e:
-                print("OSM server error: ", e)
-                return None
-            except http.client.RemoteDisconnected as e:
-                print("OSM server error: ", e)
-                return None
-
-        end_time = time.time()
-
-        print("Done in " + str(end_time - start_time) + " seconds\n")
+        respond = {"features": overall_data["features"] + coastline_data["features"]}
 
         print("Writing OpenStreetMap cache file " + cache_file_path + "\n")
         with open(cache_file_path, 'wb') as file:
@@ -278,3 +255,37 @@ def get_coord_from_feature(feature):
         sys.exit(-1)
 
     return all_all_coord
+
+
+def query(query_text):
+    start_time = time.time()
+    overpy_api = overpass.API(user_agent="mapgen", timeout=25)
+
+    respond = None
+    while respond is None:
+        try:
+            respond = overpy_api.get(query_text)
+        except overpass.ServerLoadError as e:
+            print("OSM server is under load. Waiting for 5 seconds")
+            time.sleep(5.0)
+            print("Retrying")
+        except overpass.errors.TimeoutError as e:
+            print("OSM server timeout. Waiting for 15 seconds")
+            time.sleep(15.0)
+            print("Retrying")
+        except overpass.errors.MultipleRequestsError as e:
+            print("OSM server timeout. Waiting for 60 seconds")
+            time.sleep(60.0)
+            print("Retrying")
+        except urllib.error.URLError as e:
+            print("OSM server error: ", e)
+            return None
+        except http.client.RemoteDisconnected as e:
+            print("OSM server error: ", e)
+            return None
+
+    end_time = time.time()
+
+    print("Done in " + str(end_time - start_time) + " seconds\n")
+
+    return respond

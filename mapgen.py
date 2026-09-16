@@ -28,7 +28,8 @@ import ror_as_file
 import json
 import wiki
 import os
-from multiprocessing import Process,freeze_support,set_start_method
+from multiprocessing import Process, freeze_support, set_start_method
+
 
 def my_main():
     try:
@@ -82,29 +83,7 @@ def my_main():
     # Avoid record API key in config.json
     config.data["api_key"] = ""
 
-    center_lat = float(center_coord[0])
-    center_lon = float(center_coord[1])
-    meter_by_decimal_latitude = helper.lat_lon_to_distance(center_lat, center_lat + 0.1, center_lon, center_lon)
-    meter_by_decimal_longitude = helper.lat_lon_to_distance(center_lat, center_lat, center_lon, center_lon + 0.1)
-
-    north = center_lat + (config.data["map_size"] / 2.0) / meter_by_decimal_latitude * 0.1
-    south = center_lat - (config.data["map_size"] / 2.0) / meter_by_decimal_latitude * 0.1
-    west = center_lon + (config.data["map_size"] / 2.0) / meter_by_decimal_longitude * 0.1
-    east = center_lon - (config.data["map_size"] / 2.0) / meter_by_decimal_longitude * 0.1
-
-    if north < south:
-        t = south
-        south = north
-        north = t
-    if west > east:
-        t = west
-        west = east
-        east = t
-
-    bbox.coord = {"north": north, "south": south, "west": west, "east": east}
-    bbox.coordXY = {"north": helper.lat_to_y(north), "south": helper.lat_to_y(south), "west": helper.lon_to_x(west),
-                    "east": helper.lon_to_x(east)}
-    # print("Bounding box:", bbox.coord, bbox.coordXY)
+    bbox.init(center_coord, config.data["map_size"])
 
     print("Work path:", config.data["work_path"])
     print("Export path:", config.data["export_path"])
@@ -121,7 +100,8 @@ def my_main():
     while osm_data is None:
         osm_data = osm.get_data()
         if osm_data is None:
-            print("Can't download OSM data. Waiting for " + str(retry_timeout) + " seconds before retry. You may also try a smaller map.")
+            print("Can't download OSM data. Waiting for " + str(
+                retry_timeout) + " seconds before retry. You may also try a smaller map.")
             time.sleep(retry_timeout)
 
     ror_zip_file.create_default_file()
@@ -174,7 +154,7 @@ def my_main():
                     continue
 
                 gen_object.process(feature)
-    print("nodes: ", node_qty, "/", node_total, " (duplicate ", node_duplicate,")")
+    print("nodes: ", node_qty, "/", node_total, " (duplicate ", node_duplicate, ")")
 
     print("Processing relations...")
     rel_id = []
@@ -237,7 +217,7 @@ def my_main():
                 if gen_building.process(feature, osm_data, pass_index=1):
                     continue
 
-    print("relations: ", rel_qty, "/", rel_total, " (duplicate ", rel_duplicate,")")
+    print("relations: ", rel_qty, "/", rel_total, " (duplicate ", rel_duplicate, ")")
 
     print("Processing ways...")
     # First pass
@@ -304,7 +284,7 @@ def my_main():
                 if gen_building.process(feature, pass_index=1):
                     continue
 
-    print("ways: ", way_qty, "/", way_total, " (duplicate ", way_duplicate,")")
+    print("ways: ", way_qty, "/", way_total, " (duplicate ", way_duplicate, ")")
     print("")
 
     wiki.print_data()
@@ -321,7 +301,7 @@ def my_main():
     ogre_material.create_file()
     ogre_map_height.create_file()
     ogre_map_surface.create_file()
-    ogre_map_vegetation.create_file(gen_road.get_road_coord()) # must be called after gen_road.write_all_roads()
+    ogre_map_vegetation.create_file(gen_road.get_road_coord())  # must be called after gen_road.write_all_roads()
 
     ror_zip_file.write_default_file()
     ror_zip_file.create_zip_file()
@@ -331,9 +311,10 @@ def my_main():
         osm_tags.show_stat("ways", ways_original, osm_data.ways)
         osm_tags.show_stat("relations", relations_original, osm_data.relations)
 
+
 if __name__ == '__main__':
-    #freeze_support()
-    #set_start_method('spawn')
-    #p = Process(target=my_main)
-    #p.start()
+    # freeze_support()
+    # set_start_method('spawn')
+    # p = Process(target=my_main)
+    # p.start()
     my_main()
