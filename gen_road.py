@@ -318,7 +318,9 @@ def add_traffic_signals(coord, road_x, road_y, angle, road_width, tags):
 
 def write_all_roads():
     for my_road_data in all_road_data:
-
+        if len(my_road_data["nodes"]) == 0:
+            print("Warning: road with no node")
+            continue
         # Link roads with the same name
         linked_node = osm.concat_way_by_distance(my_road_data["nodes"])
 
