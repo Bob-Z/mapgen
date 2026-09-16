@@ -69,7 +69,7 @@ def build_coastline(osm_data):
     all_filtered_coastline = []
     for coastline in all_coastline:
         for coord in coastline["geometry"]["coordinates"]:
-            if helper.is_inside_map(coord) is True:
+            if helper.is_inside_lon_lat(coord[0],coord[1]) is True:
                 all_filtered_coastline.append(coastline)
                 coastline_in_map_qty += 1
                 break
