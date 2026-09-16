@@ -13,10 +13,7 @@ def process(feature, osm_data=None):
     for tag_value in shelter_tag_value:
         if tag_value[0] in feature["properties"]["tags"]:
             if feature["properties"]["tags"][tag_value[0]] == tag_value[1]:
-                if osm_data is None:
-                    build_from_way(feature)
-                else:
-                    build_from_relation(osm_data, feature)
+                build_from_way(feature)
                 feature["properties"]["tags"].pop(tag_value[0])
                 if "type" in feature["properties"]["tags"]:
                     if feature["properties"]["tags"]["type"] == "multipolygon":
@@ -25,10 +22,7 @@ def process(feature, osm_data=None):
 
     for tag in shelter_tag:
         if tag in feature["properties"]["tags"]:
-            if osm_data is None:
-                build_from_way(entity)
-            else:
-                build_from_relation(osm_data, entity)
+            build_from_way(feature)
             feature["properties"]["tags"].pop(tag)
             if "type" in feature["properties"]["tags"]:
                 if feature["properties"]["tags"]["type"] == "multipolygon":
@@ -36,19 +30,6 @@ def process(feature, osm_data=None):
             return True
 
     return False
-
-
-def build_from_relation(osm_data, feature):
-    height, min_height, roof_height = osm.get_height(feature)
-
-    for member in rel.members:
-        way = osm.get_way_by_id(osm_data, member.ref)
-        if way is not None:
-            if member.role == "outer":
-                build_from_way(way, height, min_height, from_relation=True)
-            # FIXME: How to manager inner ?
-            # elif member.role == "inner":
-
 
 def build_from_way(feature, height=None, min_height=None, from_relation=False):
     is_barrier = False
