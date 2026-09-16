@@ -2,6 +2,7 @@ import config
 import bbox
 import helper
 import ogre_map_height
+import osm
 
 
 def process(osm_data):
@@ -52,25 +53,26 @@ def get_next_direction_clock_wise(direction):
 
 
 def build_coastline(osm_data):
-    all_coastline = []
+    all_feature = []
     for feature in osm_data["features"]:
         if "natural" in feature["properties"]["tags"]:
             if feature["properties"]["tags"]["natural"] == "coastline":
-                all_coastline.append(feature)
+                all_feature.append(feature)
                 feature["properties"]["tags"].pop("natural")
 
-    if len(all_coastline) == 0:
+    if len(all_feature) == 0:
         print("No sea")
         return
 
-    print(len(all_coastline), "coastlines in OSM data")
+    print(len(all_feature), "coastlines in OSM data")
 
     coastline_in_map_qty = 0
     all_filtered_coastline = []
-    for coastline in all_coastline:
-        for coord in coastline["geometry"]["coordinates"]:
-            if helper.is_inside_lon_lat(coord[0],coord[1]) is True:
-                all_filtered_coastline.append(coastline)
+    for feature in all_feature:
+        all_all_coord = osm.get_coord_from_feature(feature)
+        for coord in all_all_coord[0]:
+            if helper.is_inside_lon_lat(coord[0], coord[1]) is True:
+                all_filtered_coastline.append(feature)
                 coastline_in_map_qty += 1
                 break
 
