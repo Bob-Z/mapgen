@@ -301,7 +301,7 @@ def my_main():
     ogre_material.create_file()
     ogre_map_height.create_file()
     ogre_map_surface.create_file()
-    ogre_map_vegetation.create_file(gen_road.get_road_coord())  # must be called after gen_road.write_all_roads()
+    ogre_map_vegetation.create_file(gen_road.get_road_str())  # must be called after gen_road.write_all_roads()
 
     ror_zip_file.write_default_file()
     ror_zip_file.create_zip_file()

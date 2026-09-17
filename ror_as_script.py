@@ -1,13 +1,21 @@
 import gen_road
 import config
-import math
+
+import helper
+
 
 def generate_road_bots():
-    if config.data["road_bots_quantity"] == 0:
-        print("No road bots created")
+    if config.data["road_bots_quantity"] <= 0:
+        print("No road bots required")
         return None
 
-    road_bots_quantity = min(len(gen_road.get_road_coord()), config.data["road_bots_quantity"])
+    all_long_road_map_coord = generate_road_for_bots()
+
+    road_bots_quantity = min(len(all_long_road_map_coord), config.data["road_bots_quantity"])
+
+    if road_bots_quantity == 0:
+        print("No road bots created")
+        return None
 
     script_string = "#include \"base.as\"\n\
 \n\
@@ -23,7 +31,7 @@ array<string> all_vehicle_name = {"
     for name in config.data["road_bots_name"].split(","):
         script_string = script_string + "\"" + name + "\","
 
-    script_string = script_string[:-1] # remove final ","
+    script_string = script_string[:-1]  # remove final ","
 
     script_string = script_string + "};\n\
 bool init_done = false;\n\
@@ -128,18 +136,17 @@ void frameStep(float dt)\n\
 void fill_waypoint()\n\
 {\n"
 
-    all_road = gen_road.get_road_coord()
     road_created_qty = 0
 
-    for road_data in all_road:
+    for road_data in all_long_road_map_coord:
         script_string = script_string + "       all_waypoints[" + str(road_created_qty) + "].resize(" + str(
             len(road_data)) + ");\n"
 
         index = 0
         for data in road_data:
-            split_data = data.split(", ")
             script_string = script_string + "       all_waypoints[" + str(road_created_qty) + "][" + str(index) + \
-                            "] = vector3(" + split_data[0] + ",0," + split_data[2] + ");\n"
+                            "] = vector3(" + str(helper.lon_to_x(data[0])) + ",0," + str(
+                helper.lat_to_y(data[1])) + ");\n"
             index += 1
         road_created_qty += 1
 
@@ -151,3 +158,46 @@ void fill_waypoint()\n\
 
     print(str(road_created_qty) + " road bots created\n")
     return script_string
+
+
+def generate_road_for_bots():
+    print("Generating roads for bots")
+
+    all_long_road = []
+    remaining_road_coord = gen_road.get_road_coord()
+    remaining_road_coord.sort(key=len, reverse=True)
+
+    while len(remaining_road_coord) > 0:
+        current_coord = remaining_road_coord.pop(0)
+        retry = True
+        temp_road_coord = remaining_road_coord.copy()
+
+        while retry is True:
+            retry = False
+            for coord in temp_road_coord:
+                if coord[0][0] == current_coord[0][0] and coord[0][1] == current_coord[0][1]:
+                    current_coord = current_coord[::-1] + coord[1:]
+                    temp_road_coord.remove(coord)
+                    retry = True
+                    break
+                elif coord[0][0] == current_coord[-1][0] and coord[0][1] == current_coord[-1][1]:
+                    current_coord = current_coord[1:] + coord
+                    temp_road_coord.remove(coord)
+                    retry = True
+                    break
+                elif coord[-1][0] == current_coord[0][0] and coord[-1][1] == current_coord[0][1]:
+                    current_coord = coord + current_coord[1:]
+                    temp_road_coord.remove(coord)
+                    retry = True
+                    break
+                elif coord[-1][0] == current_coord[-1][0] and coord[-1][1] == current_coord[-1][1]:
+                    current_coord = current_coord + coord[:-1][::-1]
+                    temp_road_coord.remove(coord)
+                    retry = True
+                    break
+
+        all_long_road.append(current_coord)
+
+    all_long_road.sort(key=len, reverse=True)
+
+    return all_long_road

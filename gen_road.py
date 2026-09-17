@@ -5,9 +5,9 @@ import helper
 import math
 import osm
 import topography
-import bbox
 
 all_road_data = []
+all_road_str = []
 all_road_coord = []
 index = 1
 
@@ -335,9 +335,12 @@ def write_all_roads():
 
                 ror_tobj_file.write_road(road_data)
 
-                all_road_coord.append(road_data)
+                all_road_str.append(road_data)
+                all_road_coord.append(inside_map_coord)
 
-    all_road_coord.sort(key=len, reverse=True)
+
+def get_road_str():
+    return all_road_str
 
 
 def get_road_coord():
