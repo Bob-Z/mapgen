@@ -122,7 +122,7 @@ def build_coastline(osm_data):
 
         complete_coastline.append(base_coastline_xy)
 
-    print(str(len(complete_coastline)) + " complete coastlines")
+    print(str(len(complete_coastline)) + " complete coastlines\n")
 
     polygon_list = []
 

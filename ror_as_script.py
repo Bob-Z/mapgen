@@ -156,7 +156,7 @@ void fill_waypoint()\n\
 
     script_string = script_string + "}"
 
-    print(str(road_created_qty) + " road bots created\n")
+    print(str(len(all_long_road_map_coord)) + " roads available. " + str(config.data["road_bots_quantity"]) + " bots requested. " + str(road_created_qty) + " road bots created\n")
     return script_string
 
 
