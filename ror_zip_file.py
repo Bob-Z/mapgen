@@ -13,7 +13,7 @@ import config
 file_list = []
 
 
-def create_default_file():
+def create_default_file(api_key):
     shutil.rmtree(config.data["work_path"], ignore_errors=True)
     os.makedirs(config.data["work_path"], exist_ok=True)
     shutil.rmtree(config.data["log_path"], ignore_errors=True)
@@ -21,7 +21,7 @@ def create_default_file():
 
     ror_terrn2_file.create_file()
 
-    ogre_map_height.init()
+    ogre_map_height.init(api_key)
     ogre_map_surface.init()
     ogre_map_vegetation.init()
 

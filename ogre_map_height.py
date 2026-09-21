@@ -7,7 +7,8 @@ import ogre_otc_file
 import ogre_map_helper
 import topography
 
-MAX_COLOR = 0xff  # Because we use 8 bits PNG
+MAX_COLOR = 0xffff
+PIL_MODE = "I;16"
 BLUR_RADIUS = 1
 
 im = None
@@ -19,11 +20,17 @@ def height_to_color(height):
     return int(MAX_COLOR * height / ogre_otc_file.get_height())
 
 
-def init():
+def init(api_key):
     global im
     global draw
+    global MAX_COLOR
+    global PIL_MODE
 
-    im = PIL.Image.new(mode="L", size=(
+    if api_key == "":
+        MAX_COLOR = 0xff
+        PIL_MODE = "L"
+
+    im = PIL.Image.new(mode=PIL_MODE, size=(
         int(config.data["map_size"] / config.data["map_precision"]),
         int(config.data["map_size"] / config.data["map_precision"])),
                        color=MAX_COLOR)  # color=MAX_COLOR fill the map with height defined by WorldSizeY parameter in otc file
@@ -65,7 +72,12 @@ def draw_polygon(polygon, color):
 
 def create_file():
     global im
-    blur_im = im.filter(PIL.ImageFilter.GaussianBlur(BLUR_RADIUS))
+
+    if PIL_MODE == "L":
+        blur_im = im.filter(PIL.ImageFilter.GaussianBlur(BLUR_RADIUS))  # This smooth water 's edge
+    else:
+        blur_im = im  # Smoothing doesn't work for 16 bits images
+
     unblurred_draw = PIL.ImageDraw.Draw(blur_im)
 
     for feature in unblurred_feature:

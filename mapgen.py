@@ -104,7 +104,7 @@ def my_main():
                 retry_timeout) + " seconds before retry. You may also try a smaller map.")
             time.sleep(retry_timeout)
 
-    ror_zip_file.create_default_file()
+    ror_zip_file.create_default_file(api_key)
 
     osm.dump_result_to_file(osm_data)
 
