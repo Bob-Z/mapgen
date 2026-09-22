@@ -74,9 +74,9 @@ def get_data(osm_data):
                         global wikidata_downloaded
                         wikidata_downloaded += 1
                 except urllib.error.HTTPError as e:
-                    print("Cannot download wikidata page ", feature["properties"]["tags"]["wikidata"], ":", e,
+                    print("Cannot download wikidata page", feature["properties"]["tags"]["wikidata"], ":", e,
                           ". Try to update wikidata package.")
-                    return False
+                    continue
 
             if "P4896" in wiki.attributes["claims"]:
                 wiki_name = wiki.attributes["claims"]["P4896"][0]["mainsnak"]["datavalue"]["value"]
@@ -166,8 +166,7 @@ def get_data(osm_data):
                                          ry=0,
                                          rz=rotation, name=short_name)
 
-                if config.data["ignore_osm_data_crossing_wikidata_model"] is True:
-                    wikidata_3D_model_shape.append(polygon)
+                wikidata_3D_model_shape.append(polygon)
 
                 wikidata_id_found.append(feature["properties"]["tags"]["wikidata"])
                 global wikidata_with_3d
