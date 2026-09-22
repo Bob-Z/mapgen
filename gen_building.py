@@ -28,6 +28,10 @@ negative_tag_value = [
     ["shelter_type", "public_transport"],
 ]
 
+negative_tag = [
+    "landmark",
+]
+
 building_created_qty = 0
 building_discovered_qty = 0
 
@@ -44,6 +48,7 @@ def process(feature, osm_data=None, pass_index=0):
                 return True
 
     return False
+
 
 # FIXME Is this still needed ?
 def build_from_relation(osm_data, rel):
@@ -141,6 +146,10 @@ def is_allowed(feature):
                     return False
             else:
                 return None
+
+    for tag_value in negative_tag:
+        if tag_value in feature["properties"]["tags"]:
+            return False
 
     if "level" in feature["properties"]["tags"]:
         if feature["properties"]["tags"]["level"][0] == '-':  # Skip negative levels
