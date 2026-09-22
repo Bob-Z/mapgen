@@ -77,6 +77,9 @@ def build_coastline(osm_data):
                 break
 
     print(coastline_in_map_qty, "coastlines cross map")
+    if coastline_in_map_qty == 0:
+        print("No sea")
+        return
 
     # Set the whole map with water. We will draw ground on top of it
     ogre_map_height.set_map_height(config.data["water_depth"])
