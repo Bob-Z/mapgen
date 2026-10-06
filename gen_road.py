@@ -14,39 +14,10 @@ index = 1
 
 def process(feature):
     if bool(config.data["generate_road"]):
-        if process_relation(feature) is False:
-            process_way(feature)
+        process(feature)
 
 
-def process_relation(feature):
-    if "type" in feature["properties"]["tags"] and feature["properties"]["tags"]["type"] == "circuit":
-        if member.role != "pit_lane" and member.role != "pitlane":
-            if "name:en" in feature["properties"]["tags"]:
-                circuit_name = feature["properties"]["tags"]["name:en"]
-            elif "name" in feature["properties"]["tags"]:
-                circuit_name = feature["properties"]["tags"]["name"]
-            else:
-                global index
-                circuit_name = "circuit " + str(index)
-                index += 1
-
-            old_tag = feature["properties"]["tags"]
-            feature["properties"]["tags"]["name"] = circuit_name
-            feature["properties"]["tags"]["name:en"] = circuit_name
-            feature["properties"]["tags"]["highway"] = "raceway"
-
-            if append_road(way, link_road=True) is True:
-                feature["properties"]["tags"]["mapgen"] = "used_by_relation"
-                feature["properties"]["tags"]["mapgen"] = "used_by_relation"
-
-            feature["properties"]["tags"] = old_tag
-
-            return True
-
-    return False
-
-
-def process_way(feature):
+def process(feature):
     if "mapgen" in feature["properties"]["tags"] and feature["properties"]["tags"]["mapgen"] == "used_by_relation":
         return
     append_road(feature)
