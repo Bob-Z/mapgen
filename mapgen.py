@@ -43,27 +43,29 @@ def my_main():
         if e.errno != 17:
             raise e
 
-    skip_first = True
-    for arg in sys.argv:
-        if skip_first:
-            skip_first = False
-            continue
-        param = arg.split('=')
-        if param[0] not in config.data:
-            print("Unknown parameter:", param[0])
-            sys.exit(0)
-        print("Parameter", param[0], "set to", param[1])
-        if type(config.data[param[0]]) is bool:
-            if param[1].lower() in ['true', '1', 't', 'y', 'yes']:
-                param[1] = True
-            else:
-                param[1] = False
-        elif type(config.data[param[0]]) is float:
-            param[1] = float(param[1])
-        elif type(config.data[param[0]]) is int:
-            param[1] = int(param[1])
-
-        config.data[param[0]] = param[1]
+    for arg in sys.argv[1:]:
+        if '=' not in arg:
+            print("Invalid parameter '" + arg + "', expected key=value")
+            sys.exit(1)
+        param_name, param_value = arg.split('=', 1)
+        if param_name not in config.data:
+            print("Unknown parameter:", param_name)
+            sys.exit(1)
+        print("Parameter", param_name, "set to", param_value)
+        try:
+            if type(config.data[param_name]) is bool:
+                if param_value.lower() in ['true', '1', 't', 'y', 'yes']:
+                    param_value = True
+                else:
+                    param_value = False
+            elif type(config.data[param_name]) is float:
+                param_value = float(param_value)
+            elif type(config.data[param_name]) is int:
+                param_value = int(param_value)
+        except ValueError:
+            print("Invalid value for", param_name + ":", param_value)
+            sys.exit(1)
+        config.data[param_name] = param_value
     print("")
 
     center_coord = config.data["coord"].split(',')
