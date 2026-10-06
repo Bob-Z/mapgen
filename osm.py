@@ -132,8 +132,11 @@ def get_height(feature):
             roof_height = h
             tags.pop("est_roof:height")
     if roof_height is None and "roof:levels" in tags:
-        roof_height = float(tags["roof:levels"]) * config.data["roof_height"]
-        tags.pop("roof:levels")
+        try:
+            roof_height = float(tags["roof:levels"]) * config.data["roof_height"]
+            tags.pop("roof:levels")
+        except ValueError:
+            print("Cannot convert roof:levels : " + tags["roof:levels"])
 
     min_height = None
     if "min_height" in tags:
