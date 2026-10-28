@@ -280,7 +280,11 @@ def query(query_text):
             time.sleep(15.0)
             print("Retrying")
         except overpass.errors.MultipleRequestsError as e:
-            print("OSM server timeout. Waiting for 60 seconds")
+            print("OSM server Multiple request error. Waiting for 60 seconds")
+            time.sleep(60.0)
+            print("Retrying")
+        except overpass.errors.UnknownOverpassError as e:
+            print("OSM server unknown error. Waiting for 60 seconds")
             time.sleep(60.0)
             print("Retrying")
         except urllib.error.URLError as e:
