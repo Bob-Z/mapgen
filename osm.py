@@ -265,7 +265,7 @@ def get_coord_from_feature(feature):
 
 def query(query_text):
     start_time = time.time()
-    overpy_api = overpass.API(user_agent="mapgen", timeout=25)
+    overpy_api = overpass.API(user_agent="mapgen", timeout=(25,900)) # (connection timeout, read timeout)
 
     respond = None
     while respond is None:
