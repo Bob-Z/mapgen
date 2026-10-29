@@ -11,25 +11,48 @@ import http
 
 
 def get_data():
-    bounding_box = str(bbox.coord["south"]) + "," + str(bbox.coord["west"]) + "," + str(
+    max_bounding_box = str(bbox.coord["south"]) + "," + str(bbox.coord["west"]) + "," + str(
         bbox.coord["north"]) + "," + str(bbox.coord["east"])
 
-    cache_file_path = config.data["cache_path"] + "/" + bounding_box + "," + str(config.data["map_size"])
+    cache_file_path = config.data["cache_path"] + "/" + max_bounding_box + "," + str(config.data["map_size"]) + "," + str(config.data["osm_chunk_qty"])
     if os.path.isfile(cache_file_path):
         print("Reading OpenStreetMap cache file " + cache_file_path + "\n")
         with open(cache_file_path, 'rb') as file:
             respond = pickle.load(file)
     else:
         print("Requesting OpenStreetMap overall data")
-        overall_data = query(
-            # "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
-            "(node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
-        )
+        print("Chunk quantity is", config.data["osm_chunk_qty"], ".")
+
+        bounding_box = []
+
+        dist_x = (bbox.coord["west"] - bbox.coord["east"]) / config.data["osm_chunk_qty"]
+        dist_y = (bbox.coord["south"] - bbox.coord["north"]) / config.data["osm_chunk_qty"]
+        for x in range(config.data["osm_chunk_qty"]):
+            for y in range(config.data["osm_chunk_qty"]):
+                bounding_box.append(str(bbox.coord["south"] - (dist_y * y)) + "," + str(
+                    bbox.coord["west"] - (dist_x * x)) + "," + str(
+                    bbox.coord["south"] - (dist_y * (y + 1))) + "," + str(bbox.coord["west"] - (dist_x * (x + 1))))
+
+        query_list = []
+        chunk_index = 1
+        for box in bounding_box:
+            print("Get chunk ", chunk_index, "/", len(bounding_box))
+            query_list.append(query(
+                #"(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
+                #"(node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
+                "(nwr(" + box + ");<;>;);"
+            ))
+            chunk_index += 1
+
+        overall_data = {"features": []}
+        for q in query_list:
+            overall_data["features"] = overall_data["features"] + q["features"]
 
         # FIXME: Find the right query to have both coastlines and all other data in one request
         print("Requesting OpenStreetMap coastlines")
         coastline_data = query(
-            "node(" + bounding_box + ");<;>;")
+            # "node(" + max_bounding_box + ");<;>;")
+            "nwr[\"natural\"=\"coastline\"](" + max_bounding_box + ");<;>;")
 
         respond = {"features": overall_data["features"] + coastline_data["features"]}
 
@@ -265,7 +288,7 @@ def get_coord_from_feature(feature):
 
 def query(query_text):
     start_time = time.time()
-    overpy_api = overpass.API(user_agent="mapgen", timeout=(25,900)) # (connection timeout, read timeout)
+    overpy_api = overpass.API(user_agent="mapgen", timeout=(25, 900))  # (connection timeout, read timeout)
 
     respond = None
     while respond is None:
@@ -284,8 +307,8 @@ def query(query_text):
             time.sleep(60.0)
             print("Retrying")
         except overpass.errors.UnknownOverpassError as e:
-            print("OSM server unknown error. Waiting for 60 seconds")
-            time.sleep(60.0)
+            print("OSM server unknown error. Waiting for 2 seconds")
+            time.sleep(2.0)
             print("Retrying")
         except urllib.error.URLError as e:
             print("OSM server error: ", e)

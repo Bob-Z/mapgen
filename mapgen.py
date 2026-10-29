@@ -308,6 +308,9 @@ def my_main():
     ror_zip_file.write_default_file()
     ror_zip_file.create_zip_file()
 
+    print()
+    print("If things are missing, you can increase chunk quantity by passing \"osm_chunk_qty=" + str(config.data["osm_chunk_qty"] + 1) + "\" on the command line. This will slow down OSM data download, but it may fix missing data.")
+
     if config.data["generate_statistics"] is True:
         osm_tags.show_stat("nodes", nodes_original, osm_data.nodes)
         osm_tags.show_stat("ways", ways_original, osm_data.ways)

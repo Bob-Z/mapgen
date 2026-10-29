@@ -3,6 +3,7 @@
 "map_size": 512,
 "map_precision": 1,
 "api_key": "",
+"osm_chunk_qty": 1,
 
 "generate_statistics": false,
 
