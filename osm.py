@@ -203,6 +203,8 @@ def convert_height_to_meter(height):
     elif height.find("'") != -1:
         height = height.replace('\'', '')
         convert_rate = 0.3048
+    elif height.find(",") != -1:
+        height = height.replace(',', '.')
     elif height.find(" storey") != -1:
         height = height.replace(' storey', '')
         convert_rate = config.data["building_level_height"]
