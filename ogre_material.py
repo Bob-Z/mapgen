@@ -1,6 +1,7 @@
 import config
 import ror_zip_file
 import PIL
+import webcolors
 
 material_str = ""
 
@@ -22,25 +23,13 @@ def create_material_color(tags):
     if colour is None:
         return None
 
-    # OSM documented color
-    if colour == "brown":
-        colour = "#804000"
-    elif colour == "red":
-        colour = "#FF0000"
-    elif colour == "yellow":
-        colour = "#FFFF00"
-    elif colour == "gray":
-        colour = "#808080"
-    elif colour == "green":
-        colour = "#008000"
-    elif colour == "white":
-        colour = "#FFFFFF"
-    elif colour == "black":
-        colour = "#000000"
-    elif colour == "blue":
-        colour = "#0000FF"
-    elif colour == "orange":
-        colour = "#FF8000 "
+    try:
+        colour = webcolors.name_to_hex(colour.lower())
+    except ValueError:
+        pass
+
+    if colour.find("#") == -1:
+        colour = "#" + colour
 
     name = "colour_" + colour
 
@@ -52,15 +41,8 @@ def create_material_color(tags):
     try:
         tex = PIL.Image.new(mode="RGB", size=(1, 1), color=colour)
     except ValueError:
-        pass
-
-    if tex is None:
-        colour = "#" + colour
-        try:
-            tex = PIL.Image.new(mode="RGB", size=(1, 1), color=colour)
-        except ValueError:
-            print("Unsupported colour:", colour[1:])
-            return None
+        print("Unsupported colour:", colour[1:])
+        return None
 
     tex.save(config.data["work_path"] + name + ".png", "PNG")
     ror_zip_file.add_to_zip_file_list(name + ".png")

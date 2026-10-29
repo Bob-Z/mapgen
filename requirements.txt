@@ -5,6 +5,7 @@ overpass
 wikidata
 pyWikiCommons
 shapely
+webcolors
 #torch
 #diffusers
 #transformers
