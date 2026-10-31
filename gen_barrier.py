@@ -13,8 +13,6 @@ barrier_tag_value = [
     # ['barrier', 'kerb',...
 ]
 
-barrier_tag = []
-
 
 def process(feature):
     for tag_value in barrier_tag_value:
@@ -33,16 +31,5 @@ def process(feature):
                                                  is_barrier=True, barrier_width=tag_value[4])
                 feature["properties"]["tags"].pop(tag_value[0])
                 return True
-
-    for tag in barrier_tag:
-        if tag in feature["properties"]["tags"]:
-            height = osm.get_height(feature)
-            if height is None:
-                height = config.data["barrier_height"]
-            object_3d.create_all_object_file(osm.get_coord_from_feature(feature), height=height,
-                                             wall_texture="mapgen_dark_grey", top_texture="mapgen_dark_grey",
-                                             is_barrier=True)
-            feature["properties"]["tags"].pop(tag)
-            return True
 
     return False
