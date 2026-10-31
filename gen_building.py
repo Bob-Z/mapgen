@@ -116,8 +116,8 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
     if top_texture is None:
         top_texture = ogre_material.create_material(config.data["default_roof_texture"],
                                                     feature["properties"]["tags"])
-        if top_texture is None:
-            top_texture = config.data["top_texture"]
+    if top_texture is None:
+        top_texture = config.data["top_texture"]
 
     global building_discovered_qty
     global building_created_qty

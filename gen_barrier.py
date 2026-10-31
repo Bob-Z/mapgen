@@ -1,11 +1,12 @@
 import object_3d
 import config
+import ogre_material
 import osm
 
 barrier_tag_value = [
-    ['barrier', 'wall', "mapgen_dark_grey", "mapgen_dark_grey", config.data["barrier_width"]],
-    ['barrier', 'fence', "mapgen_dark_grey", "mapgen_dark_grey", config.data["barrier_width"]],
-    ['barrier', 'hedge', config.data["hedge_texture"], config.data["hedge_texture"], config.data["hedge_width"]]
+    ['barrier', 'wall', "mapgen_dark_grey", config.data["default_wall_texture"], config.data["barrier_width"]],
+    ['barrier', 'fence', "mapgen_dark_grey", config.data["default_fence_texture"], config.data["barrier_width"]],
+    ['barrier', 'hedge', config.data["hedge_texture"], config.data["default_hedge_texture"], config.data["hedge_width"]]
 ]
 
 barrier_tag = []
@@ -18,8 +19,13 @@ def process(feature):
                 height, min_height, roof_height = osm.get_height(feature)
                 if height is None:
                     height = config.data["barrier_height"]
+
+                texture = ogre_material.create_material(tag_value[3], feature["properties"]["tags"])
+                if texture is None:
+                    texture = tag_value[2]
+
                 object_3d.create_all_object_file(osm.get_coord_from_feature(feature), height=height,
-                                                 wall_texture=tag_value[2], top_texture=tag_value[3],
+                                                 wall_texture=texture, top_texture=texture,
                                                  is_barrier=True, barrier_width=tag_value[4])
                 feature["properties"]["tags"].pop(tag_value[0])
                 return True

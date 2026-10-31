@@ -112,11 +112,11 @@ def get_data(osm_data):
 
                 xml_file_path = config.data["work_path"] + short_name + ".mesh.xml"
 
-                colour = ogre_material.create_material(config.data["default_wall_texture"], feature["properties"]["tags"])
-                if colour is not None:
+                texture = ogre_material.create_material(config.data["default_wall_texture"], feature["properties"]["tags"])
+                if texture is not None:
                     tree = ET.parse(xml_file_path)
                     for child in tree.getroot().findall(".//submesh"):
-                        child.set('material',colour)
+                        child.set('material',texture)
                     tree.write(xml_file_path)
 
                     # convert XML to bin mesh

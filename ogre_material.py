@@ -2,6 +2,7 @@ import config
 import ror_zip_file
 import PIL
 import webcolors
+import cache
 
 if config.data["generate_ai_texture"]:
     import torch
@@ -106,13 +107,19 @@ def create_ai_texture(prompt):
     if material_str.find(file_name) != -1:
         return file_name
 
-    # model works only with 512x512 image size
-    global pipe
-    print("Generating texture file: ", file_name)
-    full_prompt = "pbd " + prompt + ", seamless texture"
-    tex = pipe(full_prompt).images[0]
+    tex = cache.load_texture(file_name)
+    if tex is None:
+        # model works only with 512x512 image size
+        global pipe
+        print("Generating texture file: ", file_name)
+        full_prompt = "pbd " + prompt + ", seamless texture"
+        tex = pipe(full_prompt).images[0]
+        cache.save_texture(tex, file_name)
+    else:
+        print("Using cached texture:", file_name)
 
     save_texture(tex, file_name)
+
 
     return file_name
 
@@ -126,14 +133,14 @@ def create_file():
     ror_zip_file.add_to_zip_file_list("magen_generated.material")
 
 
-def save_texture(tex, name):
+def save_texture(tex, filename):
     global material_str
 
-    tex.save(config.data["work_path"] + name + ".png", "PNG")
-    ror_zip_file.add_to_zip_file_list(name + ".png")
+    tex.save(config.data["work_path"] + filename + ".png", "PNG")
+    ror_zip_file.add_to_zip_file_list(filename + ".png")
 
     # Add to material file
-    material_str += "material " + name + " : RoR/Managed_Mats/Base\n"
+    material_str += "material " + filename + " : RoR/Managed_Mats/Base\n"
     material_str += "{\n"
     material_str += "   technique BaseTechnique\n"
     material_str += "   {\n"
@@ -143,7 +150,7 @@ def save_texture(tex, name):
     material_str += "           cull_software none\n"
     material_str += "           texture_unit Diffuse_Map\n"
     material_str += "           {\n"
-    material_str += "               texture " + name + ".png\n"
+    material_str += "               texture " + filename + ".png\n"
     material_str += "           }\n"
     material_str += "       }\n"
     material_str += "   }\n"
