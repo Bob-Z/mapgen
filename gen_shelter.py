@@ -1,9 +1,8 @@
-from shapely import coordinates
-
 import object_3d
 import config
 import osm
 import topography
+import ogre_material
 
 shelter_tag_value = [["amenity", "shelter"], ["building", "roof"], ["shelter", "yes"]]
 shelter_tag = []
@@ -30,6 +29,7 @@ def process(feature, osm_data=None):
             return True
 
     return False
+
 
 def build_from_way(feature, height=None, min_height=None, from_relation=False):
     is_barrier = False
@@ -68,20 +68,29 @@ def build_shelter(feature, height, min_height, is_barrier):
         if z > group_z:
             group_z = z
 
+    wall_texture = ogre_material.create_material(config.data["default_shelter_wall"], feature["properties"]["tags"])
+    if wall_texture is None:
+        wall_texture = config.data["wall_texture"]
+
+    top_texture = ogre_material.create_material(config.data["default_shelter_top"], feature["properties"]["tags"])
+    if top_texture is None:
+        top_texture = config.data["top_texture"]
+
     for coord in all_all_coord[0]:
         # Send coord one by one
         object_3d.create_all_object_file([[coord]], height, z=min_height,
-                                     wall_texture=config.data["wall_texture"],
-                                     top_texture=config.data["top_texture"],
-                                     is_barrier=is_barrier,
-                                     group_z=group_z)
+                                         wall_texture=wall_texture,
+                                         top_texture=top_texture,
+                                         is_barrier=is_barrier,
+                                         group_z=group_z)
     # Roof
     # Z is pillars' height
-    object_3d.create_all_object_file(osm.get_coord_from_feature(feature), config.data["shelter_ceiling"], z=height + min_height,
-                                     wall_texture=config.data["wall_texture"],
-                                     top_texture=config.data["top_texture"], is_barrier=is_barrier)
+    object_3d.create_all_object_file(osm.get_coord_from_feature(feature), config.data["shelter_ceiling"],
+                                     z=height + min_height,
+                                     wall_texture=wall_texture,
+                                     top_texture=top_texture, is_barrier=is_barrier)
 
     # floor
     object_3d.create_all_object_file(osm.get_coord_from_feature(feature), config.data["shelter_floor"], z=min_height,
-                                     wall_texture=config.data["wall_texture"],
-                                     top_texture=config.data["top_texture"], is_barrier=is_barrier)
+                                     wall_texture=wall_texture,
+                                     top_texture=top_texture, is_barrier=is_barrier)
