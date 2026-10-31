@@ -4,6 +4,7 @@
 "map_precision": 1,
 "api_key": "",
 "osm_chunk_qty": 1,
+"generate_ai_texture": false,
 
 "generate_statistics": false,
 
@@ -83,6 +84,9 @@
 
 "bots_slow_move_timeout_before_reset": 10,
 "road_bots_quantity" : 4,
-"road_bots_name" : "b6b0UID-semi.truck,95bbUID-agoras.truck"
+"road_bots_name" : "b6b0UID-semi.truck,95bbUID-agoras.truck",
+
+"max_texture_by_material" : 10,
+"default_wall_testure" : "concrete"
 }
 

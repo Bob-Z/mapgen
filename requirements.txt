@@ -10,4 +10,5 @@ webcolors
 #diffusers
 #transformers
 #accelerate
+#torchvision
 

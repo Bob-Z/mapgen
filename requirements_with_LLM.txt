@@ -1,0 +1,14 @@
+numpy
+pillow
+bmi-topography
+overpass
+wikidata
+pyWikiCommons
+shapely
+webcolors
+torch
+diffusers
+transformers
+accelerate
+torchvision
+

@@ -91,10 +91,9 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
     if calc_roof_height is not None:
         roof_height = calc_roof_height
 
-    wall_texture = None
     top_texture = None
 
-    wall_texture = ogre_material.create_material_color(feature["properties"]["tags"])
+    wall_texture = ogre_material.create_material(config.data["default_wall_testure"], feature["properties"]["tags"])
 
     display_name = None
     if "name:en" in feature["properties"]["tags"]:
