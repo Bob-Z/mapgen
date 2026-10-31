@@ -91,10 +91,6 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
     if calc_roof_height is not None:
         roof_height = calc_roof_height
 
-    top_texture = None
-
-    wall_texture = ogre_material.create_material(config.data["default_wall_testure"], feature["properties"]["tags"])
-
     display_name = None
     if "name:en" in feature["properties"]["tags"]:
         display_name = feature["properties"]["tags"]["name:en"]
@@ -102,19 +98,26 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
         if "name" in feature["properties"]["tags"]:
             display_name = feature["properties"]["tags"]["name"]
 
+    wall_texture = ogre_material.create_material(config.data["default_wall_texture"], feature["properties"]["tags"])
+    if wall_texture is None:
+        wall_texture = config.data["wall_texture"]
+
+    top_texture = None
     roof_shape = None
     if "roof:shape" in feature["properties"]["tags"]:
         roof_shape = feature["properties"]["tags"]["roof:shape"]
         feature["properties"]["tags"].pop("roof:shape")
 
-        if top_texture is None and object_3d.is_roof_shape_supported(
-                roof_shape) and roof_height is not None and roof_shape != "flat":
-            top_texture = config.data["roof_texture"]
+        if object_3d.is_roof_shape_supported(roof_shape) and roof_height is not None:
+            if roof_shape == "gabled":
+                top_texture = ogre_material.create_material(config.data["default_gabled_roof_texture"],
+                                                            feature["properties"]["tags"])
 
-    if wall_texture is None:
-        wall_texture = config.data["wall_texture"]
     if top_texture is None:
-        top_texture = config.data["top_texture"]
+        top_texture = ogre_material.create_material(config.data["default_roof_texture"],
+                                                    feature["properties"]["tags"])
+        if top_texture is None:
+            top_texture = config.data["top_texture"]
 
     global building_discovered_qty
     global building_created_qty

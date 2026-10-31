@@ -87,6 +87,8 @@
 "road_bots_name" : "b6b0UID-semi.truck,95bbUID-agoras.truck",
 
 "max_texture_by_material" : 10,
-"default_wall_testure" : "concrete"
+"default_wall_texture" : "concrete",
+"default_roof_texture" : "small grey gravel",
+"default_gabled_roof_texture" : "roof tiles"
 }
 

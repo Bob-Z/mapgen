@@ -288,7 +288,7 @@ def is_roof_shape_supported(shape):
         return True
     else:
         unsupported_roof_shape[shape] = True
-        print("Unsupported roof shape", shape)
+        print("Unsupported roof shape:", shape)
         return False
 
 
