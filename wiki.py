@@ -15,6 +15,7 @@ import osm
 import mesh
 import urllib
 import pickle
+import random
 import xml.etree.ElementTree as ET
 
 #import matplotlib.pyplot as plt
@@ -112,7 +113,7 @@ def get_data(osm_data):
 
                 xml_file_path = config.data["work_path"] + short_name + ".mesh.xml"
 
-                texture = ogre_material.create_material(config.data["default_wall_texture"], feature["properties"]["tags"],short_name + ".material")
+                texture = ogre_material.create_material(random.choice(config.data["default_wall_texture"]), feature["properties"]["tags"],short_name + ".material")
                 if texture is not None:
                     tree = ET.parse(xml_file_path)
                     for child in tree.getroot().findall(".//submesh"):

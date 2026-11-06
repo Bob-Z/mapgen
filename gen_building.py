@@ -3,6 +3,7 @@ import object_3d
 import config
 import osm
 import wiki
+import random
 
 build_tag_value = [
     # first pass
@@ -98,7 +99,7 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
         if "name" in feature["properties"]["tags"]:
             display_name = feature["properties"]["tags"]["name"]
 
-    wall_texture = ogre_material.create_material(config.data["default_wall_texture"], feature["properties"]["tags"])
+    wall_texture = ogre_material.create_material(random.choice(config.data["default_wall_texture"]), feature["properties"]["tags"])
     if wall_texture is None:
         wall_texture = config.data["wall_texture"]
 
@@ -110,11 +111,11 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
 
         if object_3d.is_roof_shape_supported(roof_shape) and roof_height is not None:
             if roof_shape == "gabled":
-                top_texture = ogre_material.create_material(config.data["default_gabled_roof_texture"],
+                top_texture = ogre_material.create_material(random.choice(config.data["default_gabled_roof_texture"]),
                                                             feature["properties"]["tags"])
 
     if top_texture is None:
-        top_texture = ogre_material.create_material(config.data["default_roof_texture"],
+        top_texture = ogre_material.create_material(random.choice(config.data["default_roof_texture"]),
                                                     feature["properties"]["tags"])
     if top_texture is None:
         top_texture = config.data["top_texture"]

@@ -27,3 +27,15 @@ for arg in sys.argv[1:]:
         print("Invalid value for", param_name + ":", param_value)
         sys.exit(1)
     data[param_name] = param_value
+
+param_as_list = ["default_fence_texture",
+                 "default_gabled_roof_texture",
+                "default_hedge_texture",
+                "default_roof_texture",
+                "default_shelter_top",
+                "default_shelter_wall",
+                "default_wall_texture",
+                 ]
+
+for tag in param_as_list:
+    data[tag] = data[tag].split(",")

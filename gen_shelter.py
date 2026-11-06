@@ -3,6 +3,7 @@ import config
 import osm
 import topography
 import ogre_material
+import random
 
 shelter_tag_value = [["amenity", "shelter"], ["building", "roof"], ["shelter", "yes"]]
 shelter_tag = []
@@ -68,11 +69,11 @@ def build_shelter(feature, height, min_height, is_barrier):
         if z > group_z:
             group_z = z
 
-    wall_texture = ogre_material.create_material(config.data["default_shelter_wall"], feature["properties"]["tags"])
+    wall_texture = ogre_material.create_material(random.choice(config.data["default_shelter_wall"]), feature["properties"]["tags"])
     if wall_texture is None:
         wall_texture = config.data["wall_texture"]
 
-    top_texture = ogre_material.create_material(config.data["default_shelter_top"], feature["properties"]["tags"])
+    top_texture = ogre_material.create_material(random.choice(config.data["default_shelter_top"]), feature["properties"]["tags"])
     if top_texture is None:
         top_texture = config.data["top_texture"]
 
