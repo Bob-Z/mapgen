@@ -20,16 +20,16 @@ if config.data["generate_ai_texture"]:
         print()
         config.data["generate_ai_texture"] = False
 
-material_str = ""
+material_str = {}
 
 texture_qty_by_material = {}
 
 
-def create_material(base, tags):
+def create_material(base, tags, material_file_name="magen_generated.material"):
     if config.data["generate_ai_texture"] is False:
-        return create_material_color(tags)
+        return create_material_color(tags, material_file_name)
 
-    return create_ai_texture(generate_prompt(base, tags))
+    return create_ai_texture(generate_prompt(base, tags), material_file_name)
 
 
 def generate_prompt(default_material, tags):
@@ -39,16 +39,20 @@ def generate_prompt(default_material, tags):
         material = tags["building:material"]
 
     if "colour" in tags:
-        if tags["colour"][0] != '#':  # ignore RGB colors
+        if tags["colour"][0] != '#':
             material = tags["colour"] + " " + material
+        else:
+            material = get_color_name(tags["colour"]) + " " + material
     if "building:colour" in tags:
         if tags["building:colour"][0] != '#':  # ignore RGB colors
             material = tags["building:colour"] + " " + material
+        else:
+            material = get_color_name(tags["building:colour"]) + " " + material
 
     return material
 
 
-def create_material_color(tags):
+def create_material_color(tags, material_file_name):
     colour = None
     if "colour" in tags:
         colour = tags["colour"]
@@ -75,23 +79,22 @@ def create_material_color(tags):
 
     name = "colour_" + colour
 
-    if material_str.find(name) != -1:
+    if material_str[material_file_name].find(name) != -1:
         return name
 
     # Create texture file
-    tex = None
     try:
         tex = PIL.Image.new(mode="RGB", size=(1, 1), color=colour)
     except ValueError:
         print("Unsupported colour:", colour[1:])
         return None
 
-    save_texture(tex, name)
+    save_texture(tex, name, material_file_name)
 
     return name
 
 
-def create_ai_texture(prompt):
+def create_ai_texture(prompt, material_file_name):
     file_name = prompt.replace(" ", "_")
     file_name = "texture_" + file_name
 
@@ -104,7 +107,7 @@ def create_ai_texture(prompt):
     texture_qty += 1
     texture_qty_by_material[prompt] = texture_qty
 
-    if material_str.find(file_name) != -1:
+    if material_file_name in material_str and material_str[material_file_name].find(file_name) != -1:
         return file_name
 
     tex = cache.load_texture(file_name)
@@ -118,8 +121,7 @@ def create_ai_texture(prompt):
     else:
         print("Using cached texture:", file_name)
 
-    save_texture(tex, file_name)
-
+    save_texture(tex, file_name, material_file_name)
 
     return file_name
 
@@ -127,32 +129,58 @@ def create_ai_texture(prompt):
 def create_file():
     global material_str
 
-    with open(config.data["work_path"] + "magen_generated.material", "w") as material_file:
-        material_file.write(material_str)
+    for key, value in material_str.items():
+        with open(config.data["work_path"] + key, "w") as material_file:
+            material_file.write(value)
 
     ror_zip_file.add_to_zip_file_list("magen_generated.material")
 
 
-def save_texture(tex, filename):
+def save_texture(tex, filename, material_file_name):
     global material_str
 
     tex.save(config.data["work_path"] + filename + ".png", "PNG")
     ror_zip_file.add_to_zip_file_list(filename + ".png")
 
+    if material_file_name not in material_str:
+        material_str[material_file_name] = "import * from \"managed_mats.material\" \n\n"
+
     # Add to material file
-    material_str += "material " + filename + " : RoR/Managed_Mats/Base\n"
-    material_str += "{\n"
-    material_str += "   technique BaseTechnique\n"
-    material_str += "   {\n"
-    material_str += "       pass BaseRender\n"
-    material_str += "       {\n"
-    material_str += "           cull_hardware none\n"
-    material_str += "           cull_software none\n"
-    material_str += "           texture_unit Diffuse_Map\n"
-    material_str += "           {\n"
-    material_str += "               texture " + filename + ".png\n"
-    material_str += "           }\n"
-    material_str += "       }\n"
-    material_str += "   }\n"
-    material_str += "}\n"
-    material_str += "\n"
+    material_str[material_file_name] += "material " + filename + " : RoR/Managed_Mats/Base\n"
+    material_str[material_file_name] += "{\n"
+    material_str[material_file_name] += "   technique BaseTechnique\n"
+    material_str[material_file_name] += "   {\n"
+    material_str[material_file_name] += "       pass BaseRender\n"
+    material_str[material_file_name] += "       {\n"
+    material_str[material_file_name] += "           cull_hardware none\n"
+    material_str[material_file_name] += "           cull_software none\n"
+    material_str[material_file_name] += "           texture_unit Diffuse_Map\n"
+    material_str[material_file_name] += "           {\n"
+    material_str[material_file_name] += "               texture " + filename + ".png\n"
+    material_str[material_file_name] += "           }\n"
+    material_str[material_file_name] += "       }\n"
+    material_str[material_file_name] += "   }\n"
+    material_str[material_file_name] += "}\n"
+    material_str[material_file_name] += "\n"
+
+
+def get_color_name(hex_value):
+    try:
+        # Get the color name directly
+        return webcolors.hex_to_name(hex_value)
+    except ValueError:
+        # If exact match not found, find the closest color
+        return closest_color(hex_value)
+
+
+def closest_color(hex_value):
+    requested_color = webcolors.hex_to_rgb(hex_value)
+    min_colors = {}
+    for norm in webcolors._definitions._hex_to_names.items():
+        for key, name in norm[1].items():
+            r_c, g_c, b_c = webcolors.hex_to_rgb(key)
+            rd = (r_c - requested_color[0]) ** 2
+            gd = (g_c - requested_color[1]) ** 2
+            bd = (b_c - requested_color[2]) ** 2
+            min_colors[(rd + gd + bd)] = name
+    return min_colors[min(min_colors.keys())]
