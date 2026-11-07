@@ -1,3 +1,5 @@
+import random
+
 import gen_road
 import config
 
@@ -28,7 +30,10 @@ array<int> all_slow_move_qty(truck_qty);\n\
 array<array<vector3>> all_waypoints(truck_qty, array<vector3>(0));\n\
 array<string> all_vehicle_name = {"
 
-    for name in config.data["road_bots_name"].split(","):
+    all_vehicle_name = config.data["road_bots_name"].split(",")
+    random.shuffle(all_vehicle_name)
+
+    for name in all_vehicle_name:
         script_string = script_string + "\"" + name + "\","
 
     script_string = script_string[:-1]  # remove final ","
