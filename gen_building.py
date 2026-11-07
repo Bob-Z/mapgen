@@ -30,7 +30,6 @@ negative_tag_value = [
 ]
 
 negative_tag = [
-    "landmark",
 ]
 
 building_created_qty = 0

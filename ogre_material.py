@@ -25,7 +25,7 @@ material_str = {}
 texture_qty_by_material = {}
 
 
-def create_material(base, tags, material_file_name="magen_generated.material"):
+def create_material(base, tags, material_file_name="mapgen_generated.material"):
     if config.data["generate_ai_texture"] is False:
         return create_material_color(tags, material_file_name)
 
@@ -137,11 +137,12 @@ def create_ai_texture(prompt, material_file_name, tags):
 def create_file():
     global material_str
 
-    for key, value in material_str.items():
-        with open(config.data["work_path"] + key, "w") as material_file:
-            material_file.write(value)
+    if len(material_str) > 0:
+        for key, value in material_str.items():
+            with open(config.data["work_path"] + key, "w") as material_file:
+                material_file.write(value)
 
-    ror_zip_file.add_to_zip_file_list("magen_generated.material")
+        ror_zip_file.add_to_zip_file_list("mapgen_generated.material")
 
 
 def save_texture(tex, filename, material_file_name):
