@@ -16,9 +16,9 @@ if config.data["generate_ai_texture"]:
         print()
     except torch.OutOfMemoryError:
         print()
-        print("Not enough GPU RAM. Texture generation disabled.")
+        print("Not enough GPU RAM. Texture generation disabled. Using cached textures if available")
         print()
-        config.data["generate_ai_texture"] = False
+        pipe = None
 
 material_str = {}
 
@@ -29,7 +29,7 @@ def create_material(base, tags, material_file_name="magen_generated.material"):
     if config.data["generate_ai_texture"] is False:
         return create_material_color(tags, material_file_name)
 
-    return create_ai_texture(generate_prompt(base, tags), material_file_name)
+    return create_ai_texture(generate_prompt(base, tags), material_file_name, tags)
 
 
 def generate_prompt(default_material, tags):
@@ -85,7 +85,7 @@ def create_material_color(tags, material_file_name):
 
     name = "colour_" + colour
 
-    if material_str[material_file_name].find(name) != -1:
+    if material_file_name in material_str and material_str[material_file_name].find(name) != -1:
         return name
 
     # Create texture file
@@ -100,7 +100,7 @@ def create_material_color(tags, material_file_name):
     return name
 
 
-def create_ai_texture(prompt, material_file_name):
+def create_ai_texture(prompt, material_file_name, tags):
     file_name = prompt.replace(" ", "_")
     file_name = "texture_" + file_name
 
@@ -118,8 +118,10 @@ def create_ai_texture(prompt, material_file_name):
 
     tex = cache.load_texture(file_name)
     if tex is None:
-        # model works only with 512x512 image size
         global pipe
+        if pipe is None:
+            return create_material_color(tags, material_file_name)
+        # model works only with 512x512 image size
         print("Generating texture file: ", file_name)
         full_prompt = "pbd " + prompt + ", seamless texture"
         tex = pipe(full_prompt).images[0]
