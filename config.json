@@ -91,8 +91,8 @@
 "default_fence_texture" : "galvanized steel",
 "default_gabled_roof_texture" : "roof tiles",
 "default_hedge_texture" : "shrub leaves",
-"default_roof_texture" : "small gravel,PVC membrane",
-"default_shelter_top" : "polycarbonate",
+"default_roof_texture" : "small gravel,PVC membrane,ribbed metal",
+"default_shelter_top" : "polycarbonate,ribbed metal,PVC membrane",
 "default_shelter_wall" : "galvanized steel",
 "default_wall_texture" : "concrete,stucco"
 }

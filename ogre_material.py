@@ -37,6 +37,12 @@ def generate_prompt(default_material, tags):
 
     if "building:material" in tags:
         material = tags["building:material"]
+    elif "material" in tags:
+        material = tags["material"]
+
+    if "fence_type" in tags:
+        if tags["fence_type"] != material:
+            material = material + " " + tags["fence_type"]
 
     if "colour" in tags:
         if tags["colour"][0] != '#':
