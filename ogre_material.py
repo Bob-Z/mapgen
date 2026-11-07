@@ -29,31 +29,75 @@ def create_material(base, tags, material_file_name="mapgen_generated.material", 
     if config.data["generate_ai_texture"] is False:
         return create_material_color(tags, material_file_name, hint)
 
-    return create_ai_texture(generate_prompt(base, tags), material_file_name, tags)
+    return create_ai_texture(generate_prompt(base, tags, hint), material_file_name, tags)
 
 
-def generate_prompt(default_material, tags):
+def generate_prompt(default_material, tags, hint):
     material = default_material
 
-    if "building:material" in tags:
-        material = tags["building:material"]
-    elif "material" in tags:
-        material = tags["material"]
+    if hint is not None:
+        if hint == "building":
+            if "building:material" in tags:
+                materials = tags["building:material"].replace(",", ";").split(";")
+                material = materials[0]
+            elif "material" in tags:
+                materials = tags["material"].replace(",", ";").split(";")
+                material = materials[0]
+
+            if "building:colour" in tags:
+                if tags["building:colour"][0] != '#':
+                    material = tags["building:colour"] + " " + material
+                else:
+                    material = get_color_name(tags["building:colour"]) + " " + material
+            elif "colour" in tags:
+                if tags["colour"][0] != '#':
+                    material = tags["colour"] + " " + material
+                else:
+                    material = get_color_name(tags["colour"]) + " " + material
+
+        elif hint == "roof":
+            if "roof:material" in tags:
+                materials = tags["roof:material"].replace(",", ";").split(";")
+                material = materials[0]
+
+            if "roof:colour" in tags:
+                if tags["roof:colour"][0] != '#':
+                    material = tags["roof:colour"] + " " + material
+                else:
+                    material = get_color_name(tags["roof:colour"]) + " " + material
+        else:
+            print("Error unknown hint", hint)
+    else:
+        if "building:material" in tags:
+            materials = tags["building:material"].replace(",", ";").split(";")
+            material = materials[0]
+        elif "material" in tags:
+            materials = tags["material"].replace(",", ";").split(";")
+            material = materials[0]
+        elif "roof:material" in tags:
+            materials = tags["roof:material"].replace(",", ";").split(";")
+            material = materials[0]
+
+        if "colour" in tags:
+            if tags["colour"][0] != '#':
+                material = tags["colour"] + " " + material
+            else:
+                material = get_color_name(tags["colour"]) + " " + material
+        elif "building:colour" in tags:
+            if tags["building:colour"][0] != '#':
+                material = tags["building:colour"] + " " + material
+            else:
+                material = get_color_name(tags["building:colour"]) + " " + material
+        elif "roof:colour" in tags:
+            if tags["roof:colour"][0] != '#':
+                material = tags["roof:colour"] + " " + material
+            else:
+                material = get_color_name(tags["roof:colour"]) + " " + material
 
     if "fence_type" in tags:
-        if tags["fence_type"] != material:
-            material = material + " " + tags["fence_type"]
-
-    if "colour" in tags:
-        if tags["colour"][0] != '#':
-            material = tags["colour"] + " " + material
-        else:
-            material = get_color_name(tags["colour"]) + " " + material
-    if "building:colour" in tags:
-        if tags["building:colour"][0] != '#':  # ignore RGB colors
-            material = tags["building:colour"] + " " + material
-        else:
-            material = get_color_name(tags["building:colour"]) + " " + material
+        materials = tags["fence_type"].replace(",", ";").split(";")
+        if materials[0] != material:
+            material = material + " " + materials[0]
 
     return material
 
