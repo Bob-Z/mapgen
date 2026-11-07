@@ -25,9 +25,9 @@ material_str = {}
 texture_qty_by_material = {}
 
 
-def create_material(base, tags, material_file_name="mapgen_generated.material"):
+def create_material(base, tags, material_file_name="mapgen_generated.material", hint=None):
     if config.data["generate_ai_texture"] is False:
-        return create_material_color(tags, material_file_name)
+        return create_material_color(tags, material_file_name, hint)
 
     return create_ai_texture(generate_prompt(base, tags), material_file_name, tags)
 
@@ -58,17 +58,25 @@ def generate_prompt(default_material, tags):
     return material
 
 
-def create_material_color(tags, material_file_name):
+def create_material_color(tags, material_file_name, hint=None):
     colour = None
     if "colour" in tags:
         colour = tags["colour"]
-        tags.pop("colour")
-    if "building:colour" in tags:
-        colour = tags["building:colour"]
-        tags.pop("building:colour")
-    if "roof:colour" in tags:
-        colour = tags["roof:colour"]
-        tags.pop("roof:colour")
+
+    if hint is not None:
+        if hint == "building":
+            if "building:colour" in tags:
+                colour = tags["building:colour"]
+        elif hint == "roof":
+            if "roof:colour" in tags:
+                colour = tags["roof:colour"]
+        else:
+            print("Error unknown hint", hint)
+    else:
+        if "building:colour" in tags:
+            colour = tags["building:colour"]
+        if "roof:colour" in tags:
+            colour = tags["roof:colour"]
 
     if colour is None:
         return None

@@ -69,11 +69,11 @@ def build_shelter(feature, height, min_height, is_barrier):
         if z > group_z:
             group_z = z
 
-    wall_texture = ogre_material.create_material(random.choice(config.data["default_shelter_wall"]), feature["properties"]["tags"])
+    wall_texture = ogre_material.create_material(random.choice(config.data["default_shelter_wall"]), feature["properties"]["tags"], hint="building")
     if wall_texture is None:
         wall_texture = config.data["wall_texture"]
 
-    top_texture = ogre_material.create_material(random.choice(config.data["default_shelter_top"]), feature["properties"]["tags"])
+    top_texture = ogre_material.create_material(random.choice(config.data["default_shelter_top"]), feature["properties"]["tags"], hint="roof")
     if top_texture is None:
         top_texture = config.data["top_texture"]
 
