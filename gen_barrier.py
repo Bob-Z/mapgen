@@ -1,5 +1,3 @@
-import random
-
 import object_3d
 import config
 import ogre_material
@@ -24,7 +22,7 @@ def process(feature):
                 if height is None:
                     height = config.data["barrier_height"]
 
-                texture = ogre_material.create_material(random.choice(tag_value[3]), feature["properties"]["tags"])
+                texture = ogre_material.create_material(random.choice(tag_value[3]), tags)
                 if texture is None:
                     texture = tag_value[2]
 

@@ -17,7 +17,7 @@ warn_gabled_roof = True
 warn_hipped_roof = True
 
 
-def create_all_object_file(all_all_cord, height=config.data["building_level_height"], z=0.0,
+def create_all_object_file(all_coord, height=config.data["building_level_height"], z=0.0,
                            wall_texture=config.data["wall_texture"], top_texture=config.data["top_texture"],
                            scale=1.0,
                            is_barrier=False, half_barrier=False,
@@ -30,9 +30,6 @@ def create_all_object_file(all_all_cord, height=config.data["building_level_heig
 
     if height is None:
         height = config.data["building_level_height"]
-
-    # FIXME ignore other arrays of coord
-    all_coord = all_all_cord[0]
 
     # Find the highest z for all nodes of the object
     base_z = config.data["ground_line"]
@@ -288,7 +285,7 @@ def is_roof_shape_supported(shape):
         return True
     else:
         unsupported_roof_shape[shape] = True
-        print("Unsupported roof shape:", shape)
+        print("Unsupported roof shape", shape)
         return False
 
 
