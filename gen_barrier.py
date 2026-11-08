@@ -1,6 +1,5 @@
 import object_3d
 import config
-import ogre_material
 import osm
 
 barrier_tag_value = [
@@ -13,12 +12,14 @@ barrier_tag_value = [
     # ['barrier', 'kerb',...
 ]
 
+barrier_tag = []
 
-def process(feature):
+
+def process(way):
     for tag_value in barrier_tag_value:
-        if tag_value[0] in feature["properties"]["tags"]:
-            if feature["properties"]["tags"][tag_value[0]] == tag_value[1]:
-                height, min_height, roof_height = osm.get_height(feature)
+        if tag_value[0] in way.tags:
+            if way.tags[tag_value[0]] == tag_value[1]:
+                height, min_height, roof_height = osm.get_height(way)
                 if height is None:
                     height = config.data["barrier_height"]
 
@@ -26,10 +27,26 @@ def process(feature):
                 if texture is None:
                     texture = tag_value[2]
 
-                object_3d.create_all_object_file(osm.get_coord_from_feature(feature), height=height,
+                object_3d.create_all_object_file(way.nodes, height=height,
                                                  wall_texture=texture, top_texture=texture,
                                                  is_barrier=True, barrier_width=tag_value[4])
-                feature["properties"]["tags"].pop(tag_value[0])
+                way.tags.pop(tag_value[0])
                 return True
+
+    for tag in barrier_tag:
+        if tag in way.tags:
+            height = osm.get_height(way)
+            if height is None:
+                height = config.data["barrier_height"]
+
+            texture = ogre_material.create_material(random.choice(tag_value[3]), tags)
+            if texture is None:
+                texture = tag_value[2]
+
+            object_3d.create_all_object_file(way.nodes, height=height,
+                                             wall_texture=texture, top_texture=texture,
+                                             is_barrier=True)
+            way.tags.pop(tag)
+            return True
 
     return False

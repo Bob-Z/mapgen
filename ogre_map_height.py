@@ -13,7 +13,7 @@ BLUR_RADIUS = 1
 
 im = None
 draw = None
-unblurred_feature = []
+unblurred_entity = []
 
 
 def height_to_color(height):
@@ -47,17 +47,17 @@ def set_map_height(height):
         im.paste(height_to_color(height), (0, 0, im.size[0], im.size[1]))
 
 
-def draw_feature(feature, outer_height, inner_height=None, draw_object=None, force=False):
+def draw_entity(osm_data, entity, outer_height, inner_height=None, draw_object=None, force=False):
     if topography.is_enabled() is False or force is True:
         global draw
         if draw_object is None:
             draw_object = draw
-        ogre_map_helper.draw_feature(draw_object, feature, outer_height=outer_height, inner_height=inner_height)
+        ogre_map_helper.draw_entity(draw_object, osm_data, entity, outer_height=outer_height, inner_height=inner_height)
 
 
-def draw_feature_unblurred(feature, outer_height, inner_height=None):
+def draw_entity_unblurred(osm_data, entity, outer_height, inner_height=None):
     if topography.is_enabled() is False:
-        unblurred_feature.append((feature, outer_height, inner_height))
+        unblurred_entity.append((osm_data, entity, outer_height, inner_height))
 
 
 def draw_polygon(polygon, color):
@@ -80,8 +80,8 @@ def create_file():
 
     unblurred_draw = PIL.ImageDraw.Draw(blur_im)
 
-    for feature in unblurred_feature:
-        draw_feature(feature[0], feature[1], feature[2], draw_object=unblurred_draw)
+    for entity in unblurred_entity:
+        draw_entity(entity[0], entity[1], entity[2], entity[3], draw_object=unblurred_draw)
 
     blur_im.save(config.data["work_path"] + config.data["map_name"] + "_height.png", "PNG")
     ror_zip_file.add_to_zip_file_list(config.data["map_name"] + "_height.png")

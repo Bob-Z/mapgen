@@ -36,25 +36,26 @@ building_created_qty = 0
 building_discovered_qty = 0
 
 
-# Return True if feature as been processed successfully
-def process(feature, osm_data=None, pass_index=0):
+# Return True if entity as been processed successfully
+def process(entity, osm_data=None, pass_index=0):
     for tag_value in build_tag_value[pass_index]:
-        if tag_value[0] in feature["properties"]["tags"]:
+        if tag_value[0] in entity.tags:
             if tag_value[1] is not None:
-                if feature["properties"]["tags"][tag_value[0]] != tag_value[1]:
+                if entity.tags[tag_value[0]] != tag_value[1]:
                     continue
-            if is_allowed(feature):
+            if is_allowed(entity):
                 if osm_data is None:
-                    build_from_way(feature)
+                    build_from_way(entity)
                 else:
-                    build_from_relation(osm_data, feature)
-                feature["properties"]["tags"].pop(tag_value[0])
-                if "type" in feature["properties"]["tags"]:
-                    if feature["properties"]["tags"]["type"] == "multipolygon":
-                        feature["properties"]["tags"].pop("type")
+                    build_from_relation(osm_data, entity)
+                entity.tags.pop(tag_value[0])
+                if "type" in entity.tags:
+                    if entity.tags["type"] == "multipolygon":
+                        entity.tags.pop("type")
                 return True
 
     return False
+
 
 def build_from_relation(osm_data, rel):
     height, min_height, roof_height = osm.get_height(rel)
@@ -64,26 +65,26 @@ def build_from_relation(osm_data, rel):
         if way is not None:
             if member.role == "outer" or member.role == "part":  # Don't draw outline, it breaks Paris Eiffel Tower
                 if build_from_way(way, height, min_height, roof_height) is True:
-                    feature["properties"]["tags"]["mapgen"] = "used_by_relation"
+                    way.tags["mapgen"] = "used_by_relation"
             # FIXME: How to manager inner ?
             # elif member.role == "inner":
             else:
-                feature["properties"]["tags"]["mapgen"] = "skip_outer"
+                way.tags["mapgen"] = "skip_outer"
 
 
 # Return True if a building has been created
-def build_from_way(feature, height=None, min_height=None, roof_height=None):
-    if "mapgen" in feature["properties"]["tags"] and feature["properties"]["tags"]["mapgen"] == "used_by_relation":
+def build_from_way(way, height=None, min_height=None, roof_height=None):
+    if "mapgen" in way.tags and way.tags["mapgen"] == "used_by_relation":
         return False
 
-    if wiki.is_object_crossing(feature["geometry"]["coordinates"][0]) is True:
+    if wiki.is_object_crossing(way.nodes) is True:
         return False
 
     is_barrier = False
-    if len(feature["geometry"]["coordinates"][0]) < 3:
+    if len(way.nodes) < 3:
         is_barrier = True
 
-    calc_height, calc_min_height, calc_roof_height = osm.get_height(feature)
+    calc_height, calc_min_height, calc_roof_height = osm.get_height(way)
 
     if calc_height is not None:
         height = calc_height
@@ -97,14 +98,14 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
     wall_texture = None
     top_texture = None
 
-    wall_texture = ogre_material.create_material_color(feature["properties"]["tags"])
+    wall_texture = ogre_material.create_material_color(way.tags)
 
     display_name = None
-    if "name:en" in feature["properties"]["tags"]:
-        display_name = feature["properties"]["tags"]["name:en"]
+    if "name:en" in way.tags:
+        display_name = way.tags["name:en"]
     else:
-        if "name" in feature["properties"]["tags"]:
-            display_name = feature["properties"]["tags"]["name"]
+        if "name" in way.tags:
+            display_name = way.tags["name"]
 
     wall_texture = ogre_material.create_material(random.choice(config.data["default_wall_texture"]), feature["properties"]["tags"], hint="building")
     if wall_texture is None:
@@ -112,18 +113,18 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
 
     top_texture = None
     roof_shape = None
-    if "roof:shape" in feature["properties"]["tags"]:
-        roof_shape = feature["properties"]["tags"]["roof:shape"]
-        feature["properties"]["tags"].pop("roof:shape")
+    if "roof:shape" in way.tags:
+        roof_shape = way.tags["roof:shape"]
+        way.tags.pop("roof:shape")
 
         if object_3d.is_roof_shape_supported(roof_shape) and roof_height is not None:
             if roof_shape == "gabled":
                 top_texture = ogre_material.create_material(random.choice(config.data["default_gabled_roof_texture"]),
-                                                            feature["properties"]["tags"], hint="roof")
+                                                            way.tags, hint="roof")
 
     if top_texture is None:
         top_texture = ogre_material.create_material(random.choice(config.data["default_roof_texture"]),
-                                                    feature["properties"]["tags"], hint="roof")
+                                                    way.tags, hint="roof")
     if top_texture is None:
         top_texture = config.data["top_texture"]
 
@@ -135,7 +136,7 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
     if building_created_qty / building_discovered_qty < config.data["building_ratio"]:
         building_created_qty += 1
 
-        object_3d.create_all_object_file(feature["geometry"]["coordinates"][0], height, z=min_height,
+        object_3d.create_all_object_file(way.nodes, height, z=min_height,
                                          wall_texture=wall_texture,
                                          top_texture=top_texture,
                                          is_barrier=is_barrier,
@@ -148,21 +149,17 @@ def build_from_way(feature, height=None, min_height=None, roof_height=None):
         return False
 
 
-def is_allowed(feature):
+def is_allowed(entity):
     for tag_value in negative_tag_value:
-        if tag_value[0] in feature["properties"]["tags"]:
+        if tag_value[0] in entity.tags:
             if tag_value[1] is not None:
-                if feature["properties"]["tags"][tag_value[0]] == tag_value[1]:
+                if entity.tags[tag_value[0]] == tag_value[1]:
                     return False
             else:
                 return None
 
-    for tag_value in negative_tag:
-        if tag_value in tags:
-            return False
-
-    if "level" in feature["properties"]["tags"]:
-        if feature["properties"]["tags"]["level"][0] == '-':  # Skip negative levels
+    if "level" in entity.tags:
+        if entity.tags["level"][0] == '-':  # Skip negative levels
             return False
 
     return True

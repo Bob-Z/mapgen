@@ -4,123 +4,123 @@ import ogre_map_height
 import config
 
 
-def process(feature):
-    if "amenity" in feature["properties"]["tags"]:
-        if feature["properties"]["tags"]["amenity"] == "parking":
-            ogre_map_surface.draw_asphalt_feature(feature)
-            feature["properties"]["tags"].pop("amenity")
+def process(entity, osm_data=None):
+    if "amenity" in entity.tags:
+        if entity.tags["amenity"] == "parking":
+            ogre_map_surface.draw_asphalt_entity(osm_data, entity)
+            entity.tags.pop("amenity")
             return True
-    if "leisure" in feature["properties"]["tags"]:
-        if feature["properties"]["tags"]["leisure"] == "park":
-            ogre_map_surface.draw_grass_feature(feature)
-            ror_tobj_file.add_grass(feature, "grass2")
-            feature["properties"]["tags"].pop("leisure")
+    if "leisure" in entity.tags:
+        if entity.tags["leisure"] == "park":
+            ogre_map_surface.draw_grass_entity(osm_data, entity)
+            ror_tobj_file.add_grass(osm_data, entity, "grass2")
+            entity.tags.pop("leisure")
             return True
-        if feature["properties"]["tags"]["leisure"] == "pitch":
-            if "surface" in feature["properties"]["tags"] and feature["properties"]["tags"]["surface"] == "asphalt":
-                ogre_map_surface.draw_asphalt_feature(feature)
-                feature["properties"]["tags"].pop("surface")
-            elif "surface" in feature["properties"]["tags"] and feature["properties"]["tags"]["surface"] == "clay":
-                ogre_map_surface.draw_gravel_feature(feature)
-                feature["properties"]["tags"].pop("surface")
+        if entity.tags["leisure"] == "pitch":
+            if "surface" in entity.tags and entity.tags["surface"] == "asphalt":
+                ogre_map_surface.draw_asphalt_entity(osm_data, entity)
+                entity.tags.pop("surface")
+            elif "surface" in entity.tags and entity.tags["surface"] == "clay":
+                ogre_map_surface.draw_gravel_entity(osm_data, entity)
+                entity.tags.pop("surface")
             else:
-                ogre_map_surface.draw_grass_feature(feature)
-            feature["properties"]["tags"].pop("leisure")
+                ogre_map_surface.draw_grass_entity(osm_data, entity)
+            entity.tags.pop("leisure")
             return True
-        if feature["properties"]["tags"]["leisure"] == "playground":
-            if "surface" in feature["properties"]["tags"] and feature["properties"]["tags"]["surface"] == "compacted":
-                ogre_map_surface.draw_sand_feature(feature)
-                feature["properties"]["tags"].pop("surface")
+        if entity.tags["leisure"] == "playground":
+            if "surface" in entity.tags and entity.tags["surface"] == "compacted":
+                ogre_map_surface.draw_sand_entity(osm_data, entity)
+                entity.tags.pop("surface")
             else:
-                ogre_map_surface.draw_grass_feature(feature)
-            feature["properties"]["tags"].pop("leisure")
+                ogre_map_surface.draw_grass_entity(osm_data, entity)
+            entity.tags.pop("leisure")
             return True
-        if feature["properties"]["tags"]["leisure"] == "sports_centre":
-            ogre_map_surface.draw_asphalt_feature(feature)
-            feature["properties"]["tags"].pop("leisure")
+        if entity.tags["leisure"] == "sports_centre":
+            ogre_map_surface.draw_asphalt_entity(osm_data, entity)
+            entity.tags.pop("leisure")
             return True
-        if feature["properties"]["tags"]["leisure"] == "track":
-            if "surface" in feature["properties"]["tags"] and feature["properties"]["tags"]["surface"] == "compacted":
-                ogre_map_surface.draw_sand_feature(feature)
-                feature["properties"]["tags"].pop("surface")
+        if entity.tags["leisure"] == "track":
+            if "surface" in entity.tags and entity.tags["surface"] == "compacted":
+                ogre_map_surface.draw_sand_entity(osm_data, entity)
+                entity.tags.pop("surface")
             else:
-                ogre_map_surface.draw_asphalt_feature(feature)
-            feature["properties"]["tags"].pop("leisure")
+                ogre_map_surface.draw_asphalt_entity(osm_data, entity)
+            entity.tags.pop("leisure")
             return True
 
-    if "landuse" in feature["properties"]["tags"]:
-        if feature["properties"]["tags"]["landuse"] == "grass" or feature["properties"]["tags"]["landuse"] == "recreation_ground":
-            ogre_map_surface.draw_grass_feature(feature)
-            ror_tobj_file.add_grass(feature, "grass3")
-            feature["properties"]["tags"].pop("landuse")
+    if "landuse" in entity.tags:
+        if entity.tags["landuse"] == "grass" or entity.tags["landuse"] == "recreation_ground":
+            ogre_map_surface.draw_grass_entity(osm_data, entity)
+            ror_tobj_file.add_grass(osm_data, entity, "grass3")
+            entity.tags.pop("landuse")
             return True
-        if feature["properties"]["tags"]["landuse"] == "construction" or feature["properties"]["tags"]["landuse"] == "industrial" or feature["properties"]["tags"][
-            "landuse"] == "residential" or feature["properties"]["tags"]["landuse"] == "retail" or feature["properties"]["tags"]["landuse"] == "education":
-            ogre_map_surface.draw_asphalt_feature(feature)
-            feature["properties"]["tags"].pop("landuse")
+        if entity.tags["landuse"] == "construction" or entity.tags["landuse"] == "industrial" or entity.tags[
+            "landuse"] == "residential" or entity.tags["landuse"] == "retail" or entity.tags["landuse"] == "education":
+            ogre_map_surface.draw_asphalt_entity(osm_data, entity)
+            entity.tags.pop("landuse")
             return True
-        if feature["properties"]["tags"]["landuse"] == "forest":
-            ror_tobj_file.add_tree(feature, 0.50, 1.40, -10, "tree.mesh", "tree.mesh")
-            ror_tobj_file.add_grass(feature, "grass1")
-            feature["properties"]["tags"].pop("landuse")
+        if entity.tags["landuse"] == "forest":
+            ror_tobj_file.add_tree(osm_data, entity, 0.50, 1.40, -10, "tree.mesh", "tree.mesh")
+            ror_tobj_file.add_grass(osm_data, entity, "grass1")
+            entity.tags.pop("landuse")
             return True
-        if feature["properties"]["tags"]["landuse"] == "orchard":
-            ror_tobj_file.add_tree(feature, 1.0, 1.0, 15, "tree2.mesh", "tree2.mesh")
-            feature["properties"]["tags"].pop("landuse")
-            return True
-
-    if "natural" in feature["properties"]["tags"]:
-        if feature["properties"]["tags"]["natural"] == "sand" or feature["properties"]["tags"]["natural"] == "beach":
-            ogre_map_surface.draw_sand_feature(feature)
-            feature["properties"]["tags"].pop("natural")
-            return True
-        if feature["properties"]["tags"]["natural"] == "grassland" or feature["properties"]["tags"]["natural"] == "scrub":
-            ogre_map_surface.draw_grass_feature(feature)
-            ror_tobj_file.add_grass(feature, "grass4")
-            feature["properties"]["tags"].pop("natural")
-            return True
-        if feature["properties"]["tags"]["natural"] == "wood" or feature["properties"]["tags"]["natural"] == "tree_group":
-            ror_tobj_file.add_tree(feature, 0.50, 1.40, -20, "tree.mesh", "tree.mesh")
-            feature["properties"]["tags"].pop("natural")
+        if entity.tags["landuse"] == "orchard":
+            ror_tobj_file.add_tree(osm_data, entity, 1.0, 1.0, 15, "tree2.mesh", "tree2.mesh")
+            entity.tags.pop("landuse")
             return True
 
-        if feature["properties"]["tags"]["natural"] == "shingle":
-            ogre_map_surface.draw_sand_feature(feature)
-            feature["properties"]["tags"].pop("natural")
+    if "natural" in entity.tags:
+        if entity.tags["natural"] == "sand" or entity.tags["natural"] == "beach":
+            ogre_map_surface.draw_sand_entity(osm_data, entity)
+            entity.tags.pop("natural")
+            return True
+        if entity.tags["natural"] == "grassland" or entity.tags["natural"] == "scrub":
+            ogre_map_surface.draw_grass_entity(osm_data, entity)
+            ror_tobj_file.add_grass(osm_data, entity, "grass4")
+            entity.tags.pop("natural")
+            return True
+        if entity.tags["natural"] == "wood" or entity.tags["natural"] == "tree_group":
+            ror_tobj_file.add_tree(osm_data, entity, 0.50, 1.40, -20, "tree.mesh", "tree.mesh")
+            entity.tags.pop("natural")
             return True
 
-    if "place" in feature["properties"]["tags"]:
-        if feature["properties"]["tags"]["place"] == "square":
-            ogre_map_surface.draw_asphalt_feature(feature)
+        if entity.tags["natural"] == "shingle":
+            ogre_map_surface.draw_sand_entity(osm_data, entity)
+            entity.tags.pop("natural")
+            return True
+
+    if "place" in entity.tags:
+        if entity.tags["place"] == "square":
+            ogre_map_surface.draw_asphalt_entity(osm_data, entity)
             # square are asphalt by default for now, so just remove surface tags in this case.
-            if "surface" in feature["properties"]["tags"] and feature["properties"]["tags"]["surface"] == "asphalt":
-                feature["properties"]["tags"].pop("surface")
-            feature["properties"]["tags"].pop("place")
+            if "surface" in entity.tags and entity.tags["surface"] == "asphalt":
+                entity.tags.pop("surface")
+            entity.tags.pop("place")
             return True
-        if feature["properties"]["tags"]["place"] == "islet":
-            ogre_map_height.draw_feature(feature, config.data["ground_line"], config.data["water_depth"])
-            feature["properties"]["tags"].pop("place")
+        if entity.tags["place"] == "islet":
+            ogre_map_height.draw_entity(osm_data, entity, config.data["ground_line"], config.data["water_depth"])
+            entity.tags.pop("place")
             return True
         # It doesn't seem a good idea to render this:
-        # if feature["properties"]["tags"]["place"] == "neighbourhood":
-        #    ogre_map_surface.draw_asphalt_feature(feature)
-        #    feature["properties"]["tags"].pop("place")
+        # if entity.tags["place"] == "neighbourhood":
+        #    ogre_map_surface.draw_asphalt_entity(osm_data, entity)
+        #    entity.tags.pop("place")
         #    return True
 
-    if "tourism" in feature["properties"]["tags"]:
-        if feature["properties"]["tags"]["tourism"] == "camp_site":
-            ogre_map_surface.draw_grass_feature(feature)
-            feature["properties"]["tags"].pop("tourism")
+    if "tourism" in entity.tags:
+        if entity.tags["tourism"] == "camp_site":
+            ogre_map_surface.draw_grass_entity(osm_data, entity)
+            entity.tags.pop("tourism")
             return True
-        if feature["properties"]["tags"]["tourism"] == "picnic_site":
-            ogre_map_surface.draw_grass_feature(feature)
-            feature["properties"]["tags"].pop("tourism")
+        if entity.tags["tourism"] == "picnic_site":
+            ogre_map_surface.draw_grass_entity(osm_data, entity)
+            entity.tags.pop("tourism")
             return True
 
-    if "surface" in feature["properties"]["tags"]:
-        if feature["properties"]["tags"]["surface"] == "compacted" and len(feature["properties"]["tags"]) == 1:  # "surface" is the only tag
-            ogre_map_surface.draw_sand_feature(feature)
-            feature["properties"]["tags"].pop("surface")
+    if "surface" in entity.tags:
+        if entity.tags["surface"] == "compacted" and len(entity.tags) == 1:  # "surface" is the only tag
+            ogre_map_surface.draw_sand_entity(osm_data, entity)
+            entity.tags.pop("surface")
             return True
 
     return False

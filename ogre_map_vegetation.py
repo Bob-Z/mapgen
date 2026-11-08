@@ -12,7 +12,7 @@ def init():
     pass
 
 
-def draw_vegetation_map(name, entity, density):
+def draw_vegetation_map(name, osm_data, entity, density):
     if name not in all_image:
         all_image[name] = PIL.Image.new(mode="L", size=(
             int(config.data["map_size"] / config.data["map_precision"]),
@@ -22,7 +22,7 @@ def draw_vegetation_map(name, entity, density):
     image = all_image[name]
     my_draw = PIL.ImageDraw.Draw(image)
 
-    ogre_map_helper.draw_feature(my_draw, entity, outer_height=density, inner_height=0)
+    ogre_map_helper.draw_entity(my_draw, osm_data, entity, outer_height=density, inner_height=0)
 
     return get_file_name(name)
 

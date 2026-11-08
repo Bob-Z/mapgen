@@ -2,12 +2,11 @@ import config
 import bbox
 import helper
 import ogre_map_height
-import osm
 
 
 def process(osm_data):
     print("Generating sea...")
-    build_coastline(osm_data)
+    build_coastline(osm_data.ways)
 
 
 def is_after_clock_wise(coord1, coord2, direction):
@@ -52,80 +51,58 @@ def get_next_direction_clock_wise(direction):
         return "south"
 
 
-def build_coastline(osm_data):
-    all_feature = []
-    for feature in osm_data["features"]:
-        if "natural" in feature["properties"]["tags"]:
-            if feature["properties"]["tags"]["natural"] == "coastline":
-                all_feature.append(feature)
-                feature["properties"]["tags"].pop("natural")
+def build_coastline(way):
+    all_coastline = []
+    for w in way:
+        if "natural" in w.tags:
+            if w.tags["natural"] == "coastline":
+                all_coastline.append(w.nodes)
+                w.tags.pop("natural")
 
-    if len(all_feature) == 0:
+                if "place" in w.tags:
+                    if w.tags["place"] == "islet":
+                        w.tags.pop("place")
+
+    if len(all_coastline) == 0:
         print("No sea")
         return
 
-    print(len(all_feature), "coastlines in OSM data")
-
-    coastline_in_map_qty = 0
-    all_filtered_coastline = []
-    for feature in all_feature:
-        all_all_coord = osm.get_coord_from_feature(feature)
-        for coord in all_all_coord[0]:
-            if helper.is_inside_lon_lat(coord[0], coord[1]) is True:
-                all_filtered_coastline.append(feature)
-                coastline_in_map_qty += 1
-                break
-
-    print(coastline_in_map_qty, "coastlines cross map")
-    if coastline_in_map_qty == 0:
-        print("No sea")
-        return
+    print(len(all_coastline), "coastlines")
 
     # Set the whole map with water. We will draw ground on top of it
     ogre_map_height.set_map_height(config.data["water_depth"])
 
     # Generate complete coastline from fragmented coastlines
     complete_coastline = []
-
-    while len(all_filtered_coastline) > 0:
+    while len(all_coastline) > 0:
         found = True
-        base_coastline = all_filtered_coastline.pop()
+        base_coastline = all_coastline.pop()
         while found is True:
             found = False
             index = 0
-            for coastline in all_filtered_coastline:
-                if coastline["properties"]["nodes"][0] == base_coastline["properties"]["nodes"][-1]:
-                    base_coastline["properties"]["nodes"].pop()
-                    base_coastline["geometry"]["coordinates"].pop()
-                    base_coastline["properties"]["nodes"] = base_coastline["properties"]["nodes"] + \
-                                                            coastline["properties"]["nodes"]
-                    base_coastline["geometry"]["coordinates"] = base_coastline["geometry"]["coordinates"] + \
-                                                                coastline["geometry"][
-                                                                    "coordinates"]
-                    all_filtered_coastline.pop(index)
+            for c in all_coastline:
+                if c[0] == base_coastline[-1]:
+                    base_coastline.pop()
+                    base_coastline = base_coastline + c
+                    all_coastline.pop(index)
                     found = True
                     break
-                if coastline["properties"]["nodes"][-1] == base_coastline["properties"]["nodes"][0]:
-                    coastline["properties"]["nodes"].pop()
-                    coastline["geometry"]["coordinates"].pop()
-                    base_coastline["properties"]["nodes"] = coastline["properties"]["nodes"] + \
-                                                            base_coastline["properties"]["nodes"]
-                    base_coastline["geometry"]["coordinates"] = coastline["geometry"]["coordinates"] + \
-                                                                base_coastline["geometry"][
-                                                                    "coordinates"]
-                    all_filtered_coastline.pop(index)
+                if c[-1] == base_coastline[0]:
+                    c.pop()
+                    base_coastline = c + base_coastline
+                    all_coastline.pop(index)
                     found = True
                     break
 
                 index += 1
 
         base_coastline_xy = []
-        for n in base_coastline["geometry"]["coordinates"]:
-            base_coastline_xy.append((helper.lon_to_x(n[0]), helper.lat_to_y(n[1])))
+        for n in base_coastline:
+            base_coastline_xy.append((helper.lon_to_x(n.lon), helper.lat_to_y(n.lat)))
 
         complete_coastline.append(base_coastline_xy)
 
-    print(str(len(complete_coastline)) + " complete coastlines\n")
+    print(str(len(complete_coastline)) + " complete coastlines")
 
     polygon_list = []
 
