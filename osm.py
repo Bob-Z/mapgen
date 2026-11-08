@@ -34,28 +34,33 @@ def get_data():
 
         query_list = []
         chunk_index = 1
-        for box in bounding_box:
-            print("Get chunk ", chunk_index, "/", len(bounding_box))
-            query_list.append(query_openstreetmap(
+        #for box in bounding_box:
+        #    print("Get chunk ", chunk_index, "/", len(bounding_box))
+        #    query_list.append(query_openstreetmap(
                 # "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
                 # "(node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
                 # "(nwr(" + box + ");<;>;);"
-                "nwr(" + box + ");>>;"
-            ))
-            chunk_index += 1
+        #        "nwr(" + box + ");>>;"
+        #    ))
+        #    chunk_index += 1
 
-        overall_data = {"features": []}
-        for q in query_list:
-            overall_data["features"] = overall_data["features"] + q["features"]
+        overall_data = query_openstreetmap(
+                # "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
+                # "(node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
+                # "(nwr(" + box + ");<;>;);"
+                "nwr(" + bounding_box[0] + ");>>;"
+            )
+        #for q in query_list:
+        #    overall_data = overall_data + q
 
         # FIXME: Find the right query to have both coastlines and all other data in one request
-        #print("Requesting OpenStreetMap coastlines")
-        #coastline_data = query(
-            # "node(" + max_bounding_box + ");<;>;")
+        # print("Requesting OpenStreetMap coastlines")
+        # coastline_data = query(
+        # "node(" + max_bounding_box + ");<;>;")
         #    "nwr[\"natural\"=\"coastline\"](" + max_bounding_box + ");<;>;")
 
-        #respond = {"features": overall_data["features"] + coastline_data["features"]}
-        respond = {"features": overall_data["features"]}
+        # respond = {"features": overall_data["features"] + coastline_data["features"]}
+        respond = overall_data
 
         print("Writing OpenStreetMap cache file " + cache_file_path + "\n")
         with open(cache_file_path, 'wb') as file:

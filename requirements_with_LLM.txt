@@ -1,7 +1,7 @@
+requests
 numpy
 pillow
 bmi-topography
-overpass
 wikidata
 pyWikiCommons
 shapely
