@@ -6,7 +6,7 @@ import ogre_map_height
 
 def process(osm_data):
     print("Generating sea...")
-    build_coastline(osm_data.ways)
+    build_coastline(osm_data["ways"])
 
 
 def is_after_clock_wise(coord1, coord2, direction):
@@ -54,14 +54,14 @@ def get_next_direction_clock_wise(direction):
 def build_coastline(way):
     all_coastline = []
     for w in way:
-        if "natural" in w.tags:
-            if w.tags["natural"] == "coastline":
-                all_coastline.append(w.nodes)
-                w.tags.pop("natural")
+        if "natural" in w["tags"]:
+            if w["tags"]["natural"] == "coastline":
+                all_coastline.append(w["nodes"])
+                w["tags"].pop("natural")
 
-                if "place" in w.tags:
-                    if w.tags["place"] == "islet":
-                        w.tags.pop("place")
+                if "place" in w["tags"]:
+                    if w["tags"]["place"] == "islet":
+                        w["tags"].pop("place")
 
     if len(all_coastline) == 0:
         print("No sea")
@@ -98,7 +98,7 @@ def build_coastline(way):
 
         base_coastline_xy = []
         for n in base_coastline:
-            base_coastline_xy.append((helper.lon_to_x(n.lon), helper.lat_to_y(n.lat)))
+            base_coastline_xy.append((helper.lon_to_x(n["lon"]), helper.lat_to_y(n["lat"])))
 
         complete_coastline.append(base_coastline_xy)
 

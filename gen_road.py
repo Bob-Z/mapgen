@@ -8,6 +8,7 @@ import topography
 
 all_road_data = []
 all_road_coord = []
+all_road_str = []
 index = 1
 
 
@@ -16,66 +17,66 @@ def process(entity, osm_data=None):
         if osm_data is None:
             process_way(entity)
         else:
-            process_relation(entity, osm_data)
+            process_relation(entity)
 
 
-def process_relation(relation, osm_data):
-    for member in relation.members:
-        way = osm.get_way_by_id(osm_data, member.ref)
+def process_relation(relation):
+    for member in relation["members"]:
+        way = osm.get_way_by_id(member["ref"])
         if way is not None:
-            if "type" in relation.tags and relation.tags["type"] == "circuit":
-                if member.role != "pit_lane" and member.role != "pitlane":
-                    if "name:en" in relation.tags:
-                        circuit_name = relation.tags["name:en"]
-                    elif "name" in relation.tags:
-                        circuit_name = relation.tags["name"]
+            if "type" in relation["tags"] and relation["tags"]["type"] == "circuit":
+                if member["role"] != "pit_lane" and member["role"] != "pitlane":
+                    if "name:en" in relation["tags"]:
+                        circuit_name = relation["tags"]["name:en"]
+                    elif "name" in relation["tags"]:
+                        circuit_name = relation["tags"]["name"]
                     else:
                         global index
                         circuit_name = "circuit " + str(index)
                         index += 1
 
-                    old_tag = way.tags
-                    way.tags["name"] = circuit_name
-                    way.tags["name:en"] = circuit_name
-                    way.tags["highway"] = "raceway"
+                    old_tag = way["tags"]
+                    way["tags"]["name"] = circuit_name
+                    way["tags"]["name:en"] = circuit_name
+                    way["tags"]["highway"] = "raceway"
 
                     if append_road(way, link_road=True) is True:
-                        way.tags["mapgen"] = "used_by_relation"
-                        relation.tags["mapgen"] = "used_by_relation"
+                        way["tags"]["mapgen"] = "used_by_relation"
+                        relation["tags"]["mapgen"] = "used_by_relation"
 
-                    way.tags = old_tag
+                    way["tags"] = old_tag
 
 
 def process_way(way):
-    if "mapgen" in way.tags and way.tags["mapgen"] == "used_by_relation":
+    if "mapgen" in way["tags"] and way["tags"]["mapgen"] == "used_by_relation":
         return
     append_road(way)
 
 
 # Return True if a road has been appended
 def append_road(way, link_road=False):
-    road_config = generate_road_config(way.tags)
+    road_config = generate_road_config(way["tags"])
     if road_config is None:
         return False
     else:
         name = ""
-        if "name:en" in way.tags:
-            name = way.tags["name:en"]
-        elif "name" in way.tags:
-            name = way.tags["name"]
+        if "name:en" in way["tags"]:
+            name = way["tags"]["name:en"]
+        elif "name" in way["tags"]:
+            name = way["tags"]["name"]
 
         if (link_road is True or road_config["need_waypoints"] is True) and name != "":
             # append roads with the same name
             already_exist = False
             for my_road_data in all_road_data:
                 if my_road_data["name"] == name:
-                    my_road_data["nodes"].append(way.nodes)
+                    my_road_data["nodes"].append(way["nodes"])
                     already_exist = True
                     break
             if already_exist is False:
-                all_road_data.append({"name": name, "road_config": road_config, "tags": way.tags, "nodes": [way.nodes]})
+                all_road_data.append({"name": name, "road_config": road_config, "tags": way["tags"], "nodes": [way["nodes"]]})
         else:
-            all_road_data.append({"name": name, "road_config": road_config, "tags": way.tags, "nodes": [way.nodes]})
+            all_road_data.append({"name": name, "road_config": road_config, "tags": way["tags"], "nodes": [way["nodes"]]})
 
         return True
 
@@ -238,9 +239,9 @@ def generate_road_from_config(road_config, nodes):
     y = 0.0
 
     for node in nodes:
-        x = helper.lon_to_x(node.lon)
-        y = helper.lat_to_y(node.lat)
-        z = topography.get_z(node.lon, node.lat)
+        x = helper.lon_to_x(node["lon"])
+        y = helper.lat_to_y(node["lat"])
+        z = topography.get_z(node["lon"], node["lat"])
         z += road_config["road_height"]
 
         if len(x_history) == 0:
@@ -276,7 +277,7 @@ def generate_road_from_config(road_config, nodes):
 
     # Last road, angle between previous point and last point
     angle = math.degrees(math.atan2(y_history[0] - y, x - x_history[0]))
-    z = topography.get_z(nodes[-1].lon, nodes[-1].lat)
+    z = topography.get_z(nodes[-1]["lon"], nodes[-1]["lat"])
     z += road_config["road_height"]
     add_road(road_data, x_history[1], y_history[1], z, 0.0, 0.0, angle, road_config["road_width"],
              road_config["border_width"],
@@ -293,19 +294,19 @@ def add_road(my_road_data, x, y, z, rx, ry, rz, road_width, border_width, border
 
 
 def add_traffic_signals(node, road_x, road_y, angle, road_width):
-    if "highway" in node.tags:
-        if node.tags["highway"] == "traffic_signals":
-            node.tags.pop("highway")
+    if "highway" in node["tags"]:
+        if node["tags"]["highway"] == "traffic_signals":
+            node["tags"].pop("highway")
             angle -= 90
-            if "traffic_signals:direction" in node.tags:
-                if node.tags["traffic_signals:direction"] == "backward":
+            if "traffic_signals:direction" in node["tags"]:
+                if node["tags"]["traffic_signals:direction"] == "backward":
                     angle += 90
-                node.tags.pop("traffic_signals:direction")
+                node["tags"].pop("traffic_signals:direction")
 
             signal_x = road_x + (math.cos(math.radians(angle)) * road_width / 2.0)
             signal_y = road_y - (math.sin(math.radians(angle)) * road_width / 2.0)
 
-            ror_tobj_file.add_object(signal_x, signal_y, topography.get_z(node.lon, node.lat), 0.0, 0.0, angle,
+            ror_tobj_file.add_object(signal_x, signal_y, topography.get_z(node["lon"], node["lat"]), 0.0, 0.0, angle,
                                      "trafficlightsequence1")
 
 
@@ -347,7 +348,9 @@ def filter_inside_map_road(all_coord):
     current_road = []
     last_coord = []
     for coord in all_coord:
-        if helper.is_inside_lon_lat(coord[0], coord[1]):
+        if len(coord) == 0:
+            continue
+        if helper.is_inside_lon_lat(coord["lon"], coord["lat"]):
             is_inside = True
             if len(last_coord) > 0:
                 current_road.append(last_coord.copy())

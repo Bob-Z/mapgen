@@ -150,8 +150,8 @@ void fill_waypoint()\n\
         index = 0
         for data in road_data:
             script_string = script_string + "       all_waypoints[" + str(road_created_qty) + "][" + str(index) + \
-                            "] = vector3(" + str(helper.lon_to_x(data[0])) + ",0," + str(
-                helper.lat_to_y(data[1])) + ");\n"
+                            "] = vector3(" + str(helper.lon_to_x(data["lon"])) + ",0," + str(
+                helper.lat_to_y(data["lat"])) + ");\n"
             index += 1
         road_created_qty += 1
 
@@ -180,22 +180,22 @@ def generate_road_for_bots():
         while retry is True:
             retry = False
             for coord in temp_road_coord:
-                if coord[0][0] == current_coord[0][0] and coord[0][1] == current_coord[0][1]:
+                if coord[0]["lon"] == current_coord[0]["lon"] and coord[0]["lat"] == current_coord[0]["lat"]:
                     current_coord = current_coord[::-1] + coord[1:]
                     temp_road_coord.remove(coord)
                     retry = True
                     break
-                elif coord[0][0] == current_coord[-1][0] and coord[0][1] == current_coord[-1][1]:
+                elif coord[0]["lon"] == current_coord[-1]["lon"] and coord[0]["lat"] == current_coord[-1]["lat"]:
                     current_coord = current_coord[1:] + coord
                     temp_road_coord.remove(coord)
                     retry = True
                     break
-                elif coord[-1][0] == current_coord[0][0] and coord[-1][1] == current_coord[0][1]:
+                elif coord[-1]["lon"] == current_coord[0]["lon"] and coord[-1]["lat"] == current_coord[0]["lat"]:
                     current_coord = coord + current_coord[1:]
                     temp_road_coord.remove(coord)
                     retry = True
                     break
-                elif coord[-1][0] == current_coord[-1][0] and coord[-1][1] == current_coord[-1][1]:
+                elif coord[-1]["lon"] == current_coord[-1]["lon"] and coord[-1]["lat"] == current_coord[-1]["lat"]:
                     current_coord = current_coord + coord[:-1][::-1]
                     temp_road_coord.remove(coord)
                     retry = True

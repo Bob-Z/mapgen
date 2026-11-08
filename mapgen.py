@@ -69,13 +69,13 @@ def my_main():
 
     topography.get(api_key)
 
-    osm_data = None
+    elements = None
 
     retry_timeout = 30.0
 
-    while osm_data is None:
-        osm_data = osm.get_data()
-        if osm_data is None:
+    while elements is None:
+        elements = osm.get_data()
+        if elements is None:
             print("Can't download OSM data. Waiting for " + str(retry_timeout) + " seconds before retry. You may also try a smaller map.")
             time.sleep(retry_timeout)
 
@@ -86,35 +86,35 @@ def my_main():
         json_file.write(json_string)
     ror_zip_file.add_to_zip_file_list("config.json")
 
-    osm.dump_result_to_file(osm_data)
+    osm.dump_result_to_file(elements)
 
     if config.data["generate_statistics"] is True:
-        nodes_original = copy.deepcopy(osm_data.nodes)
-        ways_original = copy.deepcopy(osm_data.ways)
-        relations_original = copy.deepcopy(osm_data.relations)
+        nodes_original = copy.deepcopy(elements["nodes"])
+        ways_original = copy.deepcopy(elements["ways"])
+        relations_original = copy.deepcopy(elements["relations"])
 
-    osm_tags.filter_ignored(osm_data.nodes)
-    osm_tags.filter_ignored(osm_data.ways)
-    osm_tags.filter_ignored(osm_data.relations)
+    osm_tags.filter_ignored(elements["nodes"])
+    osm_tags.filter_ignored(elements["ways"])
+    osm_tags.filter_ignored(elements["relations"])
 
-    gen_sea.process(osm_data)
+    gen_sea.process(elements)
 
     if config.data["use_wikidata"] is True:
         print("Searching for 3D model in OSM data...")
-        for rel in osm_data.relations:
-            wiki.get_data(rel, osm_data)
-        for way in osm_data.ways:
-            wiki.get_data(way, osm_data)
+        for rel in elements["relations"]:
+            wiki.get_data(rel, elements)
+        for way in elements["ways"]:
+            wiki.get_data(way, elements)
 
     print("Processing nodes...")
-    node_total = len(osm_data.nodes)
+    node_total = len(elements["nodes"])
     node_qty = 0
-    for node in osm_data.nodes:
+    for node in elements["nodes"]:
         node_qty += 1
         if node_qty % 100 == 0:
             print("nodes: ", node_qty, "/", node_total, "\r", end="")
 
-        if len(node.tags) == 0:
+        if len(node["tags"]) == 0:
             continue
 
         if osm_tags.is_entity_ignored(node):
@@ -124,59 +124,59 @@ def my_main():
     print("nodes: ", node_qty, "/", node_total)
 
     print("Processing relations...")
-    rel_total = len(osm_data.relations)
+    rel_total = len(elements["relations"])
     rel_qty = 0
-    for rel in osm_data.relations:
+    for rel in elements["relations"]:
         rel_qty += 1
         if rel_qty % 10 == 0:
             print("first pass relations: ", rel_qty, "/", rel_total, "\r", end="")
 
-        if len(rel.tags) == 0:
+        if len(rel["tags"]) == 0:
             continue
 
         if osm_tags.is_entity_ignored(rel):
             continue
 
-        if gen_building.process(rel, osm_data, pass_index=0):
+        if gen_building.process(rel, elements, pass_index=0):
             continue
-        if gen_shelter.process(rel, osm_data):
+        if gen_shelter.process(rel, elements):
             continue
-        if gen_land.process(rel, osm_data):
+        if gen_land.process(rel, elements):
             continue
-        if gen_water.process(rel, osm_data):
+        if gen_water.process(rel, elements):
             continue
-        if gen_road.process(rel, osm_data):
+        if gen_road.process(rel, elements):
             continue
 
     # Second pass
-    rel_total = len(osm_data.relations)
+    rel_total = len(elements["relations"])
     rel_qty = 0
-    for rel in osm_data.relations:
+    for rel in elements["relations"]:
         rel_qty += 1
         if rel_qty % 10 == 0:
             print("second pass relations: ", rel_qty, "/", rel_total, "\r", end="")
 
-        if len(rel.tags) == 0:
+        if len(rel["tags"]) == 0:
             continue
 
         if osm_tags.is_entity_ignored(rel):
             continue
 
-        if gen_building.process(rel, osm_data, pass_index=1):
+        if gen_building.process(rel, elements, pass_index=1):
             continue
 
     print("relations: ", rel_qty, "/", rel_total)
 
     print("Processing ways...")
     # First pass
-    way_total = len(osm_data.ways)
+    way_total = len(elements["ways"])
     way_qty = 0
-    for way in osm_data.ways:
+    for way in elements["ways"]:
         way_qty += 1
         if way_qty % 10 == 0:
             print("first pass ways: ", way_qty, "/", way_total, "\r", end="")
 
-        if len(way.tags) == 0:
+        if len(way["tags"]) == 0:
             continue
 
         if osm_tags.is_entity_ignored(way):
@@ -196,14 +196,14 @@ def my_main():
             continue
 
     # second pass
-    way_total = len(osm_data.ways)
+    way_total = len(elements["ways"])
     way_qty = 0
-    for way in osm_data.ways:
+    for way in elements["ways"]:
         way_qty += 1
         if way_qty % 10 == 0:
             print("second pass ways: ", way_qty, "/", way_total, "\r", end="")
 
-        if len(way.tags) == 0:
+        if len(way["tags"]) == 0:
             continue
 
         if osm_tags.is_entity_ignored(way):
@@ -235,9 +235,9 @@ def my_main():
     ror_zip_file.create_zip_file()
 
     if config.data["generate_statistics"] is True:
-        osm_tags.show_stat("nodes", nodes_original, osm_data.nodes)
-        osm_tags.show_stat("ways", ways_original, osm_data.ways)
-        osm_tags.show_stat("relations", relations_original, osm_data.relations)
+        osm_tags.show_stat("nodes", nodes_original, elements["nodes"])
+        osm_tags.show_stat("ways", ways_original, elements["ways"])
+        osm_tags.show_stat("relations", relations_original, elements["relations"])
 
 if __name__ == '__main__':
     #freeze_support()

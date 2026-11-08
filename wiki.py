@@ -51,16 +51,16 @@ def init():
 def get_data(osm_data):
     found = False
 
-    if "wikidata" in entity.tags:
+    if "wikidata" in entity["tags"]:
         global wikidata_found
         global wikidata_id_found
 
-        if entity.tags["wikidata"] in wikidata_id_found:
-            print(entity.tags["wikidata"], "already found, skipping")
+        if entity["tags"]["wikidata"] in wikidata_id_found:
+            print(entity["tags"]["wikidata"], "already found, skipping")
             return False
 
         wikidata_found += 1
-        cache_wikidata_file_path = config.data["cache_path"] + "/wikidata_" + entity.tags["wikidata"]
+        cache_wikidata_file_path = config.data["cache_path"] + "/wikidata_" + entity["tags"]["wikidata"]
         if os.path.isfile(cache_wikidata_file_path):
             with open(cache_wikidata_file_path, "rb") as pickle_file:
                 wiki = pickle.load(pickle_file)
@@ -68,13 +68,13 @@ def get_data(osm_data):
             wikidata_read_from_cache += 1
         else:
             try:
-                wiki = wikidata_client.get(entity.tags["wikidata"], load=True)
+                wiki = wikidata_client.get(entity["tags"]["wikidata"], load=True)
                 with open(cache_wikidata_file_path, "wb") as pickle_file:
                     pickle.dump(wiki, pickle_file)
                     global wikidata_downloaded
                     wikidata_downloaded += 1
             except urllib.error.HTTPError as e:
-                print("Cannot download wikidata page ", entity.tags["wikidata"], ":", e,
+                print("Cannot download wikidata page ", entity["tags"]["wikidata"], ":", e,
                       ". Try to update wikidata package.")
                 return False
 
@@ -134,7 +134,7 @@ def get_data(osm_data):
             else:
                 entity_height = osm.get_height(entity)[0]
                 if entity_height is None:
-                    print("Unable to find height of ", entity.tags["wikidata"])
+                    print("Unable to find height of ", entity["tags"]["wikidata"])
                     return False
 
             factor = entity_height / mesh_height
@@ -142,16 +142,16 @@ def get_data(osm_data):
             ror_odef_file.create_file(short_name, size_x=factor, size_y=factor, size_z=factor)
 
             nodes = None
-            if hasattr(entity, "nodes"):
-                nodes = entity.nodes
+            if "nodes" in entity:
+                nodes = entity["nodes"]
             else:
-                for member in entity.members:
-                    way = osm.get_way_by_id(osm_data, member.ref)
+                for member in entity["members"]:
+                    way = osm.get_way_by_id(osm_data, member["ref"])
                     if way is not None:
-                        nodes = way.nodes
+                        nodes = way["nodes"]
 
             if nodes is None:
-                print("Can't find nodes for ", entity.tags["wikidata"])
+                print("Can't find nodes for ", entity["tags"]["wikidata"])
                 return False
 
             polygon = helper.node_to_polygon(nodes)
@@ -164,16 +164,16 @@ def get_data(osm_data):
             if config.data["ignore_osm_data_crossing_wikidata_model"] is True:
                 wikidata_3D_model_shape.append(helper.node_to_polygon(nodes))
 
-            wikidata_id_found.append(entity.tags["wikidata"])
+            wikidata_id_found.append(entity["tags"]["wikidata"])
             global wikidata_with_3d
             wikidata_with_3d += 1
             found = True
 
     # If entity is a relation, try to find wikidata in each ways
     if found is False and osm_data is not None:
-        if hasattr(entity, 'members'):
-            for member in entity.members:
-                way = osm.get_way_by_id(osm_data, member.ref)
+        if 'members' in entity:
+            for member in entity["members"]:
+                way = osm.get_way_by_id(osm_data, member["ref"])
                 if way is not None:
                     if get_data(way) is True:
                         found = True

@@ -159,8 +159,8 @@ def node_to_map_coord(all_node):
         all_node.pop()
 
     for node in all_node:
-        x = lon_to_x(node.lon) / config.data["map_precision"]
-        y = lat_to_y(node.lat) / config.data["map_precision"]
+        x = lon_to_x(node["lon"]) / config.data["map_precision"]
+        y = lat_to_y(node["lat"]) / config.data["map_precision"]
 
         all_coord.append(x)
         all_coord.append(y)
@@ -176,8 +176,8 @@ def node_to_map_coord_cartesian(all_node):
         all_node.pop()
 
     for node in all_node:
-        x = lon_to_x(node.lon) / config.data["map_precision"]
-        y = -lat_to_y(node.lat) / config.data["map_precision"]
+        x = lon_to_x(node["lon"]) / config.data["map_precision"]
+        y = -lat_to_y(node["lat"]) / config.data["map_precision"]
 
         all_coord.append((x, y))
 
@@ -189,7 +189,7 @@ def node_to_polygon(nodes):
         return None
     poly = []
     for n in nodes:
-        poly.append((n.lon, n.lat))
+        poly.append((n["lon"], n["lat"]))
     return Polygon(poly)
 
 def map_coord_to_polygon(map_coord):

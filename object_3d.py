@@ -36,7 +36,7 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
     if topography.is_enabled():
         base_z = 0.0
         for node in nodes:
-            node_z = topography.get_z(node.lon, node.lat)
+            node_z = topography.get_z(node["lon"], node["lat"])
             if node_z > base_z:
                 base_z = node_z
 
@@ -65,7 +65,7 @@ def create_all_object_file(nodes, height=config.data["building_level_height"], z
     obj_name = "obj" + str(object_index)
 
     if len(nodes) > 1:
-        if hasattr(nodes[0], 'lat'):
+        if 'lat' in nodes[0]:
             center_x, center_y, width, length, vertex = get_info_from_input_data(nodes, scale=scale, is_node=True,
                                                                                  keep_all_nodes=is_barrier)
         else:
@@ -627,8 +627,8 @@ def get_info_from_input_data(nodes, scale=1.0, is_node=True, keep_all_nodes=Fals
 
     for node in nodes:
         if is_node is True:
-            x = helper.lon_to_x(node.lon)
-            y = helper.lat_to_y(node.lat)
+            x = helper.lon_to_x(node["lon"])
+            y = helper.lat_to_y(node["lat"])
         else:
             x = node[0]
             y = node[1]
@@ -740,8 +740,8 @@ def create_additional_vertex_for_barrier(vertex, half_barrier, barrier_width):
 
 
 def create_vertex_for_pillar(node):
-    x = helper.lon_to_x(node.lon)
-    y = helper.lat_to_y(node.lat)
+    x = helper.lon_to_x(node["lon"])
+    y = helper.lat_to_y(node["lat"])
 
     length = config.data["barrier_width"] / 2.0
 
