@@ -1,4 +1,3 @@
-import overpass
 import sys
 import bbox
 import time
@@ -6,15 +5,15 @@ import os
 import pickle
 import config
 import math
-import urllib
-import http
+import requests
 
 
 def get_data():
     max_bounding_box = str(bbox.coord["south"]) + "," + str(bbox.coord["west"]) + "," + str(
         bbox.coord["north"]) + "," + str(bbox.coord["east"])
 
-    cache_file_path = config.data["cache_path"] + "/" + max_bounding_box + "," + str(config.data["map_size"]) + "," + str(config.data["osm_chunk_qty"])
+    cache_file_path = config.data["cache_path"] + "/" + max_bounding_box + "," + str(
+        config.data["map_size"]) + "," + str(config.data["osm_chunk_qty"])
     if os.path.isfile(cache_file_path):
         print("Reading OpenStreetMap cache file " + cache_file_path + "\n")
         with open(cache_file_path, 'rb') as file:
@@ -37,10 +36,11 @@ def get_data():
         chunk_index = 1
         for box in bounding_box:
             print("Get chunk ", chunk_index, "/", len(bounding_box))
-            query_list.append(query(
-                #"(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
-                #"(node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
-                "(nwr(" + box + ");<;>;);"
+            query_list.append(query_openstreetmap(
+                # "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
+                # "(node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
+                # "(nwr(" + box + ");<;>;);"
+                "nwr(" + box + ");>>;"
             ))
             chunk_index += 1
 
@@ -49,12 +49,13 @@ def get_data():
             overall_data["features"] = overall_data["features"] + q["features"]
 
         # FIXME: Find the right query to have both coastlines and all other data in one request
-        print("Requesting OpenStreetMap coastlines")
-        coastline_data = query(
+        #print("Requesting OpenStreetMap coastlines")
+        #coastline_data = query(
             # "node(" + max_bounding_box + ");<;>;")
-            "nwr[\"natural\"=\"coastline\"](" + max_bounding_box + ");<;>;")
+        #    "nwr[\"natural\"=\"coastline\"](" + max_bounding_box + ");<;>;")
 
-        respond = {"features": overall_data["features"] + coastline_data["features"]}
+        #respond = {"features": overall_data["features"] + coastline_data["features"]}
+        respond = {"features": overall_data["features"]}
 
         print("Writing OpenStreetMap cache file " + cache_file_path + "\n")
         with open(cache_file_path, 'wb') as file:
@@ -288,39 +289,46 @@ def get_coord_from_feature(feature):
     return all_all_coord
 
 
-def query(query_text):
-    start_time = time.time()
-    overpy_api = overpass.API(user_agent="mapgen", timeout=(25, 900))  # (connection timeout, read timeout)
+def query_openstreetmap(query):
+    # Overpass API endpoint
+    overpass_url = "http://overpass-api.de/api/interpreter"
 
-    respond = None
-    while respond is None:
-        try:
-            respond = overpy_api.get(query_text)
-        except overpass.ServerLoadError as e:
-            print("OSM server is under load. Waiting for 5 seconds")
-            time.sleep(5.0)
-            print("Retrying")
-        except overpass.errors.TimeoutError as e:
-            print("OSM server timeout. Waiting for 15 seconds")
-            time.sleep(15.0)
-            print("Retrying")
-        except overpass.errors.MultipleRequestsError as e:
-            print("OSM server Multiple request error. Waiting for 60 seconds")
-            time.sleep(60.0)
-            print("Retrying")
-        except overpass.errors.UnknownOverpassError as e:
-            print("OSM server unknown error. Waiting for 2 seconds")
+    # Define the Overpass QL query
+    # This example searches for nodes tagged with 'amenity=cafe'
+    # inside a specified bounding box (min_lat, min_lon, max_lat, max_lon)
+    # Example bounding box: central Paris
+    # [out:json][maxsize:1073741824];
+    overpass_query = """
+    [out:json];
+    (""" + query + """
+    );
+    out body;
+    """
+
+    print("Sending request to Overpass API...")
+
+    # Send the POST request with the query
+    headers = {
+        'User-Agent': 'mapgen',
+    }
+
+    data = None
+    while data is None:
+        start_time = time.time()
+        response = requests.post(overpass_url, data={"data": overpass_query}, headers=headers)
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            end_time = time.time()
+            data = response.json()
+            print(f"Success! Found {len(data.get('elements', []))} elements in {str(end_time - start_time)} seconds\n")
+            return data
+        else:
+            print(
+                f"Error: Received status code {response.status_code}"
+                f" - {response.text}"
+                f"Waiting for 2 seconds"
+            )
             time.sleep(2.0)
             print("Retrying")
-        except urllib.error.URLError as e:
-            print("OSM server error: ", e)
-            return None
-        except http.client.RemoteDisconnected as e:
-            print("OSM server error: ", e)
-            return None
-
-    end_time = time.time()
-
-    print("Done in " + str(end_time - start_time) + " seconds\n")
-
-    return respond
+    return None
