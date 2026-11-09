@@ -28,7 +28,8 @@ import ror_as_file
 import json
 import wiki
 import os
-from multiprocessing import Process,freeze_support,set_start_method
+from multiprocessing import Process, freeze_support, set_start_method
+
 
 def my_main():
     try:
@@ -69,15 +70,7 @@ def my_main():
 
     topography.get(api_key)
 
-    elements = None
-
-    retry_timeout = 30.0
-
-    while elements is None:
-        elements = osm.get_data()
-        if elements is None:
-            print("Can't download OSM data. Waiting for " + str(retry_timeout) + " seconds before retry. You may also try a smaller map.")
-            time.sleep(retry_timeout)
+    elements = osm.get_data()
 
     ror_zip_file.create_default_file(api_key)
 
@@ -85,8 +78,6 @@ def my_main():
     with open(config.data["work_path"] + "config.json", "w") as json_file:
         json_file.write(json_string)
     ror_zip_file.add_to_zip_file_list("config.json")
-
-    osm.dump_result_to_file(elements)
 
     if config.data["generate_statistics"] is True:
         nodes_original = copy.deepcopy(elements["nodes"])
@@ -102,9 +93,9 @@ def my_main():
     if config.data["use_wikidata"] is True:
         print("Searching for 3D model in OSM data...")
         for rel in elements["relations"]:
-            wiki.get_data(rel, elements)
+            wiki.get_data(rel)
         for way in elements["ways"]:
-            wiki.get_data(way, elements)
+            wiki.get_data(way)
 
     print("Processing nodes...")
     node_total = len(elements["nodes"])
@@ -229,7 +220,7 @@ def my_main():
     ogre_material.create_file()
     ogre_map_height.create_file()
     ogre_map_surface.create_file()
-    ogre_map_vegetation.create_file(gen_road.get_road_coord()) # must be called after gen_road.write_all_roads()
+    ogre_map_vegetation.create_file(gen_road.get_road_coord())  # must be called after gen_road.write_all_roads()
 
     ror_zip_file.write_default_file()
     ror_zip_file.create_zip_file()
@@ -239,9 +230,10 @@ def my_main():
         osm_tags.show_stat("ways", ways_original, elements["ways"])
         osm_tags.show_stat("relations", relations_original, elements["relations"])
 
+
 if __name__ == '__main__':
-    #freeze_support()
-    #set_start_method('spawn')
-    #p = Process(target=my_main)
-    #p.start()
+    # freeze_support()
+    # set_start_method('spawn')
+    # p = Process(target=my_main)
+    # p.start()
     my_main()

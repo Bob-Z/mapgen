@@ -48,7 +48,7 @@ def init():
 
 
 # Return True if successfully got data
-def get_data(osm_data):
+def get_data(entity):
     found = False
 
     if "wikidata" in entity["tags"]:
@@ -112,7 +112,7 @@ def get_data(osm_data):
 
             xml_file_path = config.data["work_path"] + short_name + ".mesh.xml"
 
-            texture = ogre_material.create_material(random.choice(config.data["default_wall_texture"]), feature["properties"]["tags"],short_name + ".material")
+            texture = ogre_material.create_material(random.choice(config.data["default_wall_texture"]), entity["tags"],short_name + ".material")
             if texture is not None:
                 tree = ET.parse(xml_file_path)
                 for child in tree.getroot().findall(".//submesh"):
@@ -146,7 +146,7 @@ def get_data(osm_data):
                 nodes = entity["nodes"]
             else:
                 for member in entity["members"]:
-                    way = osm.get_way_by_id(osm_data, member["ref"])
+                    way = osm.get_way_by_id(member["ref"])
                     if way is not None:
                         nodes = way["nodes"]
 
@@ -170,10 +170,10 @@ def get_data(osm_data):
             found = True
 
     # If entity is a relation, try to find wikidata in each ways
-    if found is False and osm_data is not None:
+    if found is False and entity["type"] == "relation":
         if 'members' in entity:
             for member in entity["members"]:
-                way = osm.get_way_by_id(osm_data, member["ref"])
+                way = osm.get_way_by_id(member["ref"])
                 if way is not None:
                     if get_data(way) is True:
                         found = True

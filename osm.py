@@ -1,139 +1,68 @@
 import sys
-import bbox
 import time
-import os
-import pickle
+import bbox
+import cache
 import config
 import math
 import requests
 
 elements = {}
 
+
 def get_data():
     global elements
 
-    bounding_box = str(bbox.coord["south"]) + "," + str(bbox.coord["west"]) + "," + str(
-        bbox.coord["north"]) + "," + str(bbox.coord["east"])
+    elements = cache.load_osm_elements()
 
-    cache_file_path = config.data["cache_path"] + "/" + bounding_box
-    if os.path.isfile(cache_file_path):
-        print("Reading OpenStreetMap cache file " + cache_file_path + "\n")
-        with open(cache_file_path, 'rb') as file:
-            elements = pickle.load(file)
-    else:
-        print("Requesting OpenStreetMap overall data")
-        print("Chunk quantity is", config.data["osm_chunk_qty"], ".")
+    if elements is None:
+        print("Requesting OpenStreetMap elements")
 
-        bounding_box = []
-
-        dist_x = (bbox.coord["west"] - bbox.coord["east"]) / config.data["osm_chunk_qty"]
-        dist_y = (bbox.coord["south"] - bbox.coord["north"]) / config.data["osm_chunk_qty"]
-        for x in range(config.data["osm_chunk_qty"]):
-            for y in range(config.data["osm_chunk_qty"]):
-                bounding_box.append(str(bbox.coord["south"] - (dist_y * y)) + "," + str(
-                    bbox.coord["west"] - (dist_x * x)) + "," + str(
-                    bbox.coord["south"] - (dist_y * (y + 1))) + "," + str(bbox.coord["west"] - (dist_x * (x + 1))))
-
-        query_list = []
-        chunk_index = 1
-        # for box in bounding_box:
-        #    print("Get chunk ", chunk_index, "/", len(bounding_box))
-        #    query_list.append(query_openstreetmap(
-        # "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
-        # "(node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
-        # "(nwr(" + box + ");<;>;);"
-        #        "nwr(" + box + ");>>;"
-        #    ))
-        #    chunk_index += 1
-
-        overall_data = query_openstreetmap(
-            # "(>>;node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
-            # "(node(" + bounding_box + ");>>;way(" + bounding_box + ");>>;rel(" + bounding_box + ");>>;nwr(" + bounding_box + "););"
-            # "(nwr(" + box + ");<;>;);"
-            "nwr(" + bounding_box[0] + ");>>;"
+        response = query_openstreetmap(
+            "nwr(" + bbox.bounding_box + ");>>;"
         )
-        # for q in query_list:
-        #    overall_data = overall_data + q
 
-        # FIXME: Find the right query to have both coastlines and all other data in one request
-        # print("Requesting OpenStreetMap coastlines")
-        # coastline_data = query(
-        # "node(" + max_bounding_box + ");<;>;")
-        #    "nwr[\"natural\"=\"coastline\"](" + max_bounding_box + ");<;>;")
+        prepare_elements(response)
 
-        # respond = {"features": overall_data["features"] + coastline_data["features"]}
-        elements = {"nodes": [], "ways": [], "relations": []}
+        cache.save_osm_elements(elements)
 
-        for element in overall_data["elements"]:
-            if element["type"] == "node":
-                if "tags" not in element:
-                    element["tags"] = {}
-                elements["nodes"].append(element)
-            elif element["type"] == "way":
-                if "tags" not in element:
-                    element["tags"] = {}
-                nodes_value = []
-                for node in element["nodes"]:
-                    nodes_value.append(get_node_by_id(node))
-                element["nodes"] = nodes_value
-                elements["ways"].append(element)
-            if element["type"] == "relation":
-                if "tags" not in element:
-                    element["tags"] = {}
-                elements["relations"].append(element)
-
-        print("Writing OpenStreetMap cache file " + cache_file_path + "\n")
-        with open(cache_file_path, 'wb') as file:
-            pickle.dump(elements, file)
-
-    if has_tag(elements, "natural", "coastline") is True:
-        print("This is a water map\n")
+    dump_result_to_file()
 
     return elements
 
 
-def dump_result_to_file(elements):
+def dump_result_to_file():
     original_stdout = sys.stdout
 
-    print("Dumping OSM data in " + config.data["log_path"] + "osm_request.txt")
-    with open(config.data["log_path"] + "osm_request.txt", "w") as result_file:
+    print("Dumping OSM elements in " + config.data["log_path"])
+    with open(config.data["log_path"] + "osm_elements.txt", "w") as result_file:
         sys.stdout = result_file
+        for node in elements["nodes"]:
+            print(node)
+        for way in elements["ways"]:
+            print(way)
+        for relation in elements["relations"]:
+            print(relation)
+            for member in relation["members"]:
+                print(member)
 
+    with open(config.data["log_path"] + "osm_elements_nodes.txt", "w") as result_file:
+        sys.stdout = result_file
         for node in elements["nodes"]:
             print(node)
 
+    with open(config.data["log_path"] + "osm_elements_ways.txt", "w") as result_file:
+        sys.stdout = result_file
         for way in elements["ways"]:
             print(way)
 
+    with open(config.data["log_path"] + "osm_elements_relations.txt", "w") as result_file:
+        sys.stdout = result_file
         for relation in elements["relations"]:
             print(relation)
             for member in relation["members"]:
                 print(member)
 
     sys.stdout = original_stdout
-
-
-def has_tag(elements, tag, value):
-    for node in elements["nodes"]:
-        if tag in node["tags"]:
-            if node["tags"][tag] == value:
-                return True
-
-    for way in elements["ways"]:
-        if tag in way["tags"]:
-            if way["tags"][tag] == value:
-                return True
-
-    for relation in elements["relations"]:
-        if tag in relation["tags"]:
-            if relation["tags"][tag] == value:
-                return True
-
-    return False
-
-
-def get_node_by_id(node_id):
-    return next((item for item in elements["nodes"] if item["id"] == node_id), None)
 
 
 def get_way_by_id(way_id):
@@ -281,14 +210,8 @@ def concat_way_by_distance(all_way):
 
 
 def query_openstreetmap(query):
-    # Overpass API endpoint
     overpass_url = "http://overpass-api.de/api/interpreter"
 
-    # Define the Overpass QL query
-    # This example searches for nodes tagged with 'amenity=cafe'
-    # inside a specified bounding box (min_lat, min_lon, max_lat, max_lon)
-    # Example bounding box: central Paris
-    # [out:json][maxsize:1073741824];
     overpass_query = """
     [out:json];
     (""" + query + """
@@ -298,7 +221,6 @@ def query_openstreetmap(query):
 
     print("Sending request to Overpass API...")
 
-    # Send the POST request with the query
     headers = {
         'User-Agent': 'mapgen',
     }
@@ -308,7 +230,6 @@ def query_openstreetmap(query):
         start_time = time.time()
         response = requests.post(overpass_url, data={"data": overpass_query}, headers=headers)
 
-        # Check if the request was successful
         if response.status_code == 200:
             end_time = time.time()
             data = response.json()
@@ -328,3 +249,29 @@ def query_openstreetmap(query):
 
         print("Retrying")
     return None
+
+
+def prepare_elements(response):
+    global elements
+    elements = {"nodes": [], "ways": [], "relations": []}
+
+    nodes_by_id = {}
+
+    for element in response["elements"]:
+        if element["type"] == "node":
+            if "tags" not in element:
+                element["tags"] = {}
+            elements["nodes"].append(element)
+            nodes_by_id[element["id"]] = element
+        elif element["type"] == "way":
+            if "tags" not in element:
+                element["tags"] = {}
+            nodes_value = []
+            for node in element["nodes"]:
+                nodes_value.append(nodes_by_id[node])
+            element["nodes"] = nodes_value
+            elements["ways"].append(element)
+        if element["type"] == "relation":
+            if "tags" not in element:
+                element["tags"] = {}
+            elements["relations"].append(element)

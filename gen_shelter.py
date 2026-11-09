@@ -44,7 +44,7 @@ def build_from_relation(osm_data, rel):
     height, min_height, roof_height = osm.get_height(rel)
 
     for member in rel["members"]:
-        way = osm.get_way_by_id(osm_data, member["ref"])
+        way = osm.get_way_by_id(member["ref"])
         if way is not None:
             if member["role"] == "outer":
                 build_from_way(way, height, min_height, from_relation=True)

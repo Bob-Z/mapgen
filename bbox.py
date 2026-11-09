@@ -4,6 +4,7 @@ import helper
 direction = ["north", "east", "south", "west"]
 coord = []
 coordXY = []
+bounding_box = ""
 
 
 def init(center, size):
@@ -14,6 +15,10 @@ def init(center, size):
     coordXY = {"north": helper.lat_to_y(coord["north"]), "south": helper.lat_to_y(coord["south"]),
                "west": helper.lon_to_x(coord["west"]),
                "east": helper.lon_to_x(coord["east"])}
+    global bounding_box
+    bounding_box = str(coord["south"]) + "," + str(coord["west"]) + "," + str(
+        coord["north"]) + "," + str(coord["east"])
+
 
 
 def calculate_bbox(center, size):
