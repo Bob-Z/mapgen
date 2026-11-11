@@ -12,18 +12,18 @@ elements = {}
 def get_data():
     global elements
 
-    elements = cache.load_osm_elements()
+    response = cache.load_osm_response()
 
-    if elements is None:
+    if response is None:
         print("Requesting OpenStreetMap elements")
 
         response = query_openstreetmap(
             "nwr(" + bbox.bounding_box + ");>>;"
         )
 
-        prepare_elements(response)
+        cache.save_osm_response(response)
 
-        cache.save_osm_elements(elements)
+    prepare_elements(response)
 
     dump_result_to_file()
 
@@ -66,7 +66,10 @@ def dump_result_to_file():
 
 
 def get_way_by_id(way_id):
-    return next((item for item in elements["ways"] if item["id"] == way_id), None)
+    try:
+        return elements["ways_by_id"][way_id]
+    except:
+        return None
 
 
 def get_height(entity):
@@ -256,6 +259,7 @@ def prepare_elements(response):
     elements = {"nodes": [], "ways": [], "relations": []}
 
     nodes_by_id = {}
+    ways_by_id = {}
 
     for element in response["elements"]:
         if element["type"] == "node":
@@ -271,7 +275,10 @@ def prepare_elements(response):
                 nodes_value.append(nodes_by_id[node])
             element["nodes"] = nodes_value
             elements["ways"].append(element)
-        if element["type"] == "relation":
+            ways_by_id[element["id"]] = element
+        elif element["type"] == "relation":
             if "tags" not in element:
                 element["tags"] = {}
             elements["relations"].append(element)
+
+    elements["ways_by_id"] = ways_by_id

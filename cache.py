@@ -21,19 +21,19 @@ def get_osm_elements_filename():
     return config.data["cache_path"] + "/" + bbox.bounding_box + "," + str(config.data["map_size"])
 
 
-def load_osm_elements():
+def load_osm_response():
     cache_file_path = get_osm_elements_filename()
     if os.path.isfile(cache_file_path):
         print("Reading OpenStreetMap cache file " + cache_file_path + "\n")
         with open(cache_file_path, 'rb') as file:
-            elements = pickle.load(file)
-            return elements
+            response = pickle.load(file)
+            return response
 
     return None
 
 
-def save_osm_elements(elements):
+def save_osm_response(response):
     cache_file_path = get_osm_elements_filename()
     print("Writing OpenStreetMap cache file " + cache_file_path + "\n")
     with open(cache_file_path, 'wb') as file:
-        pickle.dump(elements, file)
+        pickle.dump(response, file)
