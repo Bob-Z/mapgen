@@ -178,8 +178,6 @@ def create_ai_texture(prompt, material_file_name, tags):
         full_prompt = "pbd " + prompt + ", seamless texture"
         tex = pipe(full_prompt).images[0]
         cache.save_texture(tex, file_name)
-    else:
-        print("Using cached texture:", file_name)
 
     save_texture(tex, file_name, material_file_name)
 
