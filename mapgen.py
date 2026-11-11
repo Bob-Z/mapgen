@@ -70,14 +70,14 @@ def my_main():
 
     topography.get(api_key)
 
-    elements = osm.get_data()
-
     ror_zip_file.create_default_file(api_key)
 
     json_string = json.dumps(config.data, indent=2)
     with open(config.data["work_path"] + "config.json", "w") as json_file:
         json_file.write(json_string)
     ror_zip_file.add_to_zip_file_list("config.json")
+
+    elements = osm.get_data()
 
     if config.data["generate_statistics"] is True:
         nodes_original = copy.deepcopy(elements["nodes"])
