@@ -24,13 +24,13 @@ def init(center, size):
 def calculate_bbox(center, size):
     center_lat = float(center[0])
     center_lon = float(center[1])
-    meter_by_decimal_latitude = helper.lat_lon_to_distance(center_lat, center_lat + 0.1, center_lon, center_lon)
-    meter_by_decimal_longitude = helper.lat_lon_to_distance(center_lat, center_lat, center_lon, center_lon + 0.1)
+    meter_by_degree_of_latitude = helper.lat_lon_to_distance(center_lat, center_lat + 1.0, center_lon, center_lon)
+    meter_by_degree_of_longitude = helper.lat_lon_to_distance(center_lat, center_lat, center_lon, center_lon + 1.0)
 
-    north = center_lat + (size / 2.0) / meter_by_decimal_latitude * 0.1
-    south = center_lat - (size / 2.0) / meter_by_decimal_latitude * 0.1
-    west = center_lon + (size / 2.0) / meter_by_decimal_longitude * 0.1
-    east = center_lon - (size / 2.0) / meter_by_decimal_longitude * 0.1
+    north = center_lat + (size / 2.0) / meter_by_degree_of_latitude
+    south = center_lat - (size / 2.0) / meter_by_degree_of_latitude
+    west = center_lon + (size / 2.0) / meter_by_degree_of_longitude
+    east = center_lon - (size / 2.0) / meter_by_degree_of_longitude
 
     if north < south:
         t = south
