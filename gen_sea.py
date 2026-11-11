@@ -4,9 +4,9 @@ import helper
 import ogre_map_height
 
 
-def process(osm_data):
+def process(elements):
     print("Generating sea...")
-    build_coastline(osm_data["ways"])
+    build_coastline(elements["ways"])
 
 
 def is_after_clock_wise(coord1, coord2, direction):
@@ -51,26 +51,23 @@ def get_next_direction_clock_wise(direction):
         return "south"
 
 
-def build_coastline(way):
+def build_coastline(all_way):
     all_coastline = []
-    for w in way:
-        if "natural" in w["tags"]:
-            if w["tags"]["natural"] == "coastline":
-                all_coastline.append(w["nodes"])
-                w["tags"].pop("natural")
+    for way in all_way:
+        if "natural" in way["tags"]:
+            if way["tags"]["natural"] == "coastline":
+                all_coastline.append(way["nodes"])
+                way["tags"].pop("natural")
 
-                if "place" in w["tags"]:
-                    if w["tags"]["place"] == "islet":
-                        w["tags"].pop("place")
+                if "place" in way["tags"]:
+                    if way["tags"]["place"] == "islet":
+                        way["tags"].pop("place")
 
     if len(all_coastline) == 0:
         print("No sea")
         return
 
     print(len(all_coastline), "coastlines")
-
-    # Set the whole map with water. We will draw ground on top of it
-    ogre_map_height.set_map_height(config.data["water_depth"])
 
     # Generate complete coastline from fragmented coastlines
     complete_coastline = []
@@ -81,13 +78,13 @@ def build_coastline(way):
             found = False
             index = 0
             for c in all_coastline:
-                if c[0] == base_coastline[-1]:
+                if c[0]["id"] == base_coastline[-1]["id"]:
                     base_coastline.pop()
                     base_coastline = base_coastline + c
                     all_coastline.pop(index)
                     found = True
                     break
-                if c[-1] == base_coastline[0]:
+                if c[-1]["id"] == base_coastline[0]["id"]:
                     c.pop()
                     base_coastline = c + base_coastline
                     all_coastline.pop(index)
@@ -115,7 +112,7 @@ def build_coastline(way):
         is_inside_map = False
         entry_exit_item = {}
 
-        # Case where all coastline is inside the map:
+        # Case where whole coastline is inside the map:
         if helper.is_inside_map(coastline[0]):
             polygon_list.append(coastline)
             continue
@@ -207,5 +204,11 @@ def build_coastline(way):
                                     exit_coord = None
                                     found_item = None
 
-    for polygon in polygon_list:
-        ogre_map_height.draw_polygon(polygon, ogre_map_height.height_to_color(config.data["ground_line"]))
+    if len(polygon_list) > 0:
+        # Set the whole map with water. We will draw ground on top of it
+        ogre_map_height.set_map_height(config.data["water_depth"])
+
+        for polygon in polygon_list:
+            ogre_map_height.draw_polygon(polygon, ogre_map_height.height_to_color(config.data["ground_line"]))
+    else:
+        print("No coastline in bounding box")
