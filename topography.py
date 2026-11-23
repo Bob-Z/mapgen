@@ -1,14 +1,15 @@
 from bmi_topography import Topography
 import bbox
 import helper
-import ogre_map_height
 import config
-from multiprocessing import Pool, cpu_count
+import numpy as np
+from PIL import Image
 
 # import matplotlib.pyplot as plt
 
 topo = None
 enabled = False
+topo_img = None
 
 
 def is_enabled():
@@ -44,43 +45,32 @@ def get(api_key):
         print("No OpenTopography API key provided, using flat map\n")
 
 
-def calculate_height(all_param):
-    topo, image_width, image_height, w, h = all_param
+def fill_map_height(size, max_color):
+    print("Generating height from topography\n")
 
-    width_percent = w / image_width
-    height_percent = h / image_height
+    elevation = topo.da.squeeze().to_numpy()
 
-    elevation = get_elevation_percent(topo, width_percent, height_percent)
+    # Replace NaNs (e.g., ocean/missing data) with minimum elevation if needed
+    elevation = np.nan_to_num(elevation, nan=np.nanmin(elevation))
 
-    return w, h, elevation * ogre_map_height.MAX_COLOR
+    # Normalize to 0..max_color and cast to uint16
+    elev_min, elev_max = elevation.min(), elevation.max()
+    gray_16bit = (
+            (elevation - elev_min) / (elev_max - elev_min) * max_color
+    ).astype(np.uint16)
+
+    img = Image.fromarray(gray_16bit)
+    img.save("heightmap_16bit.png")
+
+    global topo_img
+    topo_img = img.resize(size, resample=Image.BICUBIC)
+    return topo_img
 
 
-def fill_map_height(draw):
-    print("Generating height from topography, please wait\n")
-
-    image_width = draw.im.size[0]
-    image_height = draw.im.size[1]
-
-    # prepare input
+def get_total_elevation():
     global topo
-    all_params = []
-    for w in range(image_width):
-        for h in range(image_height):
-            all_params.append((topo, image_width, image_height, w, h))
-            # w, h, color = calculate_height((image_width, image_height, w, h))
-            # draw.point((w, h), fill=int(color))
-
-    with Pool(cpu_count()) as pool:
-        # waits for all results
-        results = pool.map(calculate_height, all_params)
-
-    for r in results:
-        w, h, color = r
-        draw.point((w, h), fill=int(color))
-
-
-def get_total_elevation(topo):
     return topo.da.data.max() - topo.da.data.min()
+
 
 def get_topo_elevation():
     global topo
@@ -88,30 +78,9 @@ def get_topo_elevation():
 
 
 # input are percentage of width and height on the topography data
-def get_elevation_percent(topo, width_percent, height_percent):
-    topo_data_index_w = topo.da.data.shape[2] * width_percent
-    topo_data_index_h = topo.da.data.shape[1] * height_percent
-
-    # Try to smooth topology data
-    topo_w_next = int(topo_data_index_w) + 1
-    topo_h_next = int(topo_data_index_h) + 1
-    # FIXME better handling for last data ?
-    if topo_w_next >= topo.da.data.shape[2]:
-        topo_w_next = topo.da.data.shape[2] - 1
-    if topo_h_next >= topo.da.data.shape[1]:
-        topo_h_next = topo.da.data.shape[1] - 1
-
-    elevation_1_1 = topo.da.data[0][int(topo_data_index_h)][int(topo_data_index_w)]
-    elevation_2_1 = topo.da.data[0][int(topo_h_next)][int(topo_data_index_w)]
-    elevation_1_2 = topo.da.data[0][int(topo_data_index_h)][int(topo_w_next)]
-    elevation_2_2 = topo.da.data[0][int(topo_h_next)][int(topo_w_next)]
-
-    elevation_h_1 = elevation_1_1 + ((elevation_2_1 - elevation_1_1) * (topo_data_index_h % 1))
-    elevation_h_2 = elevation_1_2 + ((elevation_2_2 - elevation_1_2) * (topo_data_index_h % 1))
-
-    elevation = elevation_h_1 + ((elevation_h_2 - elevation_h_1) * (topo_data_index_w % 1))
-
-    return (elevation - topo.da.data.min()) / get_total_elevation(topo)
+def get_elevation_percent(width_percent, height_percent):
+    global topo_img
+    return topo_img.getpixel((topo_img.width * width_percent, topo_img.height * height_percent)) / 65535
 
 
 def get_elevation_from_lon_lat(lon, lat):
@@ -119,8 +88,7 @@ def get_elevation_from_lon_lat(lon, lat):
         width_percent = (float(lon) - bbox.coord["west"]) / (bbox.coord["east"] - bbox.coord["west"])
         height_percent = (float(lat) - bbox.coord["north"]) / (bbox.coord["south"] - bbox.coord["north"])
 
-        global topo
-        return get_elevation_percent(topo, width_percent, height_percent) * get_total_elevation(topo)
+        return get_elevation_percent(width_percent, height_percent) * get_total_elevation()
     else:
         return config.data["ground_line"]
 

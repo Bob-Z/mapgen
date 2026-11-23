@@ -28,7 +28,6 @@ import ror_as_file
 import json
 import wiki
 import os
-from multiprocessing import Process, freeze_support, set_start_method
 
 
 def my_main():
@@ -232,8 +231,4 @@ def my_main():
 
 
 if __name__ == '__main__':
-    # freeze_support()
-    # set_start_method('spawn')
-    # p = Process(target=my_main)
-    # p.start()
     my_main()

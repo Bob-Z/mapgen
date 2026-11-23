@@ -30,15 +30,19 @@ def init(api_key):
         MAX_COLOR = 0xff
         PIL_MODE = "L"
 
-    im = PIL.Image.new(mode=PIL_MODE, size=(
+    size = (
         int(config.data["map_size"] / config.data["map_precision"]),
-        int(config.data["map_size"] / config.data["map_precision"])),
-                       color=MAX_COLOR)  # color=MAX_COLOR fill the map with height defined by WorldSizeY parameter in otc file
-
-    draw = PIL.ImageDraw.Draw(im)
+        int(config.data["map_size"] / config.data["map_precision"]))
 
     if topography.is_enabled():
-        topography.fill_map_height(draw)
+        im = topography.fill_map_height(size, MAX_COLOR)
+    else:
+        im = PIL.Image.new(mode=PIL_MODE, size=size,
+                           color=MAX_COLOR)  # color=MAX_COLOR fill the map with height defined by WorldSizeY parameter in otc file
+
+    im.save("heightmap_16bit_final.png")
+
+    draw = PIL.ImageDraw.Draw(im)
 
 
 def set_map_height(height):
