@@ -3,6 +3,7 @@ import ror_zip_file
 import PIL
 import webcolors
 import cache
+import re
 
 if config.data["generate_ai_texture"]:
     import torch
@@ -31,6 +32,10 @@ def create_material(base, tags, material_file_name="mapgen_generated.material", 
 
     return create_ai_texture(generate_prompt(base, tags, hint), material_file_name, tags)
 
+_rgbstring = re.compile(r'[a-fA-F0-9]{6}$')
+
+def is_rgb_color(value):
+    return bool(_rgbstring.match(value))
 
 def generate_prompt(default_material, tags, hint):
     material = default_material
@@ -61,7 +66,9 @@ def generate_prompt(default_material, tags, hint):
                 material = materials[0]
 
             if "roof:colour" in tags:
-                if tags["roof:colour"][0] != '#':
+                if is_rgb_color(tags["roof:colour"]):
+                    material = get_color_name("#" + tags["roof:colour"]) + " " + material
+                elif tags["roof:colour"][0] != '#':
                     material = tags["roof:colour"] + " " + material
                 else:
                     material = get_color_name(tags["roof:colour"]) + " " + material
