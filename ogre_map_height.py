@@ -40,8 +40,6 @@ def init(api_key):
         im = PIL.Image.new(mode=PIL_MODE, size=size,
                            color=MAX_COLOR)  # color=MAX_COLOR fill the map with height defined by WorldSizeY parameter in otc file
 
-    im.save("heightmap_16bit_final.png")
-
     draw = PIL.ImageDraw.Draw(im)
 
 

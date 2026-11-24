@@ -60,7 +60,6 @@ def fill_map_height(size, max_color):
     ).astype(np.uint16)
 
     img = Image.fromarray(gray_16bit)
-    img.save("heightmap_16bit.png")
 
     global topo_img
     topo_img = img.resize(size, resample=Image.BICUBIC)
